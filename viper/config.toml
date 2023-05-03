@@ -1,0 +1,37 @@
+[owner]
+name = "Tom Preston-Werner"
+organization = "Github"
+bio = "Github Cofounder &amp; CEO\nLikes tater tots and beer."
+dob = 1979-05-27T07:32:00Z # 日期时间是一等公民.为什么不呢？
+
+[database]
+server = "192.168.1.1"
+ports = [ 8001, 8001, 8002 ]
+connection_max = 5000
+enabled = true
+
+[servers]
+
+# 您可以依照您的意愿缩进.使用空格或Tab.TOML不会在意.
+[servers.alpha]
+ip = "10.0.0.1"
+dc = "eqdc10"
+
+[servers.beta]
+ip = "10.0.0.2"
+dc = "eqdc10"
+
+[clients]
+data = [ ["gamma", "delta"], [1, 2] ]
+
+[person]
+name="张飒"
+age=23
+fav=["唱","跳","rap","篮球"]
+
+[gin]
+port=10010
+
+
+[file]
+version=4
