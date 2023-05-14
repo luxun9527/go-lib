@@ -25,6 +25,7 @@ func TestSyncMap(t *testing.T) {
 		m.Delete(key)
 		return true
 	})
+
 	m.Range(func(key, value any) bool {
 		log.Println(key, value)
 		return true

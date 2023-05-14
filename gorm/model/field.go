@@ -1,5 +1,9 @@
 package model
 
+import (
+	"time"
+)
+
 // Role [...]
 type Role struct {
 	ID       int    `gorm:"primaryKey;column:id;type:int;not null" json:"id"`
@@ -22,9 +26,10 @@ var RoleColumns = struct {
 
 // User [...]
 type User struct {
-	ID          int         `gorm:"primaryKey;column:id;type:int;not null" json:"id"`
-	Username    string      `gorm:"column:username;type:varchar(50);not null;default:''" json:"username"`
-	UserProfile UserProfile `gorm:"foreignKey:UserID" json:"userProfile"`
+	ID        int       `gorm:"primaryKey;column:id;type:int;not null" json:"id"`
+	Username  string    `gorm:"column:username;type:varchar(50);not null" json:"username"`
+	Fav       string    `gorm:"column:fav;type:varchar(100);not null" json:"fav"`
+	CreatedAt time.Time `gorm:"column:created_at;type:datetime;default:CURRENT_TIMESTAMP" json:"createdAt"`
 }
 
 // TableName get sql table name.获取数据库表名
@@ -34,17 +39,22 @@ func (m *User) TableName() string {
 
 // UserColumns get sql column name.获取数据库列名
 var UserColumns = struct {
-	ID       string
-	Username string
+	ID        string
+	Username  string
+	Fav       string
+	CreatedAt string
 }{
-	ID:       "id",
-	Username: "username",
+	ID:        "id",
+	Username:  "username",
+	Fav:       "fav",
+	CreatedAt: "created_at",
 }
 
 // UserProfile [...]
 type UserProfile struct {
 	ID       int    `gorm:"primaryKey;column:id;type:int;not null" json:"id"`
 	Nickname string `gorm:"column:nickname;type:varchar(50);not null" json:"nickname"`
+	Fav      string `gorm:"column:fav;type:varchar(50);not null" json:"fav"`
 	UserID   int    `gorm:"column:user_id;type:int;not null" json:"userId"`
 }
 

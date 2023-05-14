@@ -9,6 +9,7 @@ import (
 // fetchUrlDemo2 使用errgroup并发获取url内容
 func fetchUrlDemo2() error {
 	var g errgroup.Group
+
 	var urls = []string{
 		"http://pkg.go.dev",
 		"http://www.liwenzhou.com",
