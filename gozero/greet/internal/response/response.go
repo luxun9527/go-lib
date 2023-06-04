@@ -9,7 +9,7 @@ import (
 type Body struct {
 	Code int         `json:"code"`
 	Msg  string      `json:"msg"`
-	Data interface{} `json:"data,omitempty"`
+	Data interface{} `json:"data"`
 }
 
 func Response(w http.ResponseWriter, resp interface{}, err error) {
@@ -18,7 +18,7 @@ func Response(w http.ResponseWriter, resp interface{}, err error) {
 		body.Code = -1
 		body.Msg = err.Error()
 	} else {
-		body.Msg = "OK"
+		body.Msg = "success"
 		body.Data = resp
 	}
 	httpx.OkJson(w, body)
