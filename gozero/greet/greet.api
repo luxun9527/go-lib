@@ -1,0 +1,28 @@
+type Base {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type (
+	LoginReq {
+		Name string `form:"name"`         // 必填参数
+		Age  int    `form:"age,optional"` // optional定义非必填参数
+	}
+	LoginReplyData {
+		Id           int64  `json:"id"`
+		Name         string `json:"name"`
+		Gender       string `json:"gender"`
+		AccessToken  string `json:"accessToken"`
+		AccessExpire int64  `json:"accessExpire"`
+		RefreshAfter int64  `json:"refreshAfter"`
+	}
+	LoginReply {
+		Base
+		Data LoginReplyData `json:"data"`
+	}
+)
+
+service user-api {
+	@handler login
+	get /user/login (LoginReq) returns (LoginReply)
+}

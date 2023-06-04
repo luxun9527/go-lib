@@ -78,3 +78,16 @@ func TestSliceCopy(t *testing.T) {
 	log.Println(n)
 	log.Println(m)
 }
+func TestResize(t *testing.T) {
+	arr := make([]int32, 0, 5)
+	log.Printf("%p", arr)
+	arr = append(arr, []int32{12, 3, 2}...)
+	log.Printf("%p", arr)
+	arr = append(arr, []int32{12, 3, 223, 3, 2, 3, 2}...)
+	log.Printf("%p", arr)
+	/*
+		2023/05/23 23:04:42 0xc00000c1f8
+		2023/05/23 23:04:42 0xc00000c1f8
+		2023/05/23 23:04:42 0xc00013a6c0
+	*/
+}
