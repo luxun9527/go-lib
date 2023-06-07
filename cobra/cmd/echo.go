@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"log"
 	"strings"
 )
 
@@ -24,6 +25,11 @@ a count and a string.`,
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().StringVarP(&Source, "source", "s", "test1212", "verbose output")
 	cmdTimes.Flags().IntVarP(&echoTimes, "times", "t", 1, "times to echo the input")
 	rootCmd.AddCommand(cmdTimes)
+	invoke()
+}
+func invoke() {
+	log.Println(Verbose)
 }

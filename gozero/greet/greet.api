@@ -25,4 +25,6 @@ type (
 service user-api {
 	@handler login
 	get /user/login (LoginReq) returns (LoginReply)
+	@handler logout
+	get /user/logout (LoginReq) returns (LoginReply)
 }
