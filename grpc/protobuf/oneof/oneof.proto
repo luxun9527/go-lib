@@ -1,0 +1,29 @@
+
+syntax = "proto3";
+package oneof;
+//./表示pb 文件生成的路径 hellopb 表示包名称
+option go_package = "./pb;oneof";
+// 通知读者的消息
+message NoticeReaderRequest{
+  string msg = 1;
+  oneof notice_way{
+    string email = 2;
+    string phone = 3;
+  }
+}
+message Empty{}
+service HelloService {
+  //方法
+  rpc sayHello(NoticeReaderRequest) returns(Empty);
+}
+/*
+.PHONY: proto
+proto:
+	protoc -Iproto/googleapis -Iproto \
+        --grpc-gateway_out ./proto \
+        --grpc-gateway_opt logtostderr=true \
+        --grpc-gateway_opt generate_unbound_methods=true \
+        --go_out=./proto\
+        --go-grpc_out=./proto  \
+        proto/Proxy.proto
+build:*/
