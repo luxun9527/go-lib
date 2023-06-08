@@ -110,4 +110,6 @@ func loadFromDB(key string) (string, error) {
 	fmt.Println("query db")
 	unix := strconv.Itoa(int(time.Now().UnixNano()))
 	return unix, nil
+var i	sync.WaitGroup{}
+	i.Add()
 }

@@ -17,11 +17,17 @@ type Query struct {
 }
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
 	route := gin.New()
+	route.Use(gin.Recovery())
 	//绑定get参数
 	route.GET("/userList", QueryUserList)
 	uploadHandler := NewUploadHandler()
 	route.POST("/upload", uploadHandler.UploadFile)
+	route.GET("/test", func(c *gin.Context) {
+		c.JSON(200, "ok")
+	})
+
 	route.Run(":8085")
 }
 

@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"golang.org/x/sync/errgroup"
+	"log"
 	"net/http"
+	"sync"
 )
 
 // fetchUrlDemo2 使用errgroup并发获取url内容
@@ -36,7 +38,26 @@ func fetchUrlDemo2() error {
 	return nil
 }
 func main() {
-	if err := fetchUrlDemo2(); err != nil {
-		fmt.Println("err", err)
+	//if err := fetchUrlDemo2(); err != nil {
+	//	fmt.Println("err", err)
+	//}
+	//ch := make(chan int32)
+	//select {
+	//case <-ch:
+	//	defer func() {
+	//
+	//	}()
+	//}
+	waitGroup()
+}
+func waitGroup() {
+	var group sync.WaitGroup
+	for i := 0; i < 5; i++ {
+		group.Add(1)
+		go func() {
+			log.Println("done")
+			group.Done()
+		}()
 	}
+	group.Wait()
 }

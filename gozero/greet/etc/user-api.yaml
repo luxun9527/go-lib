@@ -1,0 +1,7 @@
+RestConf:
+  Name: user-api
+  Host: 0.0.0.0
+  Port: 8888
+  Verbose: true
+  Log:
+    Level: error

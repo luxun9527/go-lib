@@ -18,6 +18,8 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Do Stuff Here
 		fmt.Println("root file hogo commend invoke")
+		fmt.Println(Verbose)
+		fmt.Println(Source)
 	},
 }
 

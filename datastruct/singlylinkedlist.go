@@ -24,5 +24,5 @@ func main() {
 	list.Add("a")                         // ["a"]
 	list.Clear()                          // []
 	list.Insert(0, "b")                   // ["b"]
-	list.Insert(0, "a")                   // ["a","b"]
+	list.Insert(0, "a")
 }
