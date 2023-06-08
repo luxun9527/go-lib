@@ -22,15 +22,15 @@ func TestCreate(t *testing.T) {
 	//	log.Println("create err", err)
 	//}
 	//INSERT INTO `user` (`username`,`fav`) VALUES ('zhangsan','')
-
+	//	INSERT INTO `user` (`fav`) VALUES ('篮球')
 	if err := db.Select("fav").Create(user).Error; err != nil {
 		log.Println("create err", err)
 	}
-	//	INSERT INTO `user` (`fav`) VALUES ('篮球')
+	//INSERT INTO `user` (`username`) VALUES ('zhangsan')
 	if err := db.Omit("fav").Create(user).Error; err != nil {
 		log.Println("create err", err)
 	}
-	//INSERT INTO `user` (`username`) VALUES ('zhangsan')
+
 }
 func TestUpdate(t *testing.T) {
 	InitGorm()
