@@ -6,7 +6,6 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	gormlogger "gorm.io/gorm/logger"
 	"gorm/model"
 	"log"
 	"moul.io/zapgorm2"
@@ -50,7 +49,7 @@ func TestGormLog(t *testing.T) {
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
-		Logger:                 logger.LogMode(gormlogger.Info),
+		Logger:                 logger,
 	})
 	if err != nil {
 		log.Fatal(err)

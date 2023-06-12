@@ -1,0 +1,11 @@
+error:
+- code: 100000
+  text: "unknown error"
+- code: 110000
+  text: "param validate failed"
+- code: 111000
+  text: "request head validate failed"
+- code: 120000
+  text: "record not found"
+- code: 140000
+  text: "auth failed"
