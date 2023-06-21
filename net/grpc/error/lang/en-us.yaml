@@ -1,0 +1,13 @@
+error:
+- code: 100000
+  text: "Unknown error"
+- code: 110000
+  text: "Failed to validate param failed"
+- code: 111000
+  text: "Failed to check the request header"
+- code: 120000
+  text: "Record not found"
+- code: 140000
+  text: "Failed to auth failed"
+- code: 150000
+  text: "timeout"
