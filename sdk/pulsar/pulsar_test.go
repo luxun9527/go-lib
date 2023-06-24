@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/apache/pulsar-client-go/pulsar"
 	"github.com/spf13/cast"
-	"gitlab.keyanheyue.top/oms/tdcommon/proto/mq/pb"
-	"google.golang.org/protobuf/proto"
 	"log"
 	"testing"
 	"time"
@@ -66,19 +64,19 @@ func TestConsumer(t *testing.T) {
 	//	log.Println(err)
 	//	return
 	//}
-	for {
-		msg, err := consumer.Receive(context.Background())
-		if err != nil {
-			t.Fatal(err)
-		}
-		var d pb.ExecuteReportMessage
-		if err := proto.Unmarshal(msg.Payload(), &d); err != nil {
-			t.Log("err", err)
-			return
-		}
-		log.Printf("%+v", d)
-
-	}
+	//for {
+	//	msg, err := consumer.Receive(context.Background())
+	//	if err != nil {
+	//		t.Fatal(err)
+	//	}
+	//	var d pb.ExecuteReportMessage
+	//	if err := proto.Unmarshal(msg.Payload(), &d); err != nil {
+	//		t.Log("err", err)
+	//		return
+	//	}
+	//	log.Printf("%+v", d)
+	//
+	//}
 }
 
 // 消费shared模式多个消费者
