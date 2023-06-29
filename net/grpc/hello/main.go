@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
-	"errors"
+	hellopb "go-lib/net/grpc/hello/pb"
 	"google.golang.org/grpc"
-	hellopb "hello/pb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"log"
 	"net"
 	"sync"
@@ -24,11 +26,11 @@ type Hello struct {
 func (Hello) SayHello(ctx context.Context, req *hellopb.HelloRequest) (*hellopb.HelloResponse, error) {
 
 	log.Printf("receive message %+v\n", req)
-	//return nil, NotFound
-	return &hellopb.HelloResponse{
-		Reply:      "hello",
-		SecondName: "zhangsan",
-	}, nil
+	return nil, status.New(codes.Code(100000), "").Err()
+	//return &hellopb.HelloResponse{
+	//	Reply:      "hello",
+	//	SecondName: "zhangsan",
+	//}, nil
 }
 
 func RunServer() {
@@ -45,8 +47,6 @@ func RunServer() {
 		return
 	}
 }
-
-var NotFound = errors.New("not found record")
 
 func RunClient() {
 	conn, err := grpc.Dial("0.0.0.0:9090", grpc.WithInsecure())
@@ -68,10 +68,7 @@ func RunClient() {
 			})
 			if err != nil {
 				log.Println(err)
-				if errors.Is(err, NotFound) {
-					log.Println(true)
-					return
-				}
+
 			}
 			log.Printf("resp = %+v\n", resp)
 		}()

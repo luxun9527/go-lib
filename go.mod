@@ -1,4 +1,4 @@
-module netpoll
+module go-lib
 
 go 1.18
 

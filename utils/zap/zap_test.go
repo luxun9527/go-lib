@@ -1,4 +1,4 @@
-package zap
+package logger
 
 import (
 	"go.uber.org/zap"
@@ -6,35 +6,16 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
 	"os"
-	"testing"
-
 	"time"
 )
 
-func TestBuildZap(t *testing.T) {
-	loggConfig := LoggerConfig{
-		Level:              "debug",
-		Stacktrace:         true,
-		AddCaller:          true,
-		FileName:           "test.log",
-		EnableWarnRedirect: true,
-		WarnFileName:       "warn.log",
-		MaxSize:            1,
-		MaxAge:             1,
-		MaxBackup:          5,
-		Async:              false,
-		Json:               false,
-		Mode:               "file",
-	}
-	logger := loggConfig.Build()
-	logger.Debug("test Debug level")
-	logger.Info("test Info")
-	logger.Warn("test Warn")
-	logger.Error("test Error")
-	logger.Panic("test Panic")
+var L *zap.Logger
+
+func InitLogger(loggerConfig ZapLoggerConfig) {
+	L = loggerConfig.Build()
 }
 
-func (lc *LoggerConfig) ParseLevel() zapcore.Level {
+func (lc *ZapLoggerConfig) ParseLevel() zapcore.Level {
 	level, err := zapcore.ParseLevel(lc.Level)
 	if err != nil {
 		log.Panicf("init level failed level %s err %v", lc.Level, err)
@@ -42,7 +23,7 @@ func (lc *LoggerConfig) ParseLevel() zapcore.Level {
 	return level
 }
 
-type LoggerConfig struct {
+type ZapLoggerConfig struct {
 	//日志级别 debug info warn panic
 	Level string
 	//panic，是否显示堆栈 panic级别的日志输出堆栈信息。
@@ -53,10 +34,8 @@ type LoggerConfig struct {
 	Mode string
 	//文件名称加路径
 	FileName string
-	//是否开启warn级别以上的日志重定向，在console,warn级别的日志输出到标准错误输出中，在file模式中warn输出到WarnFileName中，其他的配置相同。
-	EnableWarnRedirect bool
-	//warn 级别的日志输出到不同的地方
-	WarnFileName string
+	//是否开启warn级别以上的日志重定向，在console,warn级别的日志输出到标准错误输出中，在file模式中error输出到WarnFileName中，其他的配置相同。
+	ErrorFileName string
 	// 日志轮转大小，单位MB，默认500MB
 	MaxSize int
 	//日志轮转最大时间，单位day，默认1 day
@@ -73,7 +52,7 @@ type LoggerConfig struct {
 	options  []zap.Option
 }
 
-func (lc *LoggerConfig) Build() *zap.Logger {
+func (lc *ZapLoggerConfig) Build() *zap.Logger {
 
 	var (
 		ws      zapcore.WriteSyncer
@@ -81,13 +60,6 @@ func (lc *LoggerConfig) Build() *zap.Logger {
 		encoder zapcore.Encoder
 	)
 
-	// 不同的级别的日志输出到不同的地方的判断。决定是否能输出。
-	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl >= zapcore.WarnLevel && lvl >= lc.ParseLevel()
-	})
-	lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl < zapcore.WarnLevel && lvl >= lc.ParseLevel()
-	})
 	encoderConfig := zapcore.EncoderConfig{
 		//当存储的格式为JSON的时候这些作为可以key
 		MessageKey:    "message",
@@ -120,7 +92,7 @@ func (lc *LoggerConfig) Build() *zap.Logger {
 			Compress:   lc.Compress,
 		}
 		warnConfig := &lumberjack.Logger{
-			Filename:   lc.WarnFileName,
+			Filename:   lc.ErrorFileName,
 			MaxSize:    lc.MaxSize,
 			MaxAge:     lc.MaxAge,
 			MaxBackups: lc.MaxBackup,
@@ -136,9 +108,9 @@ func (lc *LoggerConfig) Build() *zap.Logger {
 		encoder = zapcore.NewConsoleEncoder(encoderConfig)
 	}
 	var core zapcore.Core
-	if lc.EnableWarnRedirect {
-		highCore := zapcore.NewCore(encoder, warnWs, highPriority)
-		lowCore := zapcore.NewCore(encoder, ws, lowPriority)
+	if lc.ErrorFileName != "" && lc.Mode == "file" {
+		highCore := zapcore.NewCore(encoder, warnWs, zapcore.ErrorLevel)
+		lowCore := zapcore.NewCore(encoder, ws, lc.ParseLevel())
 		core = zapcore.NewTee(highCore, lowCore)
 	} else {
 		core = zapcore.NewCore(encoder, ws, lc.ParseLevel())
