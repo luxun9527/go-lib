@@ -225,6 +225,3 @@ func main() {
 
 	g.Execute()
 }
-func mapstring() {
-
-}

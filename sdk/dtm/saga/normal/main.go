@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"log"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 const qsBusiAPI = "/api/busi_start"
 const qsBusiPort = 8082
 
-var qsBusi = fmt.Sprintf("http://192.168.2.218:%d%s", qsBusiPort, qsBusiAPI)
+var qsBusi = fmt.Sprintf("http://192.168.2.138:%d%s", qsBusiPort, qsBusiAPI)
 
 func main() {
 	QsStartSvr()
@@ -43,7 +44,7 @@ func qsAddRoute(app *gin.Engine) {
 	})
 	app.POST(qsBusiAPI+"/TransOut", func(c *gin.Context) {
 		log.Printf("TransOut")
-		c.JSON(200, "")
+		c.JSON(200, "SUCCESS")
 	})
 	app.POST(qsBusiAPI+"/TransOutCompensate", func(c *gin.Context) {
 		log.Printf("TransOutCompensate")
@@ -51,12 +52,12 @@ func qsAddRoute(app *gin.Engine) {
 	})
 }
 
-const dtmServer = "http://192.168.2.99:36789/api/dtmsvr"
+const dtmServer = "http://192.168.2.138:36789/api/dtmsvr"
 
 // QsFireRequest quick start: fire request
 func QsFireRequest() string {
 	req := &gin.H{"amount": 30} // the payload of requests
-	gid := shortuuid.New()
+	gid := uuid.New().String()
 	// DtmServer is the address of dtm
 	saga := dtmcli.NewSaga(dtmServer, gid).
 		// add a branch transaction，action url is: qsBusi+"/TransOut"， compensate url: qsBusi+"/TransOutCompensate"

@@ -36,7 +36,7 @@ func initDB() (err error) {
 const qsBusiAPI = "/api/busi_start"
 const qsBusiPort = 8082
 
-var qsBusi = fmt.Sprintf("http://192.168.2.218:%d%s", qsBusiPort, qsBusiAPI)
+var qsBusi = fmt.Sprintf("http://192.168.2.138:%d%s", qsBusiPort, qsBusiAPI)
 
 func main() {
 	if err := initDB(); err != nil {
@@ -83,7 +83,7 @@ func qsAddRoute(app *gin.Engine) {
 		}
 
 		//c.JSON(500, "")
-		c.JSON(200, "") // Status 409 for Failure. Won't be retried
+		c.JSON(409, "") // Status 409 for Failure. Won't be retried
 	})
 	app.POST(qsBusiAPI+"/TransInCompensate", func(c *gin.Context) {
 		log.Printf("TransInCompensate")
@@ -105,10 +105,10 @@ func qsAddRoute(app *gin.Engine) {
 	})
 	app.POST(qsBusiAPI+"/TransOut", func(c *gin.Context) {
 		log.Printf("TransOut")
-		if true {
-			c.JSON(409, "")
-			return
-		}
+		//if true {
+		//	c.JSON(409, "")
+		//	return
+		//}
 		barrier, err := dtmcli.BarrierFromQuery(c.Request.URL.Query())
 		if err != nil {
 			c.JSON(409, "")
@@ -138,7 +138,7 @@ func qsAddRoute(app *gin.Engine) {
 			}
 			return nil
 		}); err != nil {
-			c.JSON(409, "")
+			c.JSON(200, "")
 			return
 		}
 		log.Println("TransOutCompensate finish")
@@ -147,7 +147,7 @@ func qsAddRoute(app *gin.Engine) {
 	})
 }
 
-const dtmServer = "http://192.168.2.99:36789/api/dtmsvr"
+const dtmServer = "http://192.168.2.138:36789/api/dtmsvr"
 
 // QsFireRequest quick start: fire request
 func QsFireRequest() string {
