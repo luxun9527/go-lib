@@ -1,10 +1,11 @@
-module netpoll
+module go-lib
 
 go 1.18
 
 require (
 	github.com/Shopify/sarama v1.38.1
 	github.com/apache/pulsar-client-go v0.10.0
+	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/cloudwego/netpoll v0.3.2
 	github.com/dtm-labs/client v1.18.7
 	github.com/fsnotify/fsnotify v1.6.0

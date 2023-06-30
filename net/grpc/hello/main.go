@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	hellopb "go-lib/net/grpc/hello/pb"
 	"google.golang.org/grpc"
-	hellopb "hello/pb"
 	"log"
 	"net"
 	"sync"

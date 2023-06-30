@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	hellopb "go-lib/net/grpc/stream/pb"
 	"google.golang.org/grpc"
-	hellopb "hello/pb"
 	"io"
 	"log"
 	"net"
