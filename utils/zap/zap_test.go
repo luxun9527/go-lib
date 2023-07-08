@@ -34,7 +34,7 @@ type ZapLoggerConfig struct {
 	Mode string
 	//文件名称加路径
 	FileName string
-	//是否开启warn级别以上的日志重定向，在console,warn级别的日志输出到标准错误输出中，在file模式中error输出到WarnFileName中，其他的配置相同。
+	//
 	ErrorFileName string
 	// 日志轮转大小，单位MB，默认500MB
 	MaxSize int

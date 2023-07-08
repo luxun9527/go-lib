@@ -3,13 +3,13 @@ package oneof
 import (
 	"context"
 	"encoding/json"
+	oneof "go-lib/net/grpc/protobuf/oneof/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"log"
 	"net"
-	oneof "protobuf/oneof/pb"
 	"testing"
 )
 
