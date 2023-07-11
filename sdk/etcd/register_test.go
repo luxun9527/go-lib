@@ -22,7 +22,7 @@ func TestRegister(t *testing.T) {
 	}
 }
 
-//ServiceRegister 创建租约注册服务
+// ServiceRegister 创建租约注册服务
 type ServiceRegister struct {
 	cli     *clientv3.Client //etcd client
 	leaseID clientv3.LeaseID //租约ID
@@ -32,7 +32,7 @@ type ServiceRegister struct {
 	val           string //value
 }
 
-//NewServiceRegister 新建注册服务
+// NewServiceRegister 新建注册服务
 func NewServiceRegister(endpoints []string, key, val string, lease int64) (*ServiceRegister, error) {
 	cli, err := clientv3.New(clientv3.Config{
 		Endpoints:   endpoints,
@@ -41,7 +41,6 @@ func NewServiceRegister(endpoints []string, key, val string, lease int64) (*Serv
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	ser := &ServiceRegister{
 		cli: cli,
 		key: key,
@@ -56,7 +55,7 @@ func NewServiceRegister(endpoints []string, key, val string, lease int64) (*Serv
 	return ser, nil
 }
 
-//设置租约
+// 设置租约
 func (s *ServiceRegister) putKeyWithLease(lease int64) error {
 	//设置租约时间
 	resp, err := s.cli.Grant(context.Background(), lease)
@@ -82,7 +81,7 @@ func (s *ServiceRegister) putKeyWithLease(lease int64) error {
 	return nil
 }
 
-//ListenLeaseRespChan 监听 续租情况
+// ListenLeaseRespChan 监听 续租情况
 func (s *ServiceRegister) ListenLeaseRespChan() {
 	for leaseKeepResp := range s.keepAliveChan {
 		log.Println("续约成功", leaseKeepResp)

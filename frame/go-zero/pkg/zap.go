@@ -11,6 +11,15 @@ import (
 	"time"
 )
 
+const (
+	// _defaultBufferSize specifies the default size used by Buffer.
+	_defaultBufferSize = 256 * 1024 // 256 kB
+
+	// _defaultFlushInterval specifies the default flush interval for
+	// Buffer.
+	_defaultFlushInterval = 30 * time.Second
+)
+
 func (lc *ZapLogger) ParseLevel() zapcore.Level {
 	level, err := zapcore.ParseLevel(lc.Level)
 	if err != nil {
@@ -98,6 +107,18 @@ func (lc *ZapLogger) Build() *zap.Logger {
 		ws = zapcore.AddSync(normalConfig)
 		errorWs = zapcore.AddSync(warnConfig)
 	}
+	if lc.Async {
+		ws = &zapcore.BufferedWriteSyncer{
+			WS:            ws,
+			Size:          _defaultBufferSize,
+			FlushInterval: _defaultFlushInterval,
+		}
+		errorWs = &zapcore.BufferedWriteSyncer{
+			WS:            errorWs,
+			Size:          _defaultBufferSize,
+			FlushInterval: _defaultFlushInterval,
+		}
+	}
 	if lc.Json {
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	} else {
@@ -115,7 +136,6 @@ func (lc *ZapLogger) Build() *zap.Logger {
 	//是否新增调用者信息
 	if lc.AddCaller {
 		//当错误时是否添加堆栈信息
-		lc.options = append(lc.options, zap.AddCallerSkip(3))
 		lc.options = append(lc.options, zap.AddCaller())
 	}
 	if lc.Stacktrace {

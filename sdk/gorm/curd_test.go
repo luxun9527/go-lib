@@ -3,10 +3,11 @@ package main
 import (
 	"database/sql/driver"
 	"errors"
+	"go-lib/sdk/gorm/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"gorm/model"
+
 	"log"
 	"os"
 	"testing"
@@ -86,7 +87,7 @@ func InitGorm() {
 		},
 	)
 
-	dsn := "root:123456@tcp(192.168.2.99:3306)/gormtest?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:root@tcp(192.168.179.99:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,

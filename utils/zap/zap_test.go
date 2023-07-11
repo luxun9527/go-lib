@@ -11,6 +11,15 @@ import (
 
 var L *zap.Logger
 
+const (
+	// _defaultBufferSize specifies the default size used by Buffer.
+	_defaultBufferSize = 256 * 1024 // 256 kB
+
+	// _defaultFlushInterval specifies the default flush interval for
+	// Buffer.
+	_defaultFlushInterval = 30 * time.Second
+)
+
 func InitLogger(loggerConfig ZapLoggerConfig) {
 	L = loggerConfig.Build()
 }
@@ -34,7 +43,7 @@ type ZapLoggerConfig struct {
 	Mode string
 	//文件名称加路径
 	FileName string
-	//是否开启warn级别以上的日志重定向，在console,warn级别的日志输出到标准错误输出中，在file模式中error输出到WarnFileName中，其他的配置相同。
+	//error级别的日志输入到不同的地方
 	ErrorFileName string
 	// 日志轮转大小，单位MB，默认500MB
 	MaxSize int
@@ -56,7 +65,7 @@ func (lc *ZapLoggerConfig) Build() *zap.Logger {
 
 	var (
 		ws      zapcore.WriteSyncer
-		warnWs  zapcore.WriteSyncer
+		errorWs zapcore.WriteSyncer
 		encoder zapcore.Encoder
 	)
 
@@ -77,7 +86,7 @@ func (lc *ZapLoggerConfig) Build() *zap.Logger {
 	}
 	if lc.Mode == "console" {
 		ws = zapcore.Lock(os.Stdout)
-		warnWs = zapcore.Lock(os.Stderr)
+		errorWs = zapcore.Lock(os.Stderr)
 		//输出到控制台彩色。
 		if !lc.Json {
 			encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
@@ -100,7 +109,19 @@ func (lc *ZapLoggerConfig) Build() *zap.Logger {
 			Compress:   lc.Compress,
 		}
 		ws = zapcore.AddSync(normalConfig)
-		warnWs = zapcore.AddSync(warnConfig)
+		errorWs = zapcore.AddSync(warnConfig)
+	}
+	if lc.Async {
+		ws = &zapcore.BufferedWriteSyncer{
+			WS:            ws,
+			Size:          _defaultBufferSize,
+			FlushInterval: _defaultFlushInterval,
+		}
+		errorWs = &zapcore.BufferedWriteSyncer{
+			WS:            errorWs,
+			Size:          _defaultBufferSize,
+			FlushInterval: _defaultFlushInterval,
+		}
 	}
 	if lc.Json {
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
@@ -109,7 +130,7 @@ func (lc *ZapLoggerConfig) Build() *zap.Logger {
 	}
 	var core zapcore.Core
 	if lc.ErrorFileName != "" && lc.Mode == "file" {
-		highCore := zapcore.NewCore(encoder, warnWs, zapcore.ErrorLevel)
+		highCore := zapcore.NewCore(encoder, errorWs, zapcore.ErrorLevel)
 		lowCore := zapcore.NewCore(encoder, ws, lc.ParseLevel())
 		core = zapcore.NewTee(highCore, lowCore)
 	} else {

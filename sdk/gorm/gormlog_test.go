@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-lib/sdk/gorm/model"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -8,7 +9,6 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"moul.io/zapgorm2"
-	"netpoll/sdk/gorm/model"
 	"os"
 	"testing"
 	"time"

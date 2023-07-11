@@ -4,14 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net"
 	"testing"
-	"time"
 )
 
 type myint int32
 
-//https://cyent.github.io/golang/basic/type_custom/
+// https://cyent.github.io/golang/basic/type_custom/
 func (m *myint) print() {
 	fmt.Println(*m)
 }
@@ -55,10 +53,10 @@ func (alisaMyInt) printValue() {
 
 }
 
-//这段代码编译会报错，自定义类型只能在原始类型所在的包中定义方法
-//func (tempString) print(){
+// 这段代码编译会报错，自定义类型只能在原始类型所在的包中定义方法
+// func (tempString) print(){
 //
-//}
+// }
 func TestDefer(t *testing.T) {
 	err := func1()
 	if err != nil {
@@ -77,14 +75,14 @@ func func1() (err error) {
 	return errors.New("not found")
 }
 
-//interface object
+// interface object
 type Mover interface {
 	move()
 }
 
 type dog struct{}
 
-//指针接收 对象是值类型不能实现接口。
+// 指针接收 对象是值类型不能实现接口。
 func (d *dog) move() {
 	fmt.Println("狗会动")
 }
@@ -95,84 +93,19 @@ func TestImp(t *testing.T) {
 	//var fugui Mover = &dog{}  // 富贵是*dog类型
 
 }
-
-type Net interface {
-	net.Conn
-	Foo1()
-}
-type NetImp struct {
-}
-
-func (netImp *NetImp) Foo1() {
+func (t T) Show() {
 
 }
 
-// Read can be made to time out and return an error after a fixed
-// time limit; see SetDeadline and SetReadDeadline.
-func (netImp *NetImp) Read(b []byte) (n int, err error) {
-	return 0, nil
+type S interface {
+	Show()
+}
+type loggerWrapper interface {
+	S
+}
+type T struct {
 }
 
-// Write writes data to the connection.
-// Write can be made to time out and return an error after a fixed
-// time limit; see SetDeadline and SetWriteDeadline.
-func (netImp *NetImp) Write(b []byte) (n int, err error) {
-	return 0, nil
-}
+func P(s S) {
 
-// Close closes the connection.
-// Any blocked Read or Write operations will be unblocked and return errors.
-func (netImp *NetImp) Close() error {
-	return nil
-}
-
-// LocalAddr returns the local network address, if known.
-func (netImp *NetImp) LocalAddr() net.Addr {
-	return nil
-}
-
-// RemoteAddr returns the remote network address, if known.
-func (netImp *NetImp) RemoteAddr() net.Addr {
-	return nil
-}
-
-// SetDeadline sets the read and write deadlines associated
-// with the connection. It is equivalent to calling both
-// SetReadDeadline and SetWriteDeadline.
-//
-// A deadline is an absolute time after which I/O operations
-// fail instead of blocking. The deadline applies to all future
-// and pending I/O, not just the immediately following call to
-// Read or Write. After a deadline has been exceeded, the
-// connection can be refreshed by setting a deadline in the future.
-//
-// If the deadline is exceeded a call to Read or Write or to other
-// I/O methods will return an error that wraps os.ErrDeadlineExceeded.
-// This can be tested using errors.Is(err, os.ErrDeadlineExceeded).
-// The error's Timeout method will return true, but note that there
-// are other possible errors for which the Timeout method will
-// return true even if the deadline has not been exceeded.
-//
-// An idle timeout can be implemented by repeatedly extending
-// the deadline after successful Read or Write calls.
-//
-// A zero value for t means I/O operations will not time out.
-func (netImp *NetImp) SetDeadline(t time.Time) error {
-	return nil
-}
-
-// SetReadDeadline sets the deadline for future Read calls
-// and any currently-blocked Read call.
-// A zero value for t means Read will not time out.
-func (netImp *NetImp) SetReadDeadline(t time.Time) error {
-	return nil
-}
-
-// SetWriteDeadline sets the deadline for future Write calls
-// and any currently-blocked Write call.
-// Even if write times out, it may return n > 0, indicating that
-// some of the data was successfully written.
-// A zero value for t means Write will not time out.
-func (netImp *NetImp) SetWriteDeadline(t time.Time) error {
-	return nil
 }
