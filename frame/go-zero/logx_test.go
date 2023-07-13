@@ -13,7 +13,7 @@ import (
 func TestLogx(t *testing.T) {
 	conf := logx.LogConf{
 		ServiceName:         "test-logx",
-		Mode:                "file",
+		Mode:                "console",
 		Encoding:            "json",
 		TimeFormat:          "",
 		Path:                "./logs",
@@ -31,6 +31,7 @@ func TestLogx(t *testing.T) {
 	logx.Debug("zhangsan")
 	logx.Info("zhangsan")
 	logx.Error("zhangsan")
+	logx.Severe("test zhangsan")
 	logx.ErrorStack("zhangsan")
 	logx.Stat("zhangsan")
 

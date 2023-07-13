@@ -6,6 +6,10 @@ import (
 )
 
 func TestInsert(t *testing.T) {
-	redis.Client{}.HGetAll().Scan()
+	redis.NewClient(&redis.Options{
+		Addr:     "127.0.0.1",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 
 }
