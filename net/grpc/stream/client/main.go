@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	hellopb "go-lib/net/grpc/stream/pb"
 	"google.golang.org/grpc"
-	hellopb "hello/pb"
 	"log"
 	"time"
 )
