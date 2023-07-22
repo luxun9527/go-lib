@@ -36,7 +36,7 @@ func qsAddRoute(app *gin.Engine) {
 	app.POST(qsBusiAPI+"/TransIn", func(c *gin.Context) {
 		log.Printf("TransIn")
 		//c.JSON(500, "")
-		c.JSON(409, "") // Status 409 for Failure. Won't be retried
+		c.JSON(409, "testtest409") // Status 409 for Failure. Won't be retried
 	})
 	app.POST(qsBusiAPI+"/TransInCompensate", func(c *gin.Context) {
 		log.Printf("TransInCompensate")
@@ -52,7 +52,7 @@ func qsAddRoute(app *gin.Engine) {
 	})
 }
 
-const dtmServer = "http://192.168.2.138:36789/api/dtmsvr"
+const dtmServer = "http://192.168.2.99:36789/api/dtmsvr"
 
 // QsFireRequest quick start: fire request
 func QsFireRequest() string {
@@ -66,10 +66,10 @@ func QsFireRequest() string {
 		Add(qsBusi+"/TransIn", qsBusi+"/TransInCompensate", req)
 	// submit saga global transaction，dtm will finish all action and compensation
 	err := saga.Submit()
-
 	if err != nil {
 		panic(err)
 	}
+	log.Printf(saga.RollbackReason)
 	log.Printf("transaction: %s submitted", saga.Gid)
 	return saga.Gid
 }

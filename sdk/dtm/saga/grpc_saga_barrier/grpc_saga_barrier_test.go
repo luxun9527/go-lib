@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/dtm-labs/client/dtmgrpc"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/lithammer/shortuuid/v3"
 	"go-lib/sdk/dtm/saga/grpc_saga_barrier/busi"
 	"google.golang.org/grpc"
@@ -23,7 +24,7 @@ var db *sql.DB
 // 定义一个初始化数据库的函数
 func initDB() (err error) {
 	// DSN:Data Source Name
-	dsn := "root:123456@tcp(192.168.2.99:3306)/dtm?charset=utf8mb4&parseTime=True"
+	dsn := "root:root@tcp(192.168.2.99:3306)/dtm_busi?charset=utf8mb4&parseTime=True"
 	// 不会校验账号密码是否正确
 	// 注意！！！这里不要使用:=，我们是给全局变量赋值，然后在main函数中使用全局变量db
 	db, err = sql.Open("mysql", dsn)
@@ -38,15 +39,23 @@ func initDB() (err error) {
 	return nil
 }
 
-var BusiGrpc = fmt.Sprintf("localhost:%d", 58081)
+var BusiGrpc = fmt.Sprintf("192.168.2.138:%d", 58081)
 
 func TestGrpcSagaBarrier(t *testing.T) {
 	req := &busi.ReqGrpc{Amount: 30}
 	gid := shortuuid.New()
-	saga := dtmgrpc.NewSagaGrpc("localhost:36790", gid).
+	saga := dtmgrpc.NewSagaGrpc("192.168.2.99:36790", gid).
 		Add(BusiGrpc+"/busi.Busi/TransOutBSaga", BusiGrpc+"/busi.Busi/TransOutRevertBSaga", req).
-		Add(BusiGrpc+"/busi.Busi/TransInBSaga", BusiGrpc+"/busi.Busi/TransInRevertBSaga", req)
-	_ = saga.Submit()
+		Add(BusiGrpc+"/busi.Busi/TransInBSaga", BusiGrpc+"/busi.Busi/TransInRevertBSaga", req).
+		Add(BusiGrpc+"/busi.Busi/PayCommissions", BusiGrpc+"/busi.Busi/PayCommissionsRevert", req)
+	saga.WaitResult = true
+	err := saga.Submit()
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println(saga.WaitResult)
+
 }
 
 func TestNewGrpcServer(t *testing.T) {
@@ -135,7 +144,8 @@ func (GrpcSagaServer) TransOutBSaga(ctx context.Context, req *busi.ReqGrpc) (*em
 		_, err = db.Exec("update user_account set balance= balance-? where id =1", 10)
 		return err
 	}); err != nil {
-		return nil, err
+		//	return nil, status.Error(codes.Aborted, "test")
+		return nil, status.Error(codes.Aborted, "test232323")
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -167,6 +177,40 @@ func (GrpcSagaServer) TransOutRevertBSaga(ctx context.Context, req *busi.ReqGrpc
 	}
 	if err := barrier.CallWithDB(db, func(tx *sql.Tx) error {
 		_, err = db.Exec("update user_account set balance= balance-? where id =1", 10)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+func (GrpcSagaServer) PayCommissions(ctx context.Context, req *busi.ReqGrpc) (*empty.Empty, error) {
+	log.Println("PayCommissions")
+	barrier, err := dtmgrpc.BarrierFromGrpc(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := initDB(); err != nil {
+		return nil, err
+	}
+	if err := barrier.CallWithDB(db, func(tx *sql.Tx) error {
+		_, err = db.Exec("update user_account1 set balance= balance+? where id =3", 10)
+		return err
+	}); err != nil {
+		return nil, status.Error(codes.Aborted, "test11212")
+	}
+	return &emptypb.Empty{}, nil
+}
+func (GrpcSagaServer) PayCommissionsRevert(ctx context.Context, req *busi.ReqGrpc) (*empty.Empty, error) {
+	log.Println("PayCommissionsRevert")
+	barrier, err := dtmgrpc.BarrierFromGrpc(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := initDB(); err != nil {
+		return nil, err
+	}
+	if err := barrier.CallWithDB(db, func(tx *sql.Tx) error {
+		_, err = db.Exec("update user_account set balance= balance-? where id =3", 10)
 		return err
 	}); err != nil {
 		return nil, err

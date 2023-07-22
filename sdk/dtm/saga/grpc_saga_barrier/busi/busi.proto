@@ -11,7 +11,6 @@ message ReqGrpc {
   string TransOutResult = 2;
   string TransInResult = 3;
 }
-
 message BusiReply {
   string message = 1;
 }
@@ -19,6 +18,8 @@ message BusiReply {
 service Busi {
   rpc TransIn(ReqGrpc) returns (google.protobuf.Empty) {}
   rpc TransOut(ReqGrpc) returns (google.protobuf.Empty) {}
+  rpc PayCommissions(ReqGrpc) returns (google.protobuf.Empty) {}
+  rpc PayCommissionsRevert(ReqGrpc) returns (google.protobuf.Empty) {}
   rpc TransInRevert(ReqGrpc) returns (google.protobuf.Empty) {}
   rpc TransOutRevert(ReqGrpc) returns (google.protobuf.Empty) {}
   rpc TransInConfirm(ReqGrpc) returns (google.protobuf.Empty) {}

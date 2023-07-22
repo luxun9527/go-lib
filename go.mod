@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/Shopify/sarama v1.38.1
 	github.com/apache/pulsar-client-go v0.10.0
-	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/cloudwego/netpoll v0.3.2
 	github.com/dtm-labs/client v1.18.7
 	github.com/fsnotify/fsnotify v1.6.0
@@ -21,6 +20,7 @@ require (
 	github.com/gogf/gf v1.16.9
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/golang/protobuf v1.5.3
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/securecookie v1.1.1
 	github.com/gorilla/sessions v1.2.1
@@ -30,6 +30,7 @@ require (
 	github.com/kr/pretty v0.3.1
 	github.com/lithammer/shortuuid/v3 v3.0.7
 	github.com/panjf2000/ants/v2 v2.7.5
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cast v1.5.1
@@ -105,7 +106,6 @@ require (
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect

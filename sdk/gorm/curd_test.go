@@ -3,11 +3,10 @@ package main
 import (
 	"database/sql/driver"
 	"errors"
-	"go-lib/sdk/gorm/model"
+	"go-lib/sdk/gorm/gentool/dao/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-
 	"log"
 	"os"
 	"testing"
@@ -18,7 +17,7 @@ var db *gorm.DB
 
 func TestCreate(t *testing.T) {
 	InitGorm()
-	user := &model.User{Username: "zhangsan", Fav: "篮球"}
+	user := &model.User{UserName: "zhangsan", Fav: "篮球"}
 	//if err := db.Create(user).Error; err != nil {
 	//	log.Println("create err", err)
 	//}
@@ -39,20 +38,20 @@ func TestUpdate(t *testing.T) {
 	//更新单个列 只有非空的字段会被修改UPDATE `user` SET `username`='hello' WHERE `id` = 1
 	db.Model(&u).Update("username", "hello")
 	//更新多个列,只有非空的字段会被修改 UPDATE `user` SET `username`='hello12' WHERE `id` = 1
-	db.Model(&u).Updates(model.User{Username: "hello12"})
+	db.Model(&u).Updates(model.User{UserName: "hello12"})
 	//select 更新指定了列  UPDATE `user` SET `username`='hello12',`fav`='finish' WHERE `id` = 1
 	db.Model(&u).Select("username").Updates(&model.User{
-		Username: "",
+		UserName: "",
 		Fav:      "",
 	})
 	//忽略指定的列，会忽略空值。
 	//UPDATE `user` SET `fav`='1' WHERE `id` = 1
 	db.Model(&u).Omit("username").Updates(&model.User{
-		Username: "",
+		UserName: "",
 		Fav:      "1",
 	})
 	//指定条件更新，会忽略空值。 UPDATE `user` SET `username`='1' WHERE username = 'admin'
-	db.Model(model.User{}).Where("username = ?", "admin").Updates(model.User{Username: "1"})
+	db.Model(model.User{}).Where("username = ?", "admin").Updates(model.User{UserName: "1"})
 	//默认没有指定条件不会全局更新。db.Model(&User{}).Update("name", "jinzhu").Error gorm.ErrMissingWhereClause
 
 	//如果要更新零字段，要使用map或者select指定字段。
@@ -61,18 +60,17 @@ func TestUpdate(t *testing.T) {
 
 	// Select all fields but omit Role (select all fields include zero value fields)
 	//db.Model(&user).Select("*").Omit("Role").Updates(User{Name: "jinzhu", Role: "admin", Age: 0})
+	//使用clause
+
 }
 
-func find() {
-	//var u User1
-	//if err := db.Where(User1Columns.ID+" = ?", 1).Find(&u).Error; err != nil {
-	//	log.Println("err", err)
-	//}
-	//log.Println(u)
-}
-func insert() {
-	//refer https://gorm.io/zh_CN/docs/create.html
-
+func TestGetRawSql(t *testing.T) {
+	InitGorm()
+	sqlInfo := db.ToSQL(func(tx *gorm.DB) *gorm.DB {
+		data := map[string]interface{}{"user_name": "zhangsan"}
+		return tx.Table("user").Create(data)
+	})
+	log.Printf(sqlInfo)
 }
 func InitGorm() {
 
@@ -87,7 +85,7 @@ func InitGorm() {
 		},
 	)
 
-	dsn := "root:root@tcp(192.168.179.99:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:root@tcp(192.168.2.99:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -98,7 +96,7 @@ func InitGorm() {
 	}
 	sqlBb, err := db.DB()
 	sqlBb.SetMaxIdleConns(100)
-	sqlBb.SetMaxOpenConns(1000)
+	sqlBb.SetMaxOpenConns(50)
 	db = db
 }
 

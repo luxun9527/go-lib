@@ -22,7 +22,7 @@ func InitPulsarCline() {
 	logger := logrus.StandardLogger()
 	logger.Level = logrus.ErrorLevel
 	client, err := pulsar.NewClient(pulsar.ClientOptions{
-		URL:               "pulsar://192.168.2.231:6650",
+		URL:               "pulsar://192.168.2.99:6650",
 		OperationTimeout:  30 * time.Second,
 		ConnectionTimeout: 30 * time.Second,
 		Logger:            pulsarLog.NewLoggerWithLogrus(logger),
