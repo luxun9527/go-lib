@@ -10,7 +10,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	var endpoints = []string{"192.168.2.99:2379"}
-	ser, err := NewServiceRegister(endpoints, "/web", "192.168.1.51:8000", 5)
+	ser, err := NewServiceRegister(endpoints, "/web", "192.168.2.99:8000", 5)
 	if err != nil {
 		log.Fatalln(err)
 	}

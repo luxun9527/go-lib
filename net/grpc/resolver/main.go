@@ -4,7 +4,6 @@ import (
 	"context"
 	"go-lib/net/grpc/resolver/pb"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/resolver"
 	"log"
 	"net"
@@ -54,31 +53,40 @@ func (*q1miResolverBuilder) Build(target resolver.Target, cc resolver.ClientConn
 func (*q1miResolverBuilder) Scheme() string { return myScheme }
 
 func main() {
-	go InitServer1()
-	go InitServer2()
+	//	go InitServer1()
+	//go InitServer2()
 
-	for i := 0; i < 10; i++ {
-		conn, err := grpc.Dial(
-			"q1mi:///resolver.liwenzhou.com",
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"round_robin"}`), // 这里设置初始策略
-			grpc.WithResolvers(&q1miResolverBuilder{}),                             // 指定使用q1miResolverBuilder
-		)
-		if err != nil {
-			log.Fatal(err)
-		}
-		c := pb.NewResolverServiceClient(conn)
-		resp, err := c.Resolver(context.Background(), &pb.ResolverReq{
-			Name: "",
-			Age:  0,
-		})
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println(resp)
-		}
+	//for i := 0; i < 10; i++ {
+	//	conn, err := grpc.Dial(
+	//		"q1mi:///resolver.liwenzhou.com",
+	//		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	//		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"round_robin"}`), // 这里设置初始策略
+	//		grpc.WithResolvers(&q1miResolverBuilder{}),                             // 指定使用q1miResolverBuilder
+	//	)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//	c := pb.NewResolverServiceClient(conn)
+	//	resp, err := c.Resolver(context.Background(), &pb.ResolverReq{
+	//		Name: "",
+	//		Age:  0,
+	//	})
+	//	if err != nil {
+	//		log.Println(err)
+	//	} else {
+	//		log.Println(resp)
+	//	}
+	//}
+	type name struct {
+		age string
 	}
-
+	m := make(map[name]string)
+	m[name{age: "test"}] = ""
+	for k, v := range m {
+		log.Println(k, v)
+	}
+	log.Println(m[name{age: "test"}])
+	//select {}
 }
 func InitServer1() {
 	listener, err := net.Listen("tcp", "0.0.0.0:8973")

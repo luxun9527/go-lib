@@ -59,7 +59,11 @@ func Produce() {
 		fmt.Println("producer closed, err:", err)
 		return
 	}
+	client1, err := sarama.NewAsyncProducer([]string{"192.168.2.120:9092"}, config)
+	client1.Input()
+	client1.Errors()
 	defer client.Close()
+
 	// 发送消息
 	pid, offset, err := client.SendMessage(msg)
 	if err != nil {
