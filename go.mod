@@ -32,6 +32,7 @@ require (
 	github.com/lithammer/shortuuid/v3 v3.0.7
 	github.com/luxun9527/gpush v0.0.0-20230722124105-2334008b2b0b
 	github.com/panjf2000/ants/v2 v2.7.5
+	github.com/qiniu/qmgo v1.1.8
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.9.3
@@ -42,6 +43,7 @@ require (
 	github.com/zeromicro/go-zero v1.5.3
 	go.etcd.io/etcd/api/v3 v3.5.9
 	go.etcd.io/etcd/client/v3 v3.5.9
+	go.mongodb.org/mongo-driver v1.11.6
 	go.uber.org/atomic v1.11.0
 	go.uber.org/ratelimit v0.2.0
 	go.uber.org/zap v1.24.0
@@ -172,7 +174,6 @@ require (
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.9 // indirect
-	go.mongodb.org/mongo-driver v1.11.6 // indirect
 	go.opentelemetry.io/otel v1.14.0 // indirect
 	go.opentelemetry.io/otel/exporters/jaeger v1.14.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.14.0 // indirect
