@@ -132,15 +132,6 @@ type Custom struct {
 	CustomTime CustomTime `gorm:"column:custom_time;" json:"custom_time"`
 }
 
-func CustomType() {
-	c := &Custom{
-		CustomTime: CustomTime(time.Now()),
-	}
-	db.Table("test_custom").Create(c)
-	var c2 Custom
-	db.Table("test_custom").Where("id =1 ").Find(&c2)
-	log.Printf("%+v", c2)
-}
 func hasOne() {
 	var u []*model.User
 	if err := db.Model(model.User{}).Preload("UserProfile").Find(&u).Error; err != nil {
