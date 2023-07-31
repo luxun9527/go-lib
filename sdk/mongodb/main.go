@@ -11,6 +11,7 @@ import (
 var cli *qmgo.QmgoClient
 
 func main() {
+	//https://www.mongodb.com/docs/manual/crud/
 	initDB()
 	insert()
 	//update()
