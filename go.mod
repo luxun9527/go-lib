@@ -27,6 +27,7 @@ require (
 	github.com/gorilla/sessions v1.2.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/hpcloud/tail v1.0.0
+	github.com/jinzhu/copier v0.3.5
 	github.com/juju/ratelimit v1.0.2
 	github.com/kr/pretty v0.3.1
 	github.com/lithammer/shortuuid/v3 v3.0.7
@@ -62,7 +63,6 @@ require (
 	gorm.io/gen v0.3.23
 	gorm.io/gorm v1.25.2
 	gorm.io/plugin/dbresolver v1.4.2
-	moul.io/zapgorm2 v1.3.0
 )
 
 require (
