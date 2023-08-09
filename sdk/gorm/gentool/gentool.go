@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"unicode"
 
 	"gopkg.in/yaml.v3"
 	"gorm.io/driver/clickhouse"
@@ -44,6 +45,7 @@ type CmdParams struct {
 	FieldWithTypeTag  bool     `yaml:"fieldWithTypeTag"`  // generate field with gorm column type tag
 	FieldSignable     bool     `yaml:"fieldSignable"`     // detect integer field's unsigned type, adjust generated data type
 	FieldTypeMap      string   `yaml:"fileTypeMap"`       // FileTypeMap
+	TablePrefix       string   `yaml:"tablePrefix"`       // FileTypeMap
 
 }
 
@@ -127,6 +129,7 @@ func argParse() *CmdParams {
 	fieldWithTypeTag := flag.Bool("fieldWithTypeTag", false, "generate field with gorm column type tag")
 	fieldSignable := flag.Bool("fieldSignable", false, "detect integer field's unsigned type, adjust generated data type")
 	fieldTypeMap := flag.String("fieldMap", "", "字段类型映射,格式 decimal:string;int:int64")
+	tablePrefix := flag.String("tablePrefix", "", "表名前缀")
 	flag.Parse()
 	var cmdParse CmdParams
 	if *genPath != "" {
@@ -176,6 +179,9 @@ func argParse() *CmdParams {
 	if *fieldTypeMap != "" {
 		cmdParse.FieldTypeMap = *fieldTypeMap
 	}
+	if *tablePrefix != "" {
+		cmdParse.TablePrefix = *tablePrefix
+	}
 	return &cmdParse
 }
 
@@ -200,6 +206,21 @@ func main() {
 		FieldWithTypeTag:  config.FieldWithTypeTag,
 		FieldSignable:     config.FieldSignable,
 	})
+	if config.TablePrefix != "" {
+		g.WithModelNameStrategy(func(tableName string) (modelName string) {
+			tableName, _ = strings.CutPrefix(tableName, config.TablePrefix)
+			t := strings.Split(tableName, "_")
+			var r []string
+			for _, v := range t {
+				r = append(r, upperFirst(v))
+			}
+			return strings.Join(r, "")
+		})
+		g.WithFileNameStrategy(func(tableName string) (fileName string) {
+			tableName, _ = strings.CutPrefix(tableName, config.TablePrefix)
+			return tableName
+		})
+	}
 
 	g.UseDB(db)
 	if config.FieldTypeMap != "" {
@@ -224,4 +245,17 @@ func main() {
 	}
 
 	g.Execute()
+}
+func upperFirst(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+
+	rs := []rune(s)
+	f := rs[0]
+
+	if 'a' <= f && f <= 'z' {
+		return string(unicode.ToUpper(f)) + string(rs[1:])
+	}
+	return s
 }
