@@ -1,0 +1,8 @@
+{
+  "hello_world": "Για σου Κόσμε",
+  "messages": {
+    "description": "The number of messages a person has",
+    "one": "Ο {{.Name}} έχει {{.Count}} μύνημα.",
+    "other": "Ο {{.Name}} έχει {{.Count}} μύνηματα."
+  }
+}

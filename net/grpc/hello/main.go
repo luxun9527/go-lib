@@ -54,6 +54,7 @@ func RunClient() {
 		log.Println("did not connect.", err)
 		return
 	}
+
 	defer conn.Close()
 	helloClient := hellopb.NewHelloServiceClient(conn)
 	group := sync.WaitGroup{}

@@ -3,6 +3,7 @@ module go-lib
 go 1.18
 
 require (
+	github.com/BurntSushi/toml v1.2.0
 	github.com/Shopify/sarama v1.38.1
 	github.com/apache/pulsar-client-go v0.10.0
 	github.com/cloudwego/netpoll v0.3.2
@@ -31,6 +32,7 @@ require (
 	github.com/kr/pretty v0.3.1
 	github.com/lithammer/shortuuid/v3 v3.0.7
 	github.com/luxun9527/gpush v0.0.0-20230722124105-2334008b2b0b
+	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	github.com/panjf2000/ants/v2 v2.7.5
 	github.com/qiniu/qmgo v1.1.8
 	github.com/robfig/cron/v3 v3.0.1
@@ -49,6 +51,7 @@ require (
 	go.uber.org/zap v1.24.0
 	golang.org/x/sync v0.3.0
 	golang.org/x/sys v0.10.0
+	golang.org/x/text v0.11.0
 	google.golang.org/grpc v1.56.2
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/ini.v1 v1.67.0
@@ -62,7 +65,6 @@ require (
 	gorm.io/gen v0.3.23
 	gorm.io/gorm v1.25.2
 	gorm.io/plugin/dbresolver v1.4.2
-	moul.io/zapgorm2 v1.3.0
 )
 
 require (
@@ -193,7 +195,6 @@ require (
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect
 	golang.org/x/term v0.10.0 // indirect
-	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/tools v0.11.1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230720185612-659f7aaaa771 // indirect
