@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/boj/redistore"
+
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -10,14 +12,16 @@ import (
 )
 
 var (
-	store = sessions.NewFilesystemStore("./", securecookie.GenerateRandomKey(32), securecookie.GenerateRandomKey(32))
+	store      = sessions.NewFilesystemStore("./", securecookie.GenerateRandomKey(32), securecookie.GenerateRandomKey(32))
+	redisStore *redistore.RediStore
 )
 
 func set(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "user")
+	session, _ := redisStore.Get(r, "user")
 	session.Values["name"] = "dj"
 	session.Values["age"] = 18
-	err := sessions.Save(r, w)
+	err := redisStore.Save(r, w, session)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -26,13 +30,21 @@ func set(w http.ResponseWriter, r *http.Request) {
 }
 
 func read(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "user")
+	session, _ := redisStore.Get(r, "user")
 	fmt.Fprintf(w, "name:%s age:%d\n", session.Values["name"], session.Values["age"])
 }
 
 func main() {
+	InitRedisStore()
 	r := mux.NewRouter()
 	r.HandleFunc("/set", set)
 	r.HandleFunc("/read", read)
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(":8081", r))
+}
+func InitRedisStore() {
+	var err error
+	redisStore, err = redistore.NewRediStore(10, "tcp", "192.168.2.99:6379", "", []byte("secret-key"))
+	if err != nil {
+		log.Fatal(err)
+	}
 }

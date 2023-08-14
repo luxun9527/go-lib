@@ -30,7 +30,6 @@ func TestCreate(t *testing.T) {
 	if err := db.Omit("fav").Create(user).Error; err != nil {
 		log.Println("create err", err)
 	}
-
 }
 func TestUpdate(t *testing.T) {
 	InitGorm()

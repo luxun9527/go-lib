@@ -1,9 +1,29 @@
-FROM debian:stretch-slim
+FROM golang:1.20.7-alpine3.18 AS builder
+#https://bbs.huaweicloud.com/blogs/251201
+#https://juejin.cn/post/7159939264510328840
+# 为我们的镜像设置必要的环境变量
+ENV GO111MODULE=on \
+    GOPROXY=https://goproxy.cn,direct \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
 
-RUN mkdir "/app"
-WORKDIR "/app"
+# 移动到工作目录：/build
+WORKDIR /build
 
-COPY ./docker /app/docker
-RUN chmod +x /app/docker
-EXPOSE 8888
-ENTRYPOINT ["./docker"]
+# 将代码复制到容器中
+COPY . .
+
+# 将我们的代码编译成二进制可执行文件 app
+RUN go build -o app .
+
+###################
+# 接下来创建一个小镜像
+###################
+FROM scratch
+
+# 从builder镜像中把/ dist/app 拷贝到当前目录
+COPY --from=builder /build/app /
+
+# 需要运行的命令
+ENTRYPOINT ["/app"]
