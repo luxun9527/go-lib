@@ -1,0 +1,14 @@
+Name: apidemo-api
+Host: 0.0.0.0
+Port: 8889
+Middlewares:
+  Log: false
+  Prometheus: false
+  MaxConns: true
+  Breaker: true
+  Shedding: false
+  Timeout: true
+  Recover: true
+  Metrics: false
+  MaxBytes: true
+  Gunzip: true
