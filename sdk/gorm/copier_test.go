@@ -7,6 +7,7 @@ import (
 )
 
 func TestCopier(t *testing.T) {
+
 	// Tags in the destination Struct provide instructions to copier.Copy to ignore
 	// or enforce copying and to panic or return an error if a field was not copied.
 	type Employee struct {
@@ -51,7 +52,7 @@ func TestCopier(t *testing.T) {
 	//    EmployeeId: 0,            // Ignored
 	//    SuperRole: "Super Admin", // Copy to method
 	// }
-
+	
 	// Copy struct to slice
 	copier.Copy(&employees, &user)
 
