@@ -10,7 +10,7 @@ import (
 
 func TestEtcdAPi(t *testing.T) {
 	cli, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{"192.168.2.231:2379"},
+		Endpoints:   []string{"192.168.2.99:2379"},
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {
@@ -39,4 +39,5 @@ func TestEtcdAPi(t *testing.T) {
 	for _, ev := range resp.Kvs {
 		fmt.Printf("%s:%s\n", ev.Key, ev.Value)
 	}
+	time.Sleep(time.Hour)
 }

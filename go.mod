@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/Shopify/sarama v1.38.1
 	github.com/apache/pulsar-client-go v0.10.0
+	github.com/aws/aws-sdk-go v1.32.6
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff
 	github.com/casbin/casbin/v2 v2.74.0
 	github.com/casbin/gorm-adapter/v3 v3.18.1
@@ -146,6 +147,7 @@ require (
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/jmespath/go-jmespath v0.3.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kavu/go_reuseport v1.5.0 // indirect

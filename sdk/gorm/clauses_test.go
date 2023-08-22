@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql/driver"
 	"go-lib/sdk/gorm/gentool/dao/query"
-	"gorm.io/gen"
 	"gorm.io/gen/field"
 	"gorm.io/gorm/clause"
 	"log"
@@ -47,10 +46,13 @@ func (s *SpecInt32) Scan(src interface{}) error {
 }
 func TestGenCondition(t *testing.T) {
 	InitGorm()
-	u := query.Use(db).User
+	dao := query.Use(db)
+	db = db.Where("name =?", "test")
+	dao = dao.ReplaceDB(db)
+	u := dao.User
 	s := SpecInt32(1)
-	gen.Cond()
 	//like := clause.Like{Column: u.Age.RawExpr(), Value: "value"}
+	query.Use(db)
 
 	result, err := u.WithContext(context.Background()).Where(field.NewField(u.TableName(), u.Age.ColumnName().String()).Like(s)).First()
 	if err != nil {
