@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"database/sql/driver"
+	"github.com/spf13/cast"
 	"go-lib/sdk/gorm/gentool/dao/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"log"
 	"testing"
@@ -36,26 +38,46 @@ func (m *User) TableName() string {
 	return "user"
 }
 
-type SpecInt32 int64
+type StringInt int64
 
-func (s SpecInt32) Value() (driver.Value, error) {
-	return int64(s), nil
+func (s StringInt) Value() (driver.Value, error) {
+	return cast.ToString(int64(s)), nil
 }
-func (s *SpecInt32) Scan(src interface{}) error {
-	*s = SpecInt32(src.(int64))
+
+type StringBinary string
+func(s StringBinary) underlyingDB() *gorm.DB {
 	return nil
 }
-func TestGenCondition(t *testing.T) {
-	InitGorm()
-	u := query.Use(db).User
-	s := SpecInt32(1)
-	gen.Cond()
-	//like := clause.Like{Column: u.Age.RawExpr(), Value: "value"}
+func(s StringBinary) underlyingDO() *gorm.DB {
+	return nil
+}
+func(s StringBinary) BeCond() interface{} {
+	return nil
+}
+func(s StringBinary)CondError() error{
+	return nil
+}
 
+func TestGenCondition1(t *testing.T) {
+	InitGorm()
+	dao := query.Use(db)
+	u := dao.User
+	s := StringInt(1)
 	result, err := u.WithContext(context.Background()).Where(field.NewField(u.TableName(), u.Age.ColumnName().String()).Like(s)).First()
 	if err != nil {
 		log.Println(err)
 	}
 	log.Printf("%+v", result)
 
+}
+func TestGenCondition2(t *testing.T)  {
+	InitGorm()
+	dao := query.Use(db)
+	u := dao.User
+	var s gen.SubQuery = &query.StringBinary{
+		TableName: "table",
+		Column:    "column",
+		Value:     "v1",
+	}
+	_, _ = u.WithContext(context.Background()).Where(s).Where(u.ID.Like(1)).First()
 }

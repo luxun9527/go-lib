@@ -1,6 +1,9 @@
 package errors
 
 import (
+	"fmt"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc/status"
 	"log"
 	"testing"
 )
@@ -36,7 +39,16 @@ func TestErrors(t *testing.T) {
 	err := GetError()
 	fromError := FromError(err)
 	log.Println(fromError)
+	err = errors.Wrap(errors.New("not found"), "warp message")
+	log.Println(err)
+
 }
+func Wrap(err error,message string)error{
+	s, _ := status.FromError(err)
+	msg := fmt.Sprintf("%v:%v",s.Message(),message)
+	return status.New(s.Code(),msg).Err()
+}
+
 func GetError() error {
 	return NotFound
 }

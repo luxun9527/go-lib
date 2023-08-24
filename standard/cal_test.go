@@ -6,6 +6,7 @@ import (
 )
 
 func TestCal(t *testing.T) {
-	log.Println(4 | 1)
+
+	log.Println(3000/1e2)
 
 }
