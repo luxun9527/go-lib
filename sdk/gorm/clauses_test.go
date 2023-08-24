@@ -45,17 +45,37 @@ func (s StringInt) Value() (driver.Value, error) {
 }
 
 type StringBinary string
-func(s StringBinary) underlyingDB() *gorm.DB {
+
+func (s StringBinary) underlyingDB() *gorm.DB {
 	return nil
 }
-func(s StringBinary) underlyingDO() *gorm.DB {
+func (s StringBinary) underlyingDO() *gorm.DB {
 	return nil
 }
-func(s StringBinary) BeCond() interface{} {
+func (s StringBinary) BeCond() interface{} {
 	return nil
 }
-func(s StringBinary)CondError() error{
+func (s StringBinary) CondError() error {
 	return nil
+}
+
+type StringBinaryLike struct {
+	gen.DO
+	TableName string
+	Column    string
+	Value     string
+}
+
+func (s StringBinaryLike) BeCond() interface{} {
+	return s
+}
+
+func (like StringBinaryLike) Build(builder clause.Builder) {
+	builder.WriteQuoted(like.TableName)
+	builder.WriteByte(46)
+	builder.WriteQuoted(like.Column)
+	builder.WriteString(" LIKE binary ")
+	builder.AddVar(builder, like.Value)
 }
 
 func TestGenCondition1(t *testing.T) {
@@ -70,11 +90,11 @@ func TestGenCondition1(t *testing.T) {
 	log.Printf("%+v", result)
 
 }
-func TestGenCondition2(t *testing.T)  {
+func TestGenCondition2(t *testing.T) {
 	InitGorm()
 	dao := query.Use(db)
 	u := dao.User
-	var s gen.SubQuery = &query.StringBinary{
+	var s gen.SubQuery = &StringBinaryLike{
 		TableName: "table",
 		Column:    "column",
 		Value:     "v1",
