@@ -2,19 +2,22 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
+	"net/http"
+	_ "net/http/pprof"
 )
 
-
-
-
 func main() {
+	go func() {
+		http.ListenAndServe("0.0.0.0:8899", nil)
+	}()
+
 	gin.SetMode(gin.ReleaseMode)
 	route := gin.New()
-	route.Use(gin.Recovery())
 	//绑定get参数
 	route.GET("/test", func(c *gin.Context) {
-		log.Panic("test")
+
+		select {
+		}
 	})
 	route.Run(":9090")
 }

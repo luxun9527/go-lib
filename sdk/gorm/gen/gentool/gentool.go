@@ -112,7 +112,7 @@ func loadConfigFile(path string) (*CmdParams, error) {
 	return yamlConfig.Database, nil
 }
 
-// argParse is parser for cmd
+// gen 生成工具可以自己修改一些参数。
 func argParse() *CmdParams {
 	// choose is file or flag
 	genPath := flag.String("c", "", "is path for gen.yml")

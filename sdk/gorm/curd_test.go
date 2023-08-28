@@ -3,7 +3,9 @@ package main
 import (
 	"database/sql/driver"
 	"errors"
-	"go-lib/sdk/gorm/gentool/dao/model"
+	"fmt"
+	"github.com/spf13/cast"
+	"go-lib/sdk/gorm/gen/dao/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -13,66 +15,70 @@ import (
 	"time"
 )
 
+const TableNameCard = "card"
+
+// Card mapped from table <card>
+type Card struct {
+	ID        int32  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	No        int32  `gorm:"column:no;not null;comment:卡号" json:"no"`                   // 卡号
+	UserID    int32  `gorm:"column:user_id;not null;comment:用户id" json:"user_id"`       // 用户id
+	Amount    string `gorm:"column:amount;not null;comment:金额" json:"amount"`           // 金额
+	CreatedAt int64  `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"` // 创建时间
+	UpdatedAt int64  `gorm:"column:updated_at;not null;comment:修改时间" json:"updated_at"` // 修改时间
+	DeletedAt int64  `gorm:"column:deleted_at;not null;comment:删除时间" json:"deleted_at"` // 删除时间
+}
+
+// TableName Card's table name
+func (*Card) TableName() string {
+	return TableNameCard
+}
+
+
+
+const TableNameUser = "user"
+
+// User mapped from table <user>
+type User struct {
+	ID        int32  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	Username  string `gorm:"column:username;not null;comment:用户名" json:"username"`      // 用户名
+	Age       int32  `gorm:"column:age;not null;comment:年龄" json:"age"`                 // 年龄
+	Fav       string `gorm:"column:fav;not null;comment:爱好" json:"fav"`                 // 爱好
+	CreatedAt int64  `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"` // 创建时间
+	UpdatedAt int64  `gorm:"column:updated_at;not null;comment:修改时间" json:"updated_at"` // 修改时间
+	DeletedAt int64  `gorm:"column:deleted_at;not null;comment:删除时间" json:"deleted_at"` // 删除时间
+	Cards      []*Card   `gorm:"foreignKey:UserID;references:ID"`
+	Profile    Profile   `gorm:"foreignKey:UserID;references:ID"`
+
+}
+
+// TableName User's table name
+func (*User) TableName() string {
+	return TableNameUser
+}
+
+
+
+const TableNameProfile = "profile"
+
+// Profile mapped from table <profile>
+type Profile struct {
+	ID        int32  `gorm:"column:id;primaryKey" json:"id"`
+	UserID    int32  `gorm:"column:user_id;not null;comment:用户id" json:"user_id"`       // 用户id
+	Nickname  string `gorm:"column:nickname;not null;comment:昵称" json:"nickname"`       // 昵称
+	Desc      string `gorm:"column:desc;not null;comment:描述" json:"desc"`               // 描述
+	CreatedAt int64  `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"` // 创建时间
+	UpdatedAt int64  `gorm:"column:updated_at;not null;comment:更新时间" json:"updated_at"` // 更新时间
+	DeletedAt int64  `gorm:"column:deleted_at;not null;comment:删除时间" json:"deleted_at"` // 删除时间
+}
+
+// TableName Profile's table name
+func (*Profile) TableName() string {
+	return TableNameProfile
+}
+
+
 var db *gorm.DB
-
-func TestCreate(t *testing.T) {
-	InitGorm()
-	user := &model.User{UserName: "zhangsan", Fav: "篮球"}
-	//if err := db.Create(user).Error; err != nil {
-	//	log.Println("create err", err)
-	//}
-	//INSERT INTO `user` (`username`,`fav`) VALUES ('zhangsan','')
-	//	INSERT INTO `user` (`fav`) VALUES ('篮球')
-	if err := db.Select("fav").Create(user).Error; err != nil {
-		log.Println("create err", err)
-	}
-	//INSERT INTO `user` (`username`) VALUES ('zhangsan')
-	if err := db.Omit("fav").Create(user).Error; err != nil {
-		log.Println("create err", err)
-	}
-}
-func TestUpdate(t *testing.T) {
-	InitGorm()
-	u := &model.User{ID: 1}
-	//更新单个列 只有非空的字段会被修改UPDATE `user` SET `username`='hello' WHERE `id` = 1
-	db.Model(&u).Update("username", "hello")
-	//更新多个列,只有非空的字段会被修改 UPDATE `user` SET `username`='hello12' WHERE `id` = 1
-	db.Model(&u).Updates(model.User{UserName: "hello12"})
-	//select 更新指定了列  UPDATE `user` SET `username`='hello12',`fav`='finish' WHERE `id` = 1
-	db.Model(&u).Select("username").Updates(&model.User{
-		UserName: "",
-		Fav:      "",
-	})
-	//忽略指定的列，会忽略空值。
-	//UPDATE `user` SET `fav`='1' WHERE `id` = 1
-	db.Model(&u).Omit("username").Updates(&model.User{
-		UserName: "",
-		Fav:      "1",
-	})
-	//指定条件更新，会忽略空值。 UPDATE `user` SET `username`='1' WHERE username = 'admin'
-	db.Model(model.User{}).Where("username = ?", "admin").Updates(model.User{UserName: "1"})
-	//默认没有指定条件不会全局更新。db.Model(&User{}).Update("name", "jinzhu").Error gorm.ErrMissingWhereClause
-
-	//如果要更新零字段，要使用map或者select指定字段。
-	// Select all fields (select all fields include zero value fields)
-	//db.Model(&user).Select("*").Updates(User{Name: "jinzhu", Role: "admin", Age: 0})
-
-	// Select all fields but omit Role (select all fields include zero value fields)
-	//db.Model(&user).Select("*").Omit("Role").Updates(User{Name: "jinzhu", Role: "admin", Age: 0})
-	//使用clause
-
-}
-
-func TestGetRawSql(t *testing.T) {
-	InitGorm()
-	sqlInfo := db.ToSQL(func(tx *gorm.DB) *gorm.DB {
-		data := map[string]interface{}{"user_name": "zhangsan"}
-		return tx.Table("user").Create(data)
-	})
-	log.Printf(sqlInfo)
-}
-func InitGorm() {
-
+func init(){
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
@@ -80,7 +86,6 @@ func InitGorm() {
 			LogLevel:                  logger.Info, // Log level
 			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
 			Colorful:                  true,        // Disable color
-
 		},
 	)
 
@@ -96,61 +101,152 @@ func InitGorm() {
 	sqlBb, err := db.DB()
 	sqlBb.SetMaxIdleConns(100)
 	sqlBb.SetMaxOpenConns(50)
-	db = db
+	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Profile{})
+	db.AutoMigrate(&Card{})
+	db.AutoMigrate(&CustomField{})
+
+}
+func TestCreate(t *testing.T) {
+	user := &model.User{
+		Username:  "",
+		Age:       0,
+		Fav:       "",
+		CreatedAt: 0,
+		UpdatedAt: 0,
+	}
+	//INSERT INTO `user` (`username`,`age`,`fav`,`created_at`,`updated_at`) VALUES ('',0,'',1692947238,1692947238)
+	if err := db.Create(user).Error; err != nil {
+		fmt.Println("create err", err)
+	}
+	fmt.Printf("user = %+v",user)
+	//INSERT INTO `user` (`fav`,`created_at`,`updated_at`) VALUES ('',1692947405,1692947405)
+	if err := db.Select("fav").Create(user).Error; err != nil {
+		fmt.Println("create err", err)
+	}
+	//INSERT INTO `user` (`username`,`age`,`created_at`,`updated_at`,`id`) VALUES ('',0,1692947813,1692947813,14)
+	if err := db.Omit("fav").Create(user).Error; err != nil {
+		fmt.Println("create err", err)
+	}
+	//https://gorm.io/zh_CN/docs/models.html
+	//官方的文档很全主要是验证一些模糊的地方
+	//1、零值会被插入。
+	//2、created_at updated_at会被填充当前时间插入。
+	//3、插入后会将主键赋值回来。
+}
+func TestUpdate(t *testing.T) {
+	u := &model.User{ID: 1}
+	//更新单个列 只有非空的字段会被修改
+	//UPDATE `user` SET `username`='hello',`updated_at`=1692948530 WHERE `id` = 1
+	db.Model(&u).Update("username", "hello")
+	//更新多个列,只有非空的字段会被修改
+	// UPDATE `user` SET `username`='hello12',`updated_at`=1692948530 WHERE `id` = 1
+	db.Model(&u).Updates(model.User{Username: "hello12"})
+	//select 更新指定了列,不会忽略零值
+	// UPDATE `user` SET `username`='',`updated_at`=1692948530 WHERE `id` = 1
+	db.Model(&u).Select("username").Updates(&model.User{
+		Username: "",
+		Fav:      "",
+	})
+	//忽略指定的列，会忽略空值。
+	//UPDATE `user` SET `fav`='1' WHERE `id` = 1
+	db.Model(&u).Omit("fav").Updates(&model.User{
+		Username: "",
+		Fav:      "1",
+	})
+	//指定条件更新，会忽略空值
+	// UPDATE `user` SET `id`=1,`username`='1',`updated_at`=1692948928 WHERE username = 'admin' AND `id` = 1
+	db.Where("username = ?", "admin").Updates(model.User{Username: "1",ID: 1})
+	//默认没有指定条件不会全局更新。db.Model(&User{}).Update("name", "jinzhu").Error gorm.ErrMissingWhereClause
+
+	//如果要更新零字段，要使用map或者select指定字段。
+	// UPDATE `user` SET `id`=1,`username`='',`age`=0,`fav`='',`created_at`=0,`updated_at`=1692948946 WHERE `id` = 1
+	db.Select("*").Updates(User{
+		ID:        1,
+		Username:  "",
+		Age:       0,
+		Fav:       "",
+		CreatedAt: 0,
+		UpdatedAt: 0,
+	})
+
+
 }
 
-type CustomTime time.Time
+func TestDelete(t *testing.T) {
+	db.Where("id = ?",1).Delete(&User{})
+}
+
+func TestSelect(t *testing.T){
+	//普通的查询，官方文档上写的比较全,主要是显示预加载。
+	//SELECT * FROM `user` WHERE id = 6
+	var users1 []*User
+	if err := db.Model(&User{}).Where("id = ?",6).Find(&users1).Error;err!=nil{
+		log.Println(err)
+		return
+	}
+
+
+	//SELECT * FROM `card` WHERE `card`.`user_id` = 6
+	//SELECT * FROM `user` WHERE id = 6
+	//SELECT * FROM `profile` WHERE `profile`.`user_id` = 6
+	var users2 []*User
+	if err := db.Model(&User{}).Where("id = ?",6).Preload("Cards").Preload("Profile").Find(&users2).Error;err!=nil{
+		log.Println(err)
+		return
+	}
+	for _,v := range users2 {
+		log.Printf("%+v",v)
+	}
+}
+
+
+
+//存到数据库是时间戳，取出来是字符串
+const TableNameCustomField = "custom_field"
+
+
+// CustomField mapped from table <custom_field>
+type CustomField struct {
+	ID          int32 `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	CreatedTime CustomTime `gorm:"column:created_time;not null" json:"created_time"`
+}
+
+// TableName CustomField's table name
+func (*CustomField) TableName() string {
+	return TableNameCustomField
+}
+//演示自定义类型，实现scan和value接口。
+func TestCustomField(t *testing.T) {
+	cf := &CustomField{
+		CreatedTime: CustomTime(cast.ToString(time.Now().Unix())),
+	}
+	db.Create(cf)
+	var c []CustomField
+	if err := db.Find(&c).Error;err!=nil{
+		log.Fatal(err)
+	}
+	log.Printf("data = %+v",c)
+	//output  [{ID:1 CreatedTime:2023/08/25 16:46:18} {ID:2 CreatedTime:2023/08/25 16:46:42}]
+}
+
+type CustomTime string
 
 func (t CustomTime) Value() (driver.Value, error) {
-	// MyTime 转换成 time.Time 类型
-	tTime := time.Time(t)
-	return tTime.Format("2006/01/02 15:04:05"), nil
+	return cast.ToInt64(string(t)),nil
 }
-func (t CustomTime) MarshalJSON() ([]byte, error) {
-	tTime := time.Time(t)
-	tStr := tTime.Format("2006-01-02 15:04:05") // 设置格式
-	// 注意 json 字符串风格要求
-	tStr = "\"" + tStr + "\""
-	return []byte(tStr), nil
-}
-
 func (t *CustomTime) Scan(v interface{}) error {
 	switch vt := v.(type) {
-	case string:
+	case []byte:
 		// 字符串转成 time.Time 类型
-		tTime, _ := time.Parse("2006/01/02 15:04:05", vt)
-		*t = CustomTime(tTime)
+		s := time.Unix(cast.ToInt64(string(vt)), 0).Format("2006/01/02 15:04:05")
+		*t = CustomTime(s)
+
 	default:
 		return errors.New("类型处理错误")
 	}
 	return nil
 }
-
-type Custom struct {
-	ID         uint64     `gorm:"column:id;" json:"id"`
-	CustomTime CustomTime `gorm:"column:custom_time;" json:"custom_time"`
-}
-
-func hasOne() {
-	var u []*model.User
-	if err := db.Model(model.User{}).Preload("UserProfile").Find(&u).Error; err != nil {
-		log.Println("err", err)
-		return
-	}
-	for _, v := range u {
-		log.Println(*v)
-	}
-}
-func manyToMany() {
-
-}
-func hasMany() {
-	var u []*model.User
-	if err := db.Model(model.User{}).Preload("UserProfile").Find(&u).Error; err != nil {
-		log.Println("err", err)
-		return
-	}
-	for _, v := range u {
-		log.Println(*v)
-	}
+func (loc CustomTime) GormDataType() string {
+	return "int64"
 }

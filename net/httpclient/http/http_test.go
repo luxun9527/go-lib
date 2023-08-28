@@ -10,7 +10,7 @@ import (
 )
 
 func TestClient(t *testing.T) {
-	resp, err := http.Get("http://localhost:9080")
+	resp, err := http.Get("http://192.168.254.99:9090/test")
 	if err != nil {
 		log.Println("err", err)
 		return
