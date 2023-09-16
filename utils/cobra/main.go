@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cobrademo/cmd"
+	"go-lib/utils/cobra/cmd"
 )
 
 func main() {

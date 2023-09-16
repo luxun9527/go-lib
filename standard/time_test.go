@@ -45,4 +45,9 @@ func TestJsonTime(t *testing.T) {
 	date := time.Now().Format("2006-01-02")
 	inLocation, _ := time.ParseInLocation("2006-01-02", date, location)
 	log.Println(inLocation.Unix())
+
+	unix := time.Now().Unix()
+	log.Println(unix)
+	//loc, _ := time.LoadLocation("Asia/Shanghai")
+	log.Println(time.Unix(unix,0).In(time.UTC).Format("2006-01-02 15:04:05"))
 }
