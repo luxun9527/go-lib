@@ -2,6 +2,7 @@ package decimal
 
 import (
 	"github.com/shopspring/decimal"
+	"log"
 	"testing"
 )
 
@@ -20,4 +21,15 @@ func TestDecimal(t *testing.T) {
 	d3 := d1.Mod(d2)
 	t.Log(d3)
 
+	d4 := decimal.New(1, 18)
+	log.Println(d4)
+	d5:=decimal.New(2, 12)
+	log.Println(d5)
+	result := d5.Div(d4).StringFixedBank(18)
+	log.Println(result)
+
+
 }
+
+
+

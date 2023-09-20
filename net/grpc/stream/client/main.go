@@ -10,7 +10,9 @@ import (
 )
 
 func main() {
-	conn, err := grpc.Dial("0.0.0.0:9090", grpc.WithInsecure())
+	timeout, cancelFunc := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancelFunc()
+	conn, err := grpc.DialContext(timeout,"0.0.0.0:9090", grpc.WithInsecure())
 	if err != nil {
 		log.Println("did not connect.", err)
 		return
