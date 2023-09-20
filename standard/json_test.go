@@ -3,6 +3,7 @@ package standard
 import (
 	"encoding/json"
 	"log"
+	"strings"
 	"testing"
 )
 
@@ -18,4 +19,6 @@ func TestJson(t *testing.T) {
 	}
 	r, _ := json.Marshal(u)
 	log.Println(string(r))
+	split := strings.Split("zhangsan", ",")
+	log.Println(split)
 }

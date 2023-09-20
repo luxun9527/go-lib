@@ -111,20 +111,22 @@ func P(s S) {
 }
 
 type Inter interface {
+
 	print()
 	print1()
 }
-type Father struct {
-	
-}
-func (Father)print(){
+//type Father struct {
+//
+//}
+//func (Father)print(){
+//
+//}
+//func (Father)print1(){
+//
+//}
 
-}
-func (Father)print1(){
-
-}
 type Son struct {
-	Father
+	Inter
 }
 func (Son)print(){
 	log.Println("1111")

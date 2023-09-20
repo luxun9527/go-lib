@@ -2,6 +2,8 @@
 
 ##  -ldflags 参数
 
+### -s -w
+
 ```go
 go build -ldflags "-s -w" x.go
 ```
@@ -30,9 +32,39 @@ func p1(){
 func p(){
 	panic(errors.New("unknown error"))
 }
+//打印的堆栈
+==========================================================
+$ go build   main.go && ./main.exe
+panic: unknown error
+
+goroutine 1 [running]:
+main.p(...)
+        E:/GoCode/go-lib/utils/build/main.go:18
+main.p1(...)
+        E:/GoCode/go-lib/utils/build/main.go:15
+main.main()
+        E:/GoCode/go-lib/utils/build/main.go:11 +0x49
+
+================================================================
+
+$ go build -ldflags "-s -w" main.go && ./main.exe
+panic: unknown error                                 
+                                                     
+goroutine 1 [running]:                               
+main.p(...)                                          
+        E:/GoCode/go-lib/utils/build/main.go:17      
+main.p1(...)                                         
+        E:/GoCode/go-lib/utils/build/main.go:14      
+main.main()                                          
+        E:/GoCode/go-lib/utils/build/main.go:11 +0x49
+
 ```
 
-![image-20230916111224914](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230916111224914.png)
+
+
+
+
+
 
 https://www.jianshu.com/p/095f921ca243
 
@@ -43,6 +75,90 @@ https://www.jianshu.com/p/095f921ca243
 如果不调试，且对编译程序大小有严格要求，在生产环境加上这个参数没什么问题。
 
 **-w** 去掉 DWARF 调试信息，得到的程序就不能用 gdb 调试了，如果不打算用 gdb 调试，基本没啥损失。
+
+
+
+### -x注入参数
+
+```go
+package inject
+
+import (
+	"flag"
+	"fmt"
+	"os"
+)
+
+var (
+	builtAt   string
+	buildUser string
+	builtOn   string
+	goVersion string
+	gitAuthor string
+	gitCommit string
+	gitTag    string
+)
+
+func init(){
+	flag.Bool("version",false,"打印版本信息")
+	Register("version",PrintVersionInfo)
+}
+func PrintVersionInfo(val string) {
+	fmt.Printf("%-20s %s\n", "builtAt", builtAt)
+	fmt.Printf("%-20s %s\n", "builtOn", builtOn)
+	fmt.Printf("%-20s %s\n", "buildUser", buildUser)
+	fmt.Printf("%-20s %s\n", "goVersion", goVersion)
+	fmt.Printf("%-20s %s\n", "gitAuthor", gitAuthor)
+	fmt.Printf("%-20s %s\n", "gitCommit", gitCommit)
+	fmt.Printf("%-20s %s\n", "gitTag", gitTag)
+	os.Exit(1)
+}
+
+
+```
+
+
+
+```go
+package inject
+
+import (
+	"flag"
+	"os"
+)
+
+//面对的情况，当设置了某个flag，就执行某个函数。
+var	defaultFlag = &Flag{
+	FlagSet: flag.CommandLine,
+	m:       make(map[string]func(val string), 5),
+}
+type Flag struct {
+	*flag.FlagSet
+	m map[string]func(val string)
+}
+
+func Register(name string, handler func(val string)) {
+	defaultFlag.register(name, handler)
+}
+func Parse() {
+	defaultFlag.parseFlag()
+}
+
+func (f *Flag) register(name string, handler func(val string)) {
+	f.m[name] = handler
+}
+func (f *Flag) parseFlag() {
+	f.Parse(os.Args[1:])
+	f.Visit(func(fl *flag.Flag) {
+		f1, ok := f.m[fl.Name]
+		if !ok {
+			return
+		}
+		f1(fl.Value.String())
+	})
+}
+
+```
 
 
 

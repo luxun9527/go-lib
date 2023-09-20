@@ -40,6 +40,8 @@ func TestGormClause(t *testing.T){
 		Value:  1,
 	}).Find(u)
 	//SELECT * FROM `user` WHERE `user`.`c1` LIKE BINARY 1
+	//使用聚合函数
+
 }
 
 
@@ -75,7 +77,7 @@ func TestGenCondition1(t *testing.T) {
 	dao := query.Use(db)
 	u := dao.User
 	s := StringInt(1)
-	result, err := u.WithContext(context.Background()).Where(field.NewField(u.TableName(), u.Age.ColumnName().String()).Like(s)).First()
+	result, err := u.WithContext(context.Background()).Select().Where(field.NewField(u.TableName(), u.Age.ColumnName().String()).Like(s)).First()
 	if err != nil {
 		log.Println(err)
 	}
@@ -93,5 +95,12 @@ func TestGenCondition2(t *testing.T) {
 	}
 	_, _ = u.WithContext(context.Background()).Where(s).Where(u.ID.Like(1)).First()
 	//SELECT * FROM `user` WHERE `table`.`column` LIKE binary 'v1' AND `user`.`id` LIKE 1 ORDER BY `user`.`id` LIMIT 1
+	u.WithContext(context.Background()).Select(u.ID).First()
 }
 
+type JsonFunc struct {
+	field.Expr
+}
+func (j JsonFunc)BuildWithArgs(){
+
+}

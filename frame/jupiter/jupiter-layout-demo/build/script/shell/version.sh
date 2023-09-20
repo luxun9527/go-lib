@@ -18,7 +18,7 @@ if [[ $? == 0 ]];
 then
   tree_status="Clean"
 else
-  tree_status="Modified"
+  tree_stat./us="Modified"
 fi
 
 # XXX This needs to be updated to accomodate tags added after building, rather than prior to builds

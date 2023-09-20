@@ -1,13 +1,16 @@
 package standard
 
 import (
-	"fmt"
-	"hash/fnv"
+	"crypto/sha1"
+	"encoding/hex"
+	"log"
 	"testing"
 )
 
 func TestHash(t *testing.T) {
-	f := fnv.New32()
-	f.Write([]byte("hello1"))
-	fmt.Println(f.Sum32())
+	c := sha1.New()
+	c.Write([]byte("input"))
+	bytes := c.Sum(nil)
+	log.Println( hex.EncodeToString(bytes))
+
 }

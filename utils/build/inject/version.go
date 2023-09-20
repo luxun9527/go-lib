@@ -3,6 +3,7 @@ package inject
 import (
 	"flag"
 	"fmt"
+	"github.com/fatih/color"
 	"os"
 )
 
@@ -20,14 +21,14 @@ func init(){
 	flag.Bool("version",false,"打印版本信息")
 	Register("version",PrintVersionInfo)
 }
-func PrintVersionInfo(val flag.Value) {
-	fmt.Printf("%-20s %s\n", "builtAt", builtAt)
-	fmt.Printf("%-20s %s\n", "builtOn", builtOn)
-	fmt.Printf("%-20s %s\n", "buildUser", buildUser)
-	fmt.Printf("%-20s %s\n", "goVersion", goVersion)
-	fmt.Printf("%-20s %s\n", "gitAuthor", gitAuthor)
-	fmt.Printf("%-20s %s\n", "gitCommit", gitCommit)
-	fmt.Printf("%-20s %s\n", "gitTag", gitTag)
+func PrintVersionInfo(val string) {
+	fmt.Printf("%-20s %s\n", "builtAt", color.GreenString(builtAt))
+	fmt.Printf("%-20s %s\n", "builtOn", color.GreenString(builtOn))
+	fmt.Printf("%-20s %s\n", "buildUser", color.GreenString(buildUser))
+	fmt.Printf("%-20s %s\n", "goVersion", color.GreenString(goVersion))
+	fmt.Printf("%-20s %s\n", "gitAuthor", color.GreenString(gitAuthor))
+	fmt.Printf("%-20s %s\n", "gitCommit", color.GreenString(gitCommit))
+	fmt.Printf("%-20s %s\n", "gitTag", color.GreenString(gitTag))
 	os.Exit(1)
 }
 
