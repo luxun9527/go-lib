@@ -86,8 +86,6 @@ func (p profile) TableName() string { return p.profileDo.TableName() }
 
 func (p profile) Alias() string { return p.profileDo.Alias() }
 
-func (p profile) Columns(cols ...field.Expr) gen.Columns { return p.profileDo.Columns(cols...) }
-
 func (p *profile) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := p.fieldMap[fieldName]
 	if !ok || _f == nil {
@@ -162,6 +160,10 @@ func (p profileDo) Select(conds ...field.Expr) *profileDo {
 
 func (p profileDo) Where(conds ...gen.Condition) *profileDo {
 	return p.withDO(p.DO.Where(conds...))
+}
+
+func (p profileDo) Exists(subquery interface{ UnderlyingDB() *gorm.DB }) *profileDo {
+	return p.Where(field.CompareSubQuery(field.ExistsOp, nil, subquery.UnderlyingDB()))
 }
 
 func (p profileDo) Order(conds ...field.Expr) *profileDo {

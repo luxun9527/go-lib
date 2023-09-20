@@ -86,8 +86,6 @@ func (c card) TableName() string { return c.cardDo.TableName() }
 
 func (c card) Alias() string { return c.cardDo.Alias() }
 
-func (c card) Columns(cols ...field.Expr) gen.Columns { return c.cardDo.Columns(cols...) }
-
 func (c *card) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := c.fieldMap[fieldName]
 	if !ok || _f == nil {
@@ -162,6 +160,10 @@ func (c cardDo) Select(conds ...field.Expr) *cardDo {
 
 func (c cardDo) Where(conds ...gen.Condition) *cardDo {
 	return c.withDO(c.DO.Where(conds...))
+}
+
+func (c cardDo) Exists(subquery interface{ UnderlyingDB() *gorm.DB }) *cardDo {
+	return c.Where(field.CompareSubQuery(field.ExistsOp, nil, subquery.UnderlyingDB()))
 }
 
 func (c cardDo) Order(conds ...field.Expr) *cardDo {

@@ -3,14 +3,9 @@ package etcd
 import (
 	"context"
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"go.uber.org/atomic"
 	gresolver "google.golang.org/grpc/resolver"
 	"strings"
 )
-
-type Record struct {
-	atomic.Bool
-}
 
 type builder struct {
 	c *clientv3.Client

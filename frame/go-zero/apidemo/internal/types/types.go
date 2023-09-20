@@ -8,3 +8,7 @@ type Request struct {
 type Response struct {
 	Message string `json:"message"`
 }
+
+type GetUserInfoByNameReq struct {
+	Name string `json:"name"`
+}

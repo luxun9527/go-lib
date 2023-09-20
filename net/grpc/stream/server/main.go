@@ -22,6 +22,12 @@ func (Hello) FetchData(req *hellopb.Empty, data hellopb.HelloStream_FetchDataSer
 			Topic: "1",
 			Data:  []byte("abcdefj"),
 		})
+
+		data.SendMsg(&hellopb.Data{
+			Uid:   "1",
+			Topic: "1",
+			Data:  []byte("abcdefj"),
+		})
 	}
 	return nil
 }

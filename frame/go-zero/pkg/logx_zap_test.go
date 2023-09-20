@@ -17,7 +17,7 @@ func TestZapLog(t *testing.T) {
 		MaxAge:        0,
 		MaxBackup:     0,
 		Async:         false,
-		Json:          true,
+		Json:          false,
 		Compress:      false,
 		options:       nil,
 		CallerShip:    3,

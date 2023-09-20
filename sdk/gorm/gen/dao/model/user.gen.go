@@ -9,12 +9,12 @@ const TableNameUser = "user"
 // User mapped from table <user>
 type User struct {
 	ID        int32  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	Username  string `gorm:"column:username;not null;comment:用户名" json:"username"`      // 用户名
-	Age       int32  `gorm:"column:age;not null;comment:年龄" json:"age"`                 // 年龄
-	Fav       string `gorm:"column:fav;not null;comment:爱好" json:"fav"`                 // 爱好
-	CreatedAt int64  `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"` // 创建时间
-	UpdatedAt int64  `gorm:"column:updated_at;not null;comment:修改时间" json:"updated_at"` // 修改时间
-	DeletedAt int64  `gorm:"column:deleted_at;not null;comment:删除时间" json:"deleted_at"` // 删除时间
+	Username  string `gorm:"column:username;not null;comment:用户名" json:"username"`
+	Age       int32  `gorm:"column:age;not null;comment:年龄" json:"age"`
+	Fav       string `gorm:"column:fav;not null;comment:爱好" json:"fav"`
+	CreatedAt int64  `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`
+	UpdatedAt int64  `gorm:"column:updated_at;not null;comment:修改时间" json:"updated_at"`
+	DeletedAt int64  `gorm:"column:deleted_at;not null;comment:删除时间" json:"deleted_at"`
 }
 
 // TableName User's table name
