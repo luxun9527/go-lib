@@ -7,12 +7,12 @@ import (
 
 func main() {
 	// Create a Resty Client
-	client := resty.New()
+	client := resty.New().SetRetryCount(4)
 
 	resp, err := client.R().
 		EnableTrace().
 		Get("https://httpbin.org/get")
-		
+
 	// Explore response object
 	fmt.Println("Response Info:")
 	fmt.Println("  Error      :", err)

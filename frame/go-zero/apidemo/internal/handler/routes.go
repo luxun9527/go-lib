@@ -17,6 +17,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/from/:name",
 				Handler: ApidemoHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetUserInfoByName",
+				Handler: GetUserInfoByNameHandler(serverCtx),
+			},
 		},
 	)
 }

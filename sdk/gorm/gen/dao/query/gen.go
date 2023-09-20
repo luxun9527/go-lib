@@ -17,32 +17,29 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:          db,
-		Card:        newCard(db, opts...),
-		CustomField: newCustomField(db, opts...),
-		Profile:     newProfile(db, opts...),
-		User:        newUser(db, opts...),
+		db:      db,
+		Card:    newCard(db, opts...),
+		Profile: newProfile(db, opts...),
+		User:    newUser(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Card        card
-	CustomField customField
-	Profile     profile
-	User        user
+	Card    card
+	Profile profile
+	User    user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:          db,
-		Card:        q.Card.clone(db),
-		CustomField: q.CustomField.clone(db),
-		Profile:     q.Profile.clone(db),
-		User:        q.User.clone(db),
+		db:      db,
+		Card:    q.Card.clone(db),
+		Profile: q.Profile.clone(db),
+		User:    q.User.clone(db),
 	}
 }
 
@@ -56,27 +53,24 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:          db,
-		Card:        q.Card.replaceDB(db),
-		CustomField: q.CustomField.replaceDB(db),
-		Profile:     q.Profile.replaceDB(db),
-		User:        q.User.replaceDB(db),
+		db:      db,
+		Card:    q.Card.replaceDB(db),
+		Profile: q.Profile.replaceDB(db),
+		User:    q.User.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Card        *cardDo
-	CustomField *customFieldDo
-	Profile     *profileDo
-	User        *userDo
+	Card    *cardDo
+	Profile *profileDo
+	User    *userDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Card:        q.Card.WithContext(ctx),
-		CustomField: q.CustomField.WithContext(ctx),
-		Profile:     q.Profile.WithContext(ctx),
-		User:        q.User.WithContext(ctx),
+		Card:    q.Card.WithContext(ctx),
+		Profile: q.Profile.WithContext(ctx),
+		User:    q.User.WithContext(ctx),
 	}
 }
 
