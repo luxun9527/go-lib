@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	flagSet()
+	baseUsage()
 }
 
 

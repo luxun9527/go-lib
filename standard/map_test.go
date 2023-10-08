@@ -40,3 +40,15 @@ func TestRangeDelete(t *testing.T) {
 		log.Println(k, v)
 	}
 }
+func TestSyncMap1(t *testing.T) {
+	var m sync.Map
+	m.Store(1, 2)
+	m.Store(2, 3)
+	for  {
+		store, loaded := m.LoadOrStore(3, 4)
+		log.Println(store)
+		if loaded{
+			break
+		}
+	}
+}

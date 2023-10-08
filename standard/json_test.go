@@ -2,23 +2,20 @@ package standard
 
 import (
 	"encoding/json"
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 	"log"
-	"strings"
+
 	"testing"
 )
 
 func TestJson(t *testing.T) {
-	type User struct {
-		Name string `json:"name"`
-		Data []byte `json:"data"`
+	h := gin.H{"data": "test"}
+	d,_ := json.Marshal(h)
+	str := "["
+	for _,v := range d {
+		str +=cast.ToString(v)+","
 	}
-
-	u := User{
-		Name: "aa",
-		Data: []byte("abc"),
-	}
-	r, _ := json.Marshal(u)
-	log.Println(string(r))
-	split := strings.Split("zhangsan", ",")
-	log.Println(split)
+	log.Println(str+"]")
+	
 }

@@ -1,38 +1,34 @@
-package main
+package server
 
 import (
 	"io"
 	"log"
 	"net"
 	"net/http"
+	"testing"
 	"time"
 )
 
-func main() {
+func TestServer(t *testing.T)  {
 
-	/* Net listener */
 	n := "tcp"
 	addr := ":9094"
 	l, err := net.Listen(n, addr)
 	if err != nil {
-		panic("AAAAH")
+		panic(err)
 	}
 
-	/* HTTP server */
 	s := http.Server{
-		Handler: http.HandlerFunc(handleRead),
+		//Handler: http.HandlerFunc(write),
+		Handler: http.HandlerFunc(read),
 	}
 	s.Serve(l)
 
 }
 
-type Message struct {
-	Offset string `json:"offset"`
-	Data   []byte `json:"data"`
-}
 
-func handleRead(w http.ResponseWriter, req *http.Request) {
-	buf := make([]byte, 32*1024)
+func read(w http.ResponseWriter, req *http.Request) {
+	buf := make([]byte, 10)
 	for {
 		n, err := req.Body.Read(buf)
 		if err != nil && err != io.EOF {
@@ -49,7 +45,7 @@ func handleRead(w http.ResponseWriter, req *http.Request) {
 	log.Println("finish")
 
 }
-func handleWrite(w http.ResponseWriter, req *http.Request) {
+func write(w http.ResponseWriter, req *http.Request) {
 	flusher := w.(http.Flusher)
 
 	w.Header().Set("X-Content-Type-Options", "nosniff")
