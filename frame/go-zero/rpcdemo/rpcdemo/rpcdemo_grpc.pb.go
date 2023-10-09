@@ -19,89 +19,89 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Rpcdemo_Ping_FullMethodName = "/rpcdemo.Rpcdemo/Ping"
+	RpcDemo_Ping_FullMethodName = "/rpcdemo.RpcDemo/Ping"
 )
 
-// RpcdemoClient is the client API for Rpcdemo service.
+// RpcDemoClient is the client API for RpcDemo service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type RpcdemoClient interface {
+type RpcDemoClient interface {
 	Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
 }
 
-type rpcdemoClient struct {
+type rpcDemoClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewRpcdemoClient(cc grpc.ClientConnInterface) RpcdemoClient {
-	return &rpcdemoClient{cc}
+func NewRpcDemoClient(cc grpc.ClientConnInterface) RpcDemoClient {
+	return &rpcDemoClient{cc}
 }
 
-func (c *rpcdemoClient) Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+func (c *rpcDemoClient) Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
-	err := c.cc.Invoke(ctx, Rpcdemo_Ping_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, RpcDemo_Ping_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// RpcdemoServer is the server API for Rpcdemo service.
-// All implementations must embed UnimplementedRpcdemoServer
+// RpcDemoServer is the server API for RpcDemo service.
+// All implementations must embed UnimplementedRpcDemoServer
 // for forward compatibility
-type RpcdemoServer interface {
+type RpcDemoServer interface {
 	Ping(context.Context, *Request) (*Response, error)
-	mustEmbedUnimplementedRpcdemoServer()
+	mustEmbedUnimplementedRpcDemoServer()
 }
 
-// UnimplementedRpcdemoServer must be embedded to have forward compatible implementations.
-type UnimplementedRpcdemoServer struct {
+// UnimplementedRpcDemoServer must be embedded to have forward compatible implementations.
+type UnimplementedRpcDemoServer struct {
 }
 
-func (UnimplementedRpcdemoServer) Ping(context.Context, *Request) (*Response, error) {
+func (UnimplementedRpcDemoServer) Ping(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
-func (UnimplementedRpcdemoServer) mustEmbedUnimplementedRpcdemoServer() {}
+func (UnimplementedRpcDemoServer) mustEmbedUnimplementedRpcDemoServer() {}
 
-// UnsafeRpcdemoServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to RpcdemoServer will
+// UnsafeRpcDemoServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to RpcDemoServer will
 // result in compilation errors.
-type UnsafeRpcdemoServer interface {
-	mustEmbedUnimplementedRpcdemoServer()
+type UnsafeRpcDemoServer interface {
+	mustEmbedUnimplementedRpcDemoServer()
 }
 
-func RegisterRpcdemoServer(s grpc.ServiceRegistrar, srv RpcdemoServer) {
-	s.RegisterService(&Rpcdemo_ServiceDesc, srv)
+func RegisterRpcDemoServer(s grpc.ServiceRegistrar, srv RpcDemoServer) {
+	s.RegisterService(&RpcDemo_ServiceDesc, srv)
 }
 
-func _Rpcdemo_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RpcDemo_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RpcdemoServer).Ping(ctx, in)
+		return srv.(RpcDemoServer).Ping(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Rpcdemo_Ping_FullMethodName,
+		FullMethod: RpcDemo_Ping_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RpcdemoServer).Ping(ctx, req.(*Request))
+		return srv.(RpcDemoServer).Ping(ctx, req.(*Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Rpcdemo_ServiceDesc is the grpc.ServiceDesc for Rpcdemo service.
+// RpcDemo_ServiceDesc is the grpc.ServiceDesc for RpcDemo service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Rpcdemo_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rpcdemo.Rpcdemo",
-	HandlerType: (*RpcdemoServer)(nil),
+var RpcDemo_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "rpcdemo.RpcDemo",
+	HandlerType: (*RpcDemoServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Ping",
-			Handler:    _Rpcdemo_Ping_Handler,
+			Handler:    _RpcDemo_Ping_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

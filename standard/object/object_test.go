@@ -93,45 +93,35 @@ func TestImp(t *testing.T) {
 	//var fugui Mover = &dog{}  // 富贵是*dog类型
 
 }
-func (t T) Show() {
 
-}
 
-type S interface {
-	Show()
-}
-type loggerWrapper interface {
-	S
-}
-type T struct {
-}
 
-func P(s S) {
 
+
+
+
+//演示内嵌继承，内嵌继承拥有被内嵌所有的属性。
+type F struct {
+	Embed
 }
 
-type Inter interface {
+func ( F )Print() {
+	fmt.Println("f")
+}
 
-	print()
-	print1()
+type Embed struct {
+	
 }
-//type Father struct {
-//
-//}
-//func (Father)print(){
-//
-//}
-//func (Father)print1(){
-//
-//}
 
-type Son struct {
-	Inter
+func (e Embed )Print(){
+	fmt.Println("embed")
 }
-func (Son)print(){
-	log.Println("1111")
+func TestEmbed(t *testing.T) {
+	embed := Embed{}
+	embed.Print()
+	f := F{}
+	f.Print()
 }
-func TestPrint(t *testing.T) {
-	var s Inter = Son{}
-	s.print()
-}
+
+
+

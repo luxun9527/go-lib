@@ -11,18 +11,18 @@ import (
 	"go-lib/frame/go-zero/rpcdemo/rpcdemo"
 )
 
-type RpcdemoServer struct {
+type RpcDemoServer struct {
 	svcCtx *svc.ServiceContext
-	rpcdemo.UnimplementedRpcdemoServer
+	rpcdemo.UnimplementedRpcDemoServer
 }
 
-func NewRpcdemoServer(svcCtx *svc.ServiceContext) *RpcdemoServer {
-	return &RpcdemoServer{
+func NewRpcDemoServer(svcCtx *svc.ServiceContext) *RpcDemoServer {
+	return &RpcDemoServer{
 		svcCtx: svcCtx,
 	}
 }
 
-func (s *RpcdemoServer) Ping(ctx context.Context, in *rpcdemo.Request) (*rpcdemo.Response, error) {
+func (s *RpcDemoServer) Ping(ctx context.Context, in *rpcdemo.Request) (*rpcdemo.Response, error) {
 	l := logic.NewPingLogic(ctx, s.svcCtx)
 	return l.Ping(in)
 }
