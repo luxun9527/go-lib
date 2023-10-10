@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/rest/httpx"
 	"go-lib/frame/go-zero/apidemo/internal/config"
 	"go-lib/frame/go-zero/apidemo/internal/handler"
+	"go-lib/frame/go-zero/apidemo/internal/pkg/validatorx"
 	"go-lib/frame/go-zero/apidemo/internal/svc"
 	"log"
 	"net/http"
@@ -21,7 +23,7 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-
+	httpx.SetValidator(validatorx.NewValidator())
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 	server.Use(RecoverHandler)
@@ -31,6 +33,7 @@ func main() {
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }
+
 type H map[string]interface{}
 // RecoverHandler returns a middleware that recovers if panic happens.
 func RecoverHandler(next http.HandlerFunc) http.HandlerFunc {

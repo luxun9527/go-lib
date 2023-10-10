@@ -10,5 +10,5 @@ type Response struct {
 }
 
 type GetUserInfoByNameReq struct {
-	Name string `json:"name"`
+	Name string `json:"name" validate:"required"`
 }

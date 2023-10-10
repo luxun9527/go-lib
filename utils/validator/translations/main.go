@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-playground/locales/zh"
 
-	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	en_translations "github.com/go-playground/validator/v10/translations/en"
+//	en_translations "github.com/go-playground/validator/v10/translations/en"
+	zh_translations "github.com/go-playground/validator/v10/translations/zh"
 )
 
 // User contains user information
@@ -37,15 +38,15 @@ func main() {
 
 	// NOTE: ommitting allot of error checking for brevity
 
-	en := en.New()
-	uni = ut.New(en, en)
+	en := zh.New()
+	uni = ut.New( en)
 
 	// this is usually know or extracted from http 'Accept-Language' header
 	// also see uni.FindTranslator(...)
-	trans, _ := uni.GetTranslator("en")
+	trans, _ := uni.GetTranslator("zh")
 
 	validate = validator.New()
-	en_translations.RegisterDefaultTranslations(validate, trans)
+	zh_translations.RegisterDefaultTranslations(validate, trans)
 
 	translateAll(trans)
 	translateIndividual(trans)
@@ -101,7 +102,6 @@ func translateIndividual(trans ut.Translator) {
 }
 
 func translateOverride(trans ut.Translator) {
-
 	validate.RegisterTranslation("required", trans, func(ut ut.Translator) error {
 		return ut.Add("required", "{0} must have a value!", true) // see universal-translator for details
 	}, func(ut ut.Translator, fe validator.FieldError) string {

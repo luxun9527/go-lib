@@ -6,7 +6,7 @@ type Response {
 	Message string `json:"message"`
 }
 type GetUserInfoByNameReq {
-	Name string `json:"name"`
+	Name string `json:"name" validate:"required"`
 }
 service apidemo-api {
 	@handler ApidemoHandler
