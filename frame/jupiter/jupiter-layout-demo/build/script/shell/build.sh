@@ -15,7 +15,7 @@ BUILDPATH=${3:?"path to build"}
 
 set -e
 
-GOOS=${GOOS:-linux}
+GOOS=${GOOS:-windows}
 GOARCH=${GOARCH:-amd64}
 GOBINARY=${GOBINARY:-go}
 GOPKG="$GOPATH/pkg"
