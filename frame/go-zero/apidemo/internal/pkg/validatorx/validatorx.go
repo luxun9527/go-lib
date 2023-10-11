@@ -2,10 +2,11 @@ package validatorx
 
 import (
 	"errors"
-	"github.com/go-playground/locales/zh"
+	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	zh_translations "github.com/go-playground/validator/v10/translations/zh"
+	//zh_translations "github.com/go-playground/validator/v10/translations/zh"
+	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"net/http"
 )
 
@@ -14,14 +15,14 @@ type Validator struct {
 	trans ut.Translator
 }
 func NewValidator()*Validator{
-	en := zh.New()
+	en := en.New()
 	uni := ut.New( en)
 
 	// this is usually know or extracted from http 'Accept-Language' header
 	// also see uni.FindTranslator(...)
-	trans, _ := uni.GetTranslator("zh")
+	trans, _ := uni.GetTranslator("en")
 	validate := validator.New()
-	zh_translations.RegisterDefaultTranslations(validate, trans)
+	en_translations.RegisterDefaultTranslations(validate, trans)
 	return &Validator{validate: validate,trans:trans}
 }
 
@@ -33,7 +34,7 @@ func (v *Validator)Validate(r *http.Request, data any) error{
 		errs,ok := err.(validator.ValidationErrors)
 		if ok{
 			if len(errs) > 0 {
-			return 	errors.New( errs[0].Translate(v.trans))
+				return 	errors.New( errs[0].Translate(v.trans))
 			}
 		}
 		return err

@@ -6,6 +6,7 @@ import (
 )
 
 func TestZapLog(t *testing.T) {
+	logx.Error("test1")
 	w := NewZapWriter(&Config{
 		Level:         "info",
 		Stacktrace:    false,
