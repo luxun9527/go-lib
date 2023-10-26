@@ -18,7 +18,7 @@ if [[ $? == 0 ]];
 then
   tree_status="Clean"
 else
-  tree_stat./us="Modified"
+  tree_status="Modified"
 fi
 
 # XXX This needs to be updated to accomodate tags added after building, rather than prior to builds
@@ -34,7 +34,7 @@ fi
 echo buildVersion       "${VERSION}"
 echo buildGitRevision   "${BUILD_GIT_REVISION}"
 echo buildUser          "$(whoami)"
-echo buildHost          "$(hostname -f)"
+echo buildHost          ""
 echo buildStatus        "${tree_status}"
 # echo buildTime          "$(date '+%Y-%m-%d %T')"
 echo buildTime          "$(date '+%Y-%m-%d--%T')"
