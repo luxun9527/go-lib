@@ -24,15 +24,21 @@ RUN go build -o bubble .
 ###################
 # 接下来创建一个小镜像
 ###################
-FROM scratch
+FROM debian:stretch-slim
 
-COPY ./conf /conf
+COPY ./config.yaml /config.yaml
 
 COPY ./wait-for.sh /
 
-# 从builder镜像中把/ dist/app 拷贝到当前目录
-COPY --from=builder /build/app /
+RUN sed -i '1i deb http://mirrors.aliyun.com/debian/ buster main non-free contrib\ndeb-src http://mirrors.aliyun.com/debian/ buster main non-free contrib\ndeb http://mirrors.aliyun.com/debian-security buster/updates main\ndeb-src http://mirrors.aliyun.com/debian-security buster/updates main\ndeb http://mirrors.aliyun.com/debian/ buster-updates main non-free contrib\ndeb-src http://mirrors.aliyun.com/debian/ buster-updates main non-free contrib\ndeb http://mirrors.aliyun.com/debian/ buster-backports main non-free contrib\ndeb-src http://mirrors.aliyun.com/debian/ buster-backports main non-free contrib' /etc/apt/sources.list
 
+
+RUN set -eux
+RUN apt-get update  || true
+RUN apt-get install -y --no-install-recommends netcat
 RUN chmod 755 wait-for.sh
+# 从builder镜像中把/ dist/app 拷贝到当前目录
+COPY --from=builder /build/bubble /
+
 # 需要运行的命令
 #ENTRYPOINT ["/app"]

@@ -1,2 +1,2 @@
 buildDocker:
-	docker build -t dockertest:1.0 . &&  docker run -di --name=dockertest -p 8888:8888  dockertest:1.0
+	docker build -t dockertest:1.0 . &&  docker run -it dockertest:1.0
