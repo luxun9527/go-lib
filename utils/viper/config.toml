@@ -28,6 +28,8 @@ data = [ ["gamma", "delta"], [1, 2] ]
 name="张飒"
 age=23
 fav=["唱","跳","rap","篮球"]
+ageAge=1
+#AgeAge=2
 
 [gin]
 port=10010

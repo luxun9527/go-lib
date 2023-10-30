@@ -35,6 +35,7 @@ require (
 	github.com/jinzhu/copier v0.3.5
 	github.com/juju/ratelimit v1.0.2
 	github.com/labstack/echo/v4 v4.11.1
+	github.com/lestrrat-go/option v1.0.1
 	github.com/lithammer/shortuuid/v3 v3.0.7
 	github.com/luxun9527/gpush v0.0.0-20230722124105-2334008b2b0b
 	github.com/nicksnyder/go-i18n/v2 v2.2.1

@@ -14,7 +14,7 @@ func main() {
 	//exampleWatchFile()
 }
 func example1() {
-	viper.SetConfigFile("./config.toml")
+	viper.SetConfigFile("E:\\demoproject\\go-lib\\utils\\viper\\config.toml")
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal(err)
 	}
@@ -27,9 +27,11 @@ func exampleUnmarshal() {
 	type Config struct {
 		Favorite []string `mapstructure:"fav"`
 		Name     string
-		Age      string `mapstructure:"age"`
+		AgeAge   int32
+
+		Age string `mapstructure:"age"`
 	}
-	viper.SetConfigFile("./config.toml")
+	viper.SetConfigFile("./utils/viper/config.toml")
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println(err)
 		return

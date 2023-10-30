@@ -1,9 +1,7 @@
 package standard
 
 import (
-	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"path/filepath"
 	"testing"
@@ -17,12 +15,15 @@ func TestWalk(t *testing.T) {
 	})
 }
 func TestReadDir(t *testing.T) {
-	files, err := ioutil.ReadDir("S:\\go-lib\\standard")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, file := range files {
-		fmt.Println(file.Name())
+	//files, err := ioutil.ReadDir("S:\\go-lib\\standard")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//for _, file := range files {
+	//	fmt.Println(file.Name())
+	//}
+	for i := 0; i < 0; i++ {
+		log.Println("test")
 	}
 }

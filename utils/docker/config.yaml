@@ -1,0 +1,9 @@
+GormConf:
+  ip: mysql8019
+  port: 3306
+  dbName: bubble
+  username: root
+  password: root1234
+  maxIdleConns: 10
+  maxOpenConns: 100
+port: 9090
