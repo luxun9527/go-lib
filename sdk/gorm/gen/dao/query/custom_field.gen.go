@@ -28,7 +28,7 @@ func newCustomField(db *gorm.DB, opts ...gen.DOOption) customField {
 	tableName := _customField.customFieldDo.TableName()
 	_customField.ALL = field.NewAsterisk(tableName)
 	_customField.ID = field.NewInt32(tableName, "id")
-	_customField.CreatedTime = field.NewInt64(tableName, "created_time")
+	_customField.CreatedTime = field.NewString(tableName, "created_time")
 
 	_customField.fillFieldMap()
 
@@ -40,7 +40,7 @@ type customField struct {
 
 	ALL         field.Asterisk
 	ID          field.Int32
-	CreatedTime field.Int64
+	CreatedTime field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -58,7 +58,7 @@ func (c customField) As(alias string) *customField {
 func (c *customField) updateTableName(table string) *customField {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt32(table, "id")
-	c.CreatedTime = field.NewInt64(table, "created_time")
+	c.CreatedTime = field.NewString(table, "created_time")
 
 	c.fillFieldMap()
 

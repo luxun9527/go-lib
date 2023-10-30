@@ -8,8 +8,8 @@ const TableNameCustomField = "custom_field"
 
 // CustomField mapped from table <custom_field>
 type CustomField struct {
-	ID          int32 `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	CreatedTime int64 `gorm:"column:created_time;not null" json:"created_time"`
+	ID          int32  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	CreatedTime string `gorm:"column:created_time;not null" json:"created_time"`
 }
 
 // TableName CustomField's table name

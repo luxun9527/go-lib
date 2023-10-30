@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package mult;
+option go_package="./mult";
+
+message Request {
+string ping = 1;
+}
+message UserClassListReq{
+  string name=1; //test
+  string age=2; //test
+}
+message UserClassListResp{}
+message UserClassUpdateReq{}
+message UserClassUpdateResp{}
+message UserClassInfoReq{}
+message UserClassInfoResp{}
+message UserClassAddReq{}
+message UserClassAddResp{}
+message UserClassDeleteReq{}
+message UserClassDeleteResp{}
+service UserClassService{
+  rpc UserClassList (UserClassListReq) returns (UserClassListResp);
+  rpc UserClassUpdate (UserClassUpdateReq) returns (UserClassUpdateResp);
+  rpc UserClassInfo (UserClassInfoReq) returns (UserClassInfoResp);
+  rpc UserClassAdd (UserClassAddReq) returns (UserClassAddResp);
+  rpc UserClassDelete (UserClassDeleteReq) returns (UserClassDeleteResp);
+}

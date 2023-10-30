@@ -9,7 +9,7 @@ import (
 
 var (
 	builtAt   string
-	buildUser string
+	builtUser string
 	builtOn   string
 	goVersion string
 	gitAuthor string
@@ -24,7 +24,7 @@ func init(){
 func PrintVersionInfo(val string) {
 	fmt.Printf("%-20s %s\n", "builtAt", color.GreenString(builtAt))
 	fmt.Printf("%-20s %s\n", "builtOn", color.GreenString(builtOn))
-	fmt.Printf("%-20s %s\n", "buildUser", color.GreenString(buildUser))
+	fmt.Printf("%-20s %s\n", "builtUser", color.GreenString(builtUser))
 	fmt.Printf("%-20s %s\n", "goVersion", color.GreenString(goVersion))
 	fmt.Printf("%-20s %s\n", "gitAuthor", color.GreenString(gitAuthor))
 	fmt.Printf("%-20s %s\n", "gitCommit", color.GreenString(gitCommit))

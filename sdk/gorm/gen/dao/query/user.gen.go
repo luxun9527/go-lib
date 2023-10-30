@@ -29,11 +29,16 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.ALL = field.NewAsterisk(tableName)
 	_user.ID = field.NewInt32(tableName, "id")
 	_user.Username = field.NewString(tableName, "username")
+	_user.Password = field.NewString(tableName, "password")
+	_user.Nickname = field.NewString(tableName, "nickname")
+	_user.Address = field.NewString(tableName, "address")
 	_user.Age = field.NewInt32(tableName, "age")
 	_user.Fav = field.NewString(tableName, "fav")
 	_user.CreatedAt = field.NewInt64(tableName, "created_at")
 	_user.UpdatedAt = field.NewInt64(tableName, "updated_at")
 	_user.DeletedAt = field.NewInt64(tableName, "deleted_at")
+	_user.PhoneNumber = field.NewInt64(tableName, "phone_number")
+	_user.Status = field.NewInt32(tableName, "status")
 
 	_user.fillFieldMap()
 
@@ -43,14 +48,19 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 type user struct {
 	userDo userDo
 
-	ALL       field.Asterisk
-	ID        field.Int32
-	Username  field.String // 用户名
-	Age       field.Int32  // 年龄
-	Fav       field.String // 爱好
-	CreatedAt field.Int64  // 创建时间
-	UpdatedAt field.Int64  // 修改时间
-	DeletedAt field.Int64  // 删除时间
+	ALL         field.Asterisk
+	ID          field.Int32
+	Username    field.String // 用户名
+	Password    field.String // 密码
+	Nickname    field.String
+	Address     field.String
+	Age         field.Int32  // 年龄
+	Fav         field.String // 爱好
+	CreatedAt   field.Int64  // 创建时间
+	UpdatedAt   field.Int64  // 修改时间
+	DeletedAt   field.Int64  // 删除时间
+	PhoneNumber field.Int64  // 手机号
+	Status      field.Int32  // 用户状态，1正常2锁定
 
 	fieldMap map[string]field.Expr
 }
@@ -69,11 +79,16 @@ func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewInt32(table, "id")
 	u.Username = field.NewString(table, "username")
+	u.Password = field.NewString(table, "password")
+	u.Nickname = field.NewString(table, "nickname")
+	u.Address = field.NewString(table, "address")
 	u.Age = field.NewInt32(table, "age")
 	u.Fav = field.NewString(table, "fav")
 	u.CreatedAt = field.NewInt64(table, "created_at")
 	u.UpdatedAt = field.NewInt64(table, "updated_at")
 	u.DeletedAt = field.NewInt64(table, "deleted_at")
+	u.PhoneNumber = field.NewInt64(table, "phone_number")
+	u.Status = field.NewInt32(table, "status")
 
 	u.fillFieldMap()
 
@@ -86,6 +101,8 @@ func (u user) TableName() string { return u.userDo.TableName() }
 
 func (u user) Alias() string { return u.userDo.Alias() }
 
+func (u user) Columns(cols ...field.Expr) gen.Columns { return u.userDo.Columns(cols...) }
+
 func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := u.fieldMap[fieldName]
 	if !ok || _f == nil {
@@ -96,14 +113,19 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 7)
+	u.fieldMap = make(map[string]field.Expr, 12)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["username"] = u.Username
+	u.fieldMap["password"] = u.Password
+	u.fieldMap["nickname"] = u.Nickname
+	u.fieldMap["address"] = u.Address
 	u.fieldMap["age"] = u.Age
 	u.fieldMap["fav"] = u.Fav
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 	u.fieldMap["deleted_at"] = u.DeletedAt
+	u.fieldMap["phone_number"] = u.PhoneNumber
+	u.fieldMap["status"] = u.Status
 }
 
 func (u user) clone(db *gorm.DB) user {
@@ -160,10 +182,6 @@ func (u userDo) Select(conds ...field.Expr) *userDo {
 
 func (u userDo) Where(conds ...gen.Condition) *userDo {
 	return u.withDO(u.DO.Where(conds...))
-}
-
-func (u userDo) Exists(subquery interface{ UnderlyingDB() *gorm.DB }) *userDo {
-	return u.Where(field.CompareSubQuery(field.ExistsOp, nil, subquery.UnderlyingDB()))
 }
 
 func (u userDo) Order(conds ...field.Expr) *userDo {

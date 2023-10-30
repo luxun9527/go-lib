@@ -17,29 +17,62 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:      db,
-		Card:    newCard(db, opts...),
-		Profile: newProfile(db, opts...),
-		User:    newUser(db, opts...),
+		db:           db,
+		Asset:        newAsset(db, opts...),
+		Card:         newCard(db, opts...),
+		CustomField:  newCustomField(db, opts...),
+		Domin:        newDomin(db, opts...),
+		EntrustOrder: newEntrustOrder(db, opts...),
+		Kline:        newKline(db, opts...),
+		MatchedOrder: newMatchedOrder(db, opts...),
+		Profile:      newProfile(db, opts...),
+		T:            newT(db, opts...),
+		T1:           newT1(db, opts...),
+		Test:         newTest(db, opts...),
+		User:         newUser(db, opts...),
+		UserBak:      newUserBak(db, opts...),
+		UserJSON:     newUserJSON(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Card    card
-	Profile profile
-	User    user
+	Asset        asset
+	Card         card
+	CustomField  customField
+	Domin        domin
+	EntrustOrder entrustOrder
+	Kline        kline
+	MatchedOrder matchedOrder
+	Profile      profile
+	T            t
+	T1           t1
+	Test         test
+	User         user
+	UserBak      userBak
+	UserJSON     userJSON
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:      db,
-		Card:    q.Card.clone(db),
-		Profile: q.Profile.clone(db),
-		User:    q.User.clone(db),
+		db:           db,
+		Asset:        q.Asset.clone(db),
+		Card:         q.Card.clone(db),
+		CustomField:  q.CustomField.clone(db),
+		Domin:        q.Domin.clone(db),
+		EntrustOrder: q.EntrustOrder.clone(db),
+		Kline:        q.Kline.clone(db),
+		MatchedOrder: q.MatchedOrder.clone(db),
+		Profile:      q.Profile.clone(db),
+		T:            q.T.clone(db),
+		T1:           q.T1.clone(db),
+		Test:         q.Test.clone(db),
+		User:         q.User.clone(db),
+		UserBak:      q.UserBak.clone(db),
+		UserJSON:     q.UserJSON.clone(db),
 	}
 }
 
@@ -53,24 +86,57 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:      db,
-		Card:    q.Card.replaceDB(db),
-		Profile: q.Profile.replaceDB(db),
-		User:    q.User.replaceDB(db),
+		db:           db,
+		Asset:        q.Asset.replaceDB(db),
+		Card:         q.Card.replaceDB(db),
+		CustomField:  q.CustomField.replaceDB(db),
+		Domin:        q.Domin.replaceDB(db),
+		EntrustOrder: q.EntrustOrder.replaceDB(db),
+		Kline:        q.Kline.replaceDB(db),
+		MatchedOrder: q.MatchedOrder.replaceDB(db),
+		Profile:      q.Profile.replaceDB(db),
+		T:            q.T.replaceDB(db),
+		T1:           q.T1.replaceDB(db),
+		Test:         q.Test.replaceDB(db),
+		User:         q.User.replaceDB(db),
+		UserBak:      q.UserBak.replaceDB(db),
+		UserJSON:     q.UserJSON.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Card    *cardDo
-	Profile *profileDo
-	User    *userDo
+	Asset        *assetDo
+	Card         *cardDo
+	CustomField  *customFieldDo
+	Domin        *dominDo
+	EntrustOrder *entrustOrderDo
+	Kline        *klineDo
+	MatchedOrder *matchedOrderDo
+	Profile      *profileDo
+	T            *tDo
+	T1           *t1Do
+	Test         *testDo
+	User         *userDo
+	UserBak      *userBakDo
+	UserJSON     *userJSONDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Card:    q.Card.WithContext(ctx),
-		Profile: q.Profile.WithContext(ctx),
-		User:    q.User.WithContext(ctx),
+		Asset:        q.Asset.WithContext(ctx),
+		Card:         q.Card.WithContext(ctx),
+		CustomField:  q.CustomField.WithContext(ctx),
+		Domin:        q.Domin.WithContext(ctx),
+		EntrustOrder: q.EntrustOrder.WithContext(ctx),
+		Kline:        q.Kline.WithContext(ctx),
+		MatchedOrder: q.MatchedOrder.WithContext(ctx),
+		Profile:      q.Profile.WithContext(ctx),
+		T:            q.T.WithContext(ctx),
+		T1:           q.T1.WithContext(ctx),
+		Test:         q.Test.WithContext(ctx),
+		User:         q.User.WithContext(ctx),
+		UserBak:      q.UserBak.WithContext(ctx),
+		UserJSON:     q.UserJSON.WithContext(ctx),
 	}
 }
 

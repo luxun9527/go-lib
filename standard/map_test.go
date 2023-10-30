@@ -52,3 +52,9 @@ func TestSyncMap1(t *testing.T) {
 		}
 	}
 }
+
+func TestName(t *testing.T) {
+	var s = map[int32]string{1:"1"}
+	s2 := s[2]
+	log.Println(s2)
+}

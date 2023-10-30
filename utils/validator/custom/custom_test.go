@@ -1,4 +1,4 @@
-package main
+package custom
 
 import (
 	"database/sql"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"reflect"
+	"testing"
 )
 
 // DbBackedUser User struct
@@ -17,7 +18,7 @@ type DbBackedUser struct {
 // use a single instance of Validate, it caches struct info
 var validate *validator.Validate
 
-func main() {
+func TestCustom(t *testing.T)  {
 
 	validate = validator.New()
 
@@ -47,4 +48,31 @@ func ValidateValuer(field reflect.Value) interface{} {
 	}
 
 	return nil
+}
+// MyStruct ..
+type MyStruct struct {
+	String string `validate:"is-awesome"`
+}
+
+
+// ValidateMyVal implements validator.Func
+func ValidateMyVal(fl validator.FieldLevel) bool {
+	return fl.Field().String() == "awesome"
+}
+func TestCustomTag(t *testing.T) {
+	validate = validator.New()
+	validate.RegisterValidation("is-awesome", ValidateMyVal)
+
+	s := MyStruct{String: "awesome"}
+
+	err := validate.Struct(s)
+	if err != nil {
+		fmt.Printf("Err(s):\n%+v\n", err)
+	}
+
+	s.String = "not awesome"
+	err = validate.Struct(s)
+	if err != nil {
+		fmt.Printf("Err(s):\n%+v\n", err)
+	}
 }

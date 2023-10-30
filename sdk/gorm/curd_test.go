@@ -71,6 +71,8 @@ func (*Profile) TableName() string {
 	return TableNameProfile
 }
 
+
+
 var db *gorm.DB
 
 func init() {
@@ -84,7 +86,7 @@ func init() {
 		},
 	)
 
-	dsn := "root:root@tcp(192.168.254.99:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:root@tcp(192.168.11.185:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -101,11 +103,6 @@ func init() {
 	//db.AutoMigrate(&Profile{})
 	//db.AutoMigrate(&Card{})
 	//db.AutoMigrate(&CustomField{})
-	db.AutoMigrate(&User1{})
-	db.AutoMigrate(&MatchedOrder{})
-	db.AutoMigrate(&EntrustOrder{})
-	db.AutoMigrate(&Kline{})
-	db.AutoMigrate(&Asset{})
 
 }
 func TestCreate(t *testing.T) {
@@ -256,3 +253,21 @@ func (loc CustomTime) GormDataType() string {
 	return "int64"
 }
 
+const TableNameUserJSON = "user_json"
+
+// UserJSON mapped from table <user_json>
+type UserJSON struct {
+	ID         int32  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	UserConfig []byte `gorm:"column:user_config;not null" json:"user_config"`
+}
+
+// TableName UserJSON's table name
+func (*UserJSON) TableName() string {
+	return TableNameUserJSON
+}
+func TestJsonMap(t *testing.T) {
+	var u UserJSON
+	db.Where("id=?",1).Select("user_config").Find(&u)
+	log.Println(string(u.UserConfig))
+	db.Create(&u)
+}
