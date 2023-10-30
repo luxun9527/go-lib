@@ -71,8 +71,6 @@ func (*Profile) TableName() string {
 	return TableNameProfile
 }
 
-
-
 var db *gorm.DB
 
 func init() {
@@ -86,7 +84,7 @@ func init() {
 		},
 	)
 
-	dsn := "root:root@tcp(192.168.11.185:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:root@tcp(192.168.2.159:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -98,7 +96,7 @@ func init() {
 	sqlBb, err := db.DB()
 	sqlBb.SetMaxOpenConns(100)
 	sqlBb.SetMaxIdleConns(10)
-	sqlBb.SetConnMaxIdleTime(time.Hour*5)
+	sqlBb.SetConnMaxIdleTime(time.Hour * 5)
 	//db.AutoMigrate(&User{})
 	//db.AutoMigrate(&Profile{})
 	//db.AutoMigrate(&Card{})
@@ -155,7 +153,7 @@ func TestUpdate(t *testing.T) {
 	//UPDATE `user` SET `id`=0,`username`='',`age`=0,`created_at`=0,`updated_at`=1695796443,`deleted_at`=0 WHERE `id` = 1
 	//忽略指定字段其他还会被更新
 	db.Select("*").Omit("fav").Updates(&User{
-		ID: 1,
+		ID:       1,
 		Username: "",
 		Fav:      "1",
 	})
@@ -236,7 +234,8 @@ type CustomTime string
 func (t CustomTime) Value() (driver.Value, error) {
 	return cast.ToInt64(string(t)), nil
 }
-//数据库 反序列化到值
+
+// 数据库 反序列化到值
 func (t *CustomTime) Scan(v interface{}) error {
 	switch vt := v.(type) {
 	case []byte:
@@ -267,7 +266,7 @@ func (*UserJSON) TableName() string {
 }
 func TestJsonMap(t *testing.T) {
 	var u UserJSON
-	db.Where("id=?",1).Select("user_config").Find(&u)
+	db.Where("id=?", 1).Select("user_config").Find(&u)
 	log.Println(string(u.UserConfig))
 	db.Create(&u)
 }

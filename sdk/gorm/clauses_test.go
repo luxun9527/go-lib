@@ -9,7 +9,9 @@ import (
 	"gorm.io/gen/field"
 	"gorm.io/gorm/clause"
 	"log"
+	"reflect"
 	"testing"
+	"unsafe"
 )
 
 // Like whether string matches regular expression
@@ -91,21 +93,69 @@ func TestGenCondition2(t *testing.T) {
 		Value:     "v1",
 	}
 
-	customField := GenCustomField{Expr:field.EmptyExpr()}
-
-	_, _ = u.WithContext(context.Background()).Select(customField).Where(s).Where(u.ID.Like(1)).First()
+	_, _ = u.WithContext(context.Background()).Where(s).Where(u.ID.Like(1)).First()
 	//SELECT * FROM `user` WHERE `table`.`column` LIKE binary 'v1' AND `user`.`id` LIKE 1 ORDER BY `user`.`id` LIMIT 1
 	u.WithContext(context.Background()).Select(u.ID.Max()).First()
 
 }
 
+func TestGenCondition3(t *testing.T) {
+	dao := query.Use(db)
+	u := dao.User
+	var s gen.SubQuery = &StringBinaryLike{
+		TableName: "table",
+		Column:    "column",
+		Value:     "v1",
+	}
 
+	customField := GenCustomField{Expr: field.EmptyExpr()}
+
+	expr := reflect.ValueOf(customField.Expr)
+
+	addressableSourceCopy := reflect.New(expr.Type()).Elem()
+	addressableSourceCopy.Set(expr)
+
+	e := addressableSourceCopy.FieldByName("e")
+
+	newE := reflect.NewAt(e.Type(), unsafe.Pointer(e.UnsafeAddr())).Elem()
+	//sql := newE.FieldByName("SQL")
+	//
+	//newSql := reflect.NewAt(sql.Type(), unsafe.Pointer(sql.UnsafeAddr())).Elem()
+	//newSql.SetString("test")
+	c := clause.Expr{
+		SQL:                "112121",
+		Vars:               nil,
+		WithoutParentheses: false,
+	}
+	newE.Set(reflect.ValueOf(c))
+	cs := &GenCustomField{Expr: field.EmptyExpr()}
+
+	v := reflect.ValueOf(cs).Elem().FieldByName("Expr")
+	v1 := reflect.NewAt(v.Type(), unsafe.Pointer(v.UnsafeAddr())).Elem()
+	v1.Set(addressableSourceCopy)
+	log.Printf("%+v", expr)
+	expr = addressableSourceCopy
+	_, _ = u.WithContext(context.Background()).Select(cs).Where(s).Where(u.ID.Like(1)).First()
+	//SELECT * FROM `user` WHERE `table`.`column` LIKE binary 'v1' AND `user`.`id` LIKE 1 ORDER BY `user`.`id` LIMIT 1
+	u.WithContext(context.Background()).Select(u.ID.Max()).First()
+
+}
+
+type CustomBuilder struct {
+}
+
+func (CustomBuilder) Build(builder clause.Builder) {
+	builder.WriteQuoted("tes11t")
+	builder.WriteByte(46)
+	builder.WriteQuoted("tes111t")
+	builder.WriteString(" LIKE binary ")
+}
 
 type GenCustomField struct {
 	field.Expr
 }
 
-func(GenCustomField) Build(builder clause.Builder)(){
+func (GenCustomField) Build(builder clause.Builder) {
 	builder.WriteQuoted("tes11t")
 	builder.WriteByte(46)
 	builder.WriteQuoted("tes111t")
