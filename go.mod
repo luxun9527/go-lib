@@ -33,9 +33,9 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/hpcloud/tail v1.0.0
 	github.com/jinzhu/copier v0.3.5
+	github.com/juiced-aio/hawk-go v0.0.0-20210830070956-a7781ad416c1
 	github.com/juju/ratelimit v1.0.2
 	github.com/labstack/echo/v4 v4.11.1
-	github.com/lestrrat-go/option v1.0.1
 	github.com/lithammer/shortuuid/v3 v3.0.7
 	github.com/luxun9527/gpush v0.0.0-20230722124105-2334008b2b0b
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
@@ -49,6 +49,7 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
 	github.com/tidwall/evio v1.0.8
+	github.com/useflyent/fhttp v0.0.0-20211004035111-333f430cfbbf
 	github.com/zeromicro/go-zero v1.5.3
 	go.etcd.io/etcd/api/v3 v3.5.9
 	go.etcd.io/etcd/client/v3 v3.5.9
@@ -84,8 +85,10 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.8.3 // indirect
 	github.com/DataDog/zstd v1.5.0 // indirect
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible // indirect
+	github.com/Lazarus/lz-string-go v0.0.0-20210604111459-ed7cd5a66c48 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/alibaba/sentinel-golang v1.0.4 // indirect
+	github.com/anaskhan96/soup v1.2.4 // indirect
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/apache/rocketmq-client-go/v2 v2.1.2-0.20230628073434-533de03048e1 // indirect

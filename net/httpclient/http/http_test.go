@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,15 +11,49 @@ import (
 )
 
 func TestClient(t *testing.T) {
-	resp, err := http.Get("http://192.168.254.99:9090/test")
+	params := []byte(`{"key1": "value1", "key2": "value2"}`)
+	// 请求头
+	headers := map[string]string{
+		"Content-Type": "application/json",
+		"User-Agent":   "MyGoApp/1.0",
+	}
+	// 创建HTTP请求
+	req, err := http.NewRequest("POST", "http://127.0.0.1:8888/api", bytes.NewBuffer(params))
 	if err != nil {
-		log.Println("err", err)
+		fmt.Println("创建HTTP请求失败:", err)
 		return
 	}
-	all, err := ioutil.ReadAll(resp.Body)
-	log.Println(string(all))
+	// 设置请求头
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+	// 发送HTTP请求
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("发送HTTP请求失败:", err)
+		return
+	}
+	defer resp.Body.Close()
+	// 读取响应内容
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("读取响应内容失败:", err)
+		return
+	}
+	// 输出响应内容
+	fmt.Println("响应状态码:", resp.StatusCode)
+	fmt.Println("响应内容:", string(body))
 }
+func TestServer11(t *testing.T) {
+	http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
 
+		log.Println()
+	})
+
+	log.Print("Listening on localhost:8888")
+	log.Fatal(http.ListenAndServe(":8888", nil))
+}
 func TestServer(t *testing.T) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		flusher, ok := w.(http.Flusher)
