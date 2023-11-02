@@ -35,7 +35,7 @@ func TestReflectStruct(t *testing.T){
 
 }
 
-//查看修改未导出的字段
+//修改接口未导出的字段
 func TestUnExport(t *testing.T) {
 	 sourceCopy := GetStructPtrUnExportedField(model.E, "unexport")
 	//sourceCopy.
@@ -45,7 +45,7 @@ func TestUnExport(t *testing.T) {
 	//reflect.NewAt( sourceCopy.Type(), unsafe.Pointer(sourceCopy.UnsafeAddr())).Elem()
 	s.SetString("111")
 	log.Println(model.E)
-
+	//指针通过Elem()函数，获得CanSet和CanAddress能力 结构体则需要 先通过reflect.New函数获得一个一样的 reflect.Value
 }
 
 func SetStructPtrUnExportedStrField(source interface{}, fieldName string, fieldVal interface{}) (err error) {
