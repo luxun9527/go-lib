@@ -3,6 +3,7 @@ package logger
 import (
 	"go.uber.org/zap"
 	"testing"
+	"time"
 )
 
 func TestZap(t *testing.T) {
@@ -10,14 +11,14 @@ func TestZap(t *testing.T) {
 		Level:         "debug",
 		Stacktrace:    true,
 		AddCaller:     true,
-		CallerShip:    0,
+		CallerShip:    1,
 		Mode:          "console",
-		FileName:      "0",
+		FileName:      "",
 		ErrorFileName: "",
 		MaxSize:       0,
 		MaxAge:        0,
 		MaxBackup:     0,
-		Async:         true,
+		Async:         false,
 		Json:          false,
 		Compress:      false,
 		options:       nil,
@@ -27,8 +28,37 @@ func TestZap(t *testing.T) {
 	l.Info("this a info level log", zap.Any("test", "t"))
 	l.Warn("this a warn level log", zap.Any("test", "t"))
 	l.Error("this a error level log", zap.Any("test", "t"))
-	l.Sync()
+//	l.Sync()
+    time.Sleep(time.Second*2)
 	l.Panic("this a panic level log", zap.Any("test", "t"))
+
+}
+func TestZapAsync(t *testing.T) {
+	config := Config{
+		Level:         "debug",
+		Stacktrace:    true,
+		AddCaller:     true,
+		CallerShip:    1,
+		Mode:          "console",
+		FileName:      "",
+		ErrorFileName: "",
+		MaxSize:       0,
+		MaxAge:        0,
+		MaxBackup:     0,
+		Async:         true,
+		Json:          true,
+		Compress:      false,
+		options:       nil,
+	}
+	l := config.Build()
+	l.Debug("this a debug level log", zap.Any("test", "t"))
+	l.Info("this a info level log", zap.Any("test", "t"))
+	l.Warn("this a warn level log", zap.Any("test", "t"))
+	l.Error("this a error level log", zap.Any("test", "t"))
+	//	l.Sync()
+	//l.Panic("this a panic level log", zap.Any("test", "t"))
+	time.Sleep(time.Second*2)
+	l.Sync()
 
 }
 func TestFileLog(t *testing.T) {
@@ -42,14 +72,14 @@ func TestFileLog(t *testing.T) {
 		ErrorFileName: "err.log",
 		MaxSize:       1,
 		MaxAge:        1,
-		MaxBackup:     1,
+		MaxBackup:     10,
 		Async:         true,
 		Json:          false,
 		Compress:      false,
 		options:       nil,
 	}
 	l := config.Build()
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < 13000000; i++ {
 		l.Debug("this a debug level log", zap.Any("test", "t"))
 		l.Info("this a info level log", zap.Any("test", "t"))
 		l.Warn("this a warn level log", zap.Any("test", "t"))

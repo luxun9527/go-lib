@@ -72,18 +72,6 @@ func (s StringBinaryLike) Build(builder clause.Builder) {
 	builder.AddVar(builder, s.Value)
 }
 
-func TestGenCondition1(t *testing.T) {
-	dao := query.Use(db)
-	u := dao.User
-	s := StringInt(1)
-	result, err := u.WithContext(context.Background()).Select().Where(field.NewField(u.TableName(), u.Age.ColumnName().String()).Like(s)).First()
-	if err != nil {
-		log.Println(err)
-	}
-	//SELECT * FROM `user` WHERE `user`.`age` LIKE '1' ORDER BY `user`.`id` LIMIT 1
-	log.Printf("%+v", result)
-
-}
 func TestGenCondition2(t *testing.T) {
 	dao := query.Use(db)
 	u := dao.User
@@ -99,39 +87,25 @@ func TestGenCondition2(t *testing.T) {
 
 }
 
-func TestGenCondition3(t *testing.T) {
+
+func TestGenCondition1(t *testing.T) {
+	dao := query.Use(db)
+	u := dao.User
+	s := StringInt(1)
+	result, err := u.WithContext(context.Background()).Select().Where(field.NewField(u.TableName(), u.Age.ColumnName().String()).Like(s)).First()
+	if err != nil {
+		log.Println(err)
+	}
+	//SELECT * FROM `user` WHERE `user`.`age` LIKE '1' ORDER BY `user`.`id` LIMIT 1
+	log.Printf("%+v", result)
+
+}
+
+
+func TestCustomField1(t *testing.T) {
 	dao := query.Use(db)
 	u := dao.User
 
-	//customField := GenCustomField{Expr: field.EmptyExpr()}
-
-	//expr := reflect.ValueOf(field.EmptyExpr())
-	//
-	//addressableSourceCopy := reflect.New(expr.Type()).Elem()
-	//addressableSourceCopy.Set(expr)
-	//
-	//e := addressableSourceCopy.FieldByName("e")
-	//
-	//newE := reflect.NewAt(e.Type(), unsafe.Pointer(e.UnsafeAddr())).Elem()
-	//sql := newE.FieldByName("SQL")
-	//
-	//newSql := reflect.NewAt(sql.Type(), unsafe.Pointer(sql.UnsafeAddr())).Elem()
-	//newSql.SetString("test")
-	//c := clause.Expr{
-	//	SQL:                "112121",
-	//	Vars:               nil,
-	//	WithoutParentheses: false,
-	//}
-	//var cb CustomColumn
-	//newE.Set(reflect.ValueOf(cb))
-	//cs := &GenCustomField{Expr: field.EmptyExpr()}
-
-	//v := reflect.ValueOf(cs).Elem().FieldByName("Expr")
-	//v1 := reflect.NewAt(v.Type(), unsafe.Pointer(v.UnsafeAddr())).Elem()
-	//v1.Set(addressableSourceCopy)
-	//log.Printf("%+v", expr)
-	//expr = addressableSourceCopy
-	//column := CustomColumn{Column: "JSON_EXTRACT( activity_config, '$.backup_page_id' )"}
 	c := NewCustomColumn("JSON_EXTRACT( activity_config, '$.backup_page_id' )")
 	_, _ = u.WithContext(context.Background()).Select(c).Where(u.ID.Like(1)).First()
 	//SELECT JSON_EXTRACT( activity_config, '$.backup_page_id' ) FROM `user` WHERE `user`.`id` LIKE 1 ORDER BY `user`.`id` LIMIT 1
@@ -157,10 +131,10 @@ func NewCustomColumn(column string)CustomColumn{
 //由于gen没有开放替换e(clause.Expression)的操作，只能通过反射的方式将一个 expr 中的 e 替换成我们自己的。
 func (c *CustomColumn)replace(){
 	expr := reflect.ValueOf(field.EmptyExpr())
-	//获取一个新的expr,新建的expr有CANSET和CANADDR能力。
+	//获取一个新的expr Elem()后expr有CANSET和CANADDR能力。
 	newExpr := reflect.New(expr.Type()).Elem()
 	newExpr.Set(expr)
-	// 获取e
+	// 获取e  e默认有CANADDR的能力
 	e := newExpr.FieldByName("e")
 	newE := reflect.NewAt(e.Type(), unsafe.Pointer(e.UnsafeAddr())).Elem()
 	newE.Set(reflect.ValueOf(*c))

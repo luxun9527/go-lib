@@ -1,24 +1,48 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"testing"
 	"time"
 )
 
-func TestClient(t *testing.T) {
-	resp, err := http.Get("http://192.168.254.99:9090/test")
+func TestClientNormal(t *testing.T) {
+	// 创建请求对象
+	// 创建http客户端
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", "http://127.0.0.1:8888/download", bytes.NewBuffer([]byte(`{"code":"1","value":1"}`)))
 	if err != nil {
-		log.Println("err", err)
+		fmt.Println("请求对象创建失败：", err)
 		return
 	}
-	all, err := ioutil.ReadAll(resp.Body)
-	log.Println(string(all))
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36")
+	if _, err := client.Do(req); err != nil {
+		log.Println("err",err)
+	}
+	body, err := io.ReadAll(req.Body)
+	if err!=nil{
+		log.Println("err",err)
+	}
+	log.Println(string(body))
 }
 
+func TestServerNormal(t *testing.T) {
+	http.HandleFunc("/download", func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r.Header)
+		body, err := io.ReadAll(r.Body)
+		if err!=nil{
+			log.Println(err)
+		}
+		log.Println(string(body))
+	})
+
+	log.Print("Listening on localhost:8888")
+	log.Fatal(http.ListenAndServe(":8888", nil))
+}
 func TestServer(t *testing.T) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		flusher, ok := w.(http.Flusher)
