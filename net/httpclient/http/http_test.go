@@ -28,7 +28,30 @@ func TestClientNormal(t *testing.T) {
 		log.Println("err",err)
 	}
 	log.Println(string(body))
+
+	// 请求头
+	headers := map[string]string{
+		"Content-Type": "application/json",
+		"User-Agent":   "MyGoApp/1.0",
+	}
+
+	// 设置请求头
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+	// 发送HTTP请求
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("发送HTTP请求失败:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	// 输出响应内容
+	fmt.Println("响应状态码:", resp.StatusCode)
+	fmt.Println("响应内容:", string(body))
 }
+
 
 func TestServerNormal(t *testing.T) {
 	http.HandleFunc("/download", func(w http.ResponseWriter, r *http.Request) {
@@ -38,6 +61,7 @@ func TestServerNormal(t *testing.T) {
 			log.Println(err)
 		}
 		log.Println(string(body))
+		log.Println()
 	})
 
 	log.Print("Listening on localhost:8888")
