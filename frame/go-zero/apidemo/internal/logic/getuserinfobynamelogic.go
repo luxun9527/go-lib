@@ -24,7 +24,7 @@ func NewGetUserInfoByNameLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *GetUserInfoByNameLogic) GetUserInfoByName(req *types.GetUserInfoByNameReq) (resp *types.Response, err error) {
-	// todo: add your logic here and delete this line
+	l.Errorw("testtest",logx.Field("key","value"))
 	resp = &types.Response{Message: "test"}
 	return
 }

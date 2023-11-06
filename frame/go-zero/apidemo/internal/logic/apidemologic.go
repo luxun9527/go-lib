@@ -2,8 +2,6 @@ package logic
 
 import (
 	"context"
-	"log"
-
 	"go-lib/frame/go-zero/apidemo/internal/svc"
 	"go-lib/frame/go-zero/apidemo/internal/types"
 
@@ -25,7 +23,8 @@ func NewApidemoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ApidemoLo
 }
 
 func (l *ApidemoLogic) Apidemo(req *types.Request) (resp *types.Response, err error) {
-	// todo: add your logic here and delete this line
-	log.Panic("test11212")
+
+	l.Errorw("testtest",logx.Field("key","value"))
+	//log.Panic("test11212")
 	return
 }
