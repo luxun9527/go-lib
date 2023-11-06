@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -11,11 +13,13 @@ import (
 	"log"
 	"testing"
 )
+
 const (
-	service     = "trace-demo" // 服务名
-	environment = "production" // 环境
-	id          = 1      // id
+	service     = "trace-demo1" // 服务名
+	environment = "production"  // 环境
+	id          = 1             // id
 )
+
 func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
 	// Create the Jaeger exporter
 	// 创建 Jaeger exporter
@@ -37,41 +41,33 @@ func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
 	return tp, nil
 }
 func TestGormTrace(t *testing.T) {
-	tp, err := tracerProvider("http://192.168.11.185:14268/api/traces")
+	ctx := context.Background()
+
+	tp, err := tracerProvider("http://192.168.2.159:14268/api/traces")
 	if err != nil {
 		log.Fatal(err)
 	}
-	plugin := otelgorm.NewPlugin(
-		otelgorm.WithDBName("user"),
-		otelgorm.WithAttributes(semconv.DBSystemMySQL, attribute.String("db.addr", "192.168.11.185")),
+	if err := db.Use(otelgorm.NewPlugin(
+		otelgorm.WithDBName("test"),
 		otelgorm.WithTracerProvider(tp),
-	)
-	if err := db.Use(plugin); err != nil {
+	)); err != nil {
 		log.Fatal(err)
 	}
+	otel.SetTracerProvider(tp)
+
+	tracer := otel.Tracer("gormtracer")
+
+	ctx, span := tracer.Start(ctx, "gormtest")
+	defer span.End()
 	user := &User{
-		Username:  "test",
-		Age:       1,
-		Fav:       "test",
-		CreatedAt: 0,
-		UpdatedAt: 0,
+		Username: "test1",
+		Age:      1,
+		Fav:      "1",
 	}
 	//INSERT INTO `user` (`username`,`age`,`fav`,`created_at`,`updated_at`) VALUES ('',0,'',1692947238,1692947238)
-	if err := db.Create(user).Error; err != nil {
+	if err := db.WithContext(ctx).Create(user).Error; err != nil {
 		fmt.Println("create err", err)
 	}
-	fmt.Printf("user = %+v", user)
-	//INSERT INTO `user` (`fav`,`created_at`,`updated_at`) VALUES ('',1692947405,1692947405)
-	if err := db.Select("fav").Create(user).Error; err != nil {
-		fmt.Println("create err", err)
-	}
-	//INSERT INTO `user` (`username`,`age`,`created_at`,`updated_at`,`id`) VALUES ('',0,1692947813,1692947813,14)
-	if err := db.Omit("fav").Create(user).Error; err != nil {
-		fmt.Println("create err", err)
-	}
-	//https://gorm.io/zh_CN/docs/models.html
-	//官方的文档很全主要是验证一些模糊的地方
-	//1、零值会被插入。
-	//2、created_at updated_at会被填充当前时间插入。
-	//3、插入后会将主键赋值回来。
+	//otelplay.PrintTraceID(ctx)
+	tp.Shutdown(ctx)
 }
