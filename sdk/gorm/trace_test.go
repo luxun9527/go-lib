@@ -43,7 +43,7 @@ func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
 func TestGormTrace(t *testing.T) {
 	ctx := context.Background()
 
-	tp, err := tracerProvider("http://192.168.2.159:14268/api/traces")
+	tp, err := tracerProvider("http://192.168.11.185:14268/api/traces")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,6 +68,7 @@ func TestGormTrace(t *testing.T) {
 	if err := db.WithContext(ctx).Create(user).Error; err != nil {
 		fmt.Println("create err", err)
 	}
+
 	//otelplay.PrintTraceID(ctx)
 	tp.Shutdown(ctx)
 }

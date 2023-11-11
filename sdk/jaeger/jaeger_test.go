@@ -23,6 +23,8 @@ const (
 func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
 	// Create the Jaeger exporter
 	// 创建 Jaeger exporter
+	//trace.TracerProvider()
+
 	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
 	if err != nil {
 		return nil, err
@@ -42,7 +44,7 @@ func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
 }
 
 func TestJaeperSingle1(t *testing.T) {
-	tp, err := tracerProvider("http://192.168.2.159:14268/api/traces")
+	tp, err := tracerProvider("http://192.168.11.185:14268/api/traces")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,12 +73,15 @@ func TestJaeperSingle1(t *testing.T) {
 	ctx, span := tr.Start(ctx, "root")
 	defer span.End()
 
+
 	//ctx, f1 := tr.Start(ctx, "f1")
 	//defer f1.End()
 	//ctx, f2 := tr.Start(ctx, "f2")
 	//defer f2.End()
 	// Context 向下传递
 	func1(ctx)
+
+
 
 }
 func func1(ctx context.Context) {
@@ -96,6 +101,4 @@ func func2(ctx context.Context) {
 	_, span := tr.Start(ctx, "fun2")
 	span.SetAttributes(attribute.Key("testasetsaetast").String("testasetsaetast"))
 	defer span.End()
-
-	// Do fun1...
 }

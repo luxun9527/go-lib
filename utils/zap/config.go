@@ -24,8 +24,8 @@ func InitLogger(loggerConfig Config) {
 	L = loggerConfig.Build()
 }
 
-func (lc *Config) parseLevel() zapcore.Level {
-	level, err := zapcore.ParseLevel(lc.Level)
+func (lc *Config) parseLevel() zap.AtomicLevel {
+	level, err := zap.ParseAtomicLevel(lc.Level)
 	if err != nil {
 		log.Panicf("init level failed level %s err %v", lc.Level, err)
 	}
@@ -59,8 +59,13 @@ type Config struct {
 	//最佳实践，在开发的时候json为false,mode为console,测试部署阶段，EnableWarnRedirect为true,mode为file,json为TRUE
 	Json bool
 	//是否日志压缩
-	Compress bool
-	options  []zap.Option
+	Compress    bool
+	options     []zap.Option
+	atomicLevel zap.AtomicLevel
+}
+
+func (lc *Config) ChangeLevel(level zapcore.Level) {
+	lc.atomicLevel.SetLevel(level)
 }
 
 func (lc *Config) Build() *zap.Logger {
@@ -74,7 +79,7 @@ func (lc *Config) Build() *zap.Logger {
 	encoderConfig := zapcore.EncoderConfig{
 		//当存储的格式为JSON的时候这些作为可以key
 		MessageKey:    "message",
-		LevelKey:      "level",
+		LevelKey:      "atomicLevel",
 		TimeKey:       "time",
 		NameKey:       "logger",
 		CallerKey:     "caller",
@@ -110,8 +115,9 @@ func (lc *Config) Build() *zap.Logger {
 			LocalTime:  true,
 			Compress:   lc.Compress,
 		}
-		ws = zapcore.AddSync(normalConfig)
-		errorWs = zapcore.AddSync(warnConfig)
+		ws = zapcore.Lock(zapcore.AddSync(normalConfig))
+		errorWs = zapcore.Lock(zapcore.AddSync(warnConfig))
+
 	}
 	if lc.Async {
 		ws = &zapcore.BufferedWriteSyncer{
@@ -130,20 +136,22 @@ func (lc *Config) Build() *zap.Logger {
 	} else {
 		encoder = zapcore.NewConsoleEncoder(encoderConfig)
 	}
-	var core zapcore.Core
+	var (
+		core zapcore.Core
+	)
+	atomicLevel := lc.parseLevel()
 	if lc.ErrorFileName != "" && lc.Mode == "file" {
 		highCore := zapcore.NewCore(encoder, errorWs, zapcore.ErrorLevel)
-		lowCore := zapcore.NewCore(encoder, ws, lc.parseLevel())
+		lowCore := zapcore.NewCore(encoder, ws, atomicLevel)
 		core = zapcore.NewTee(highCore, lowCore)
 	} else {
-		core = zapcore.NewCore(encoder, ws, lc.parseLevel())
+		core = zapcore.NewCore(encoder, ws, atomicLevel)
 	}
 	logger := zap.New(core)
 	//是否新增调用者信息
 	if lc.AddCaller {
 		lc.options = append(lc.options, zap.AddCaller())
 		if lc.CallerShip != 0 {
-
 			lc.options = append(lc.options, zap.AddCallerSkip(lc.CallerShip))
 		}
 	}
@@ -151,7 +159,7 @@ func (lc *Config) Build() *zap.Logger {
 	if lc.Stacktrace {
 		lc.options = append(lc.options, zap.AddStacktrace(zap.PanicLevel))
 	}
-
+	lc.atomicLevel = atomicLevel
 	return logger.WithOptions(lc.options...)
 
 }

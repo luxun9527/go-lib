@@ -2,6 +2,7 @@ package logger
 
 import (
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"testing"
 	"time"
 )
@@ -86,6 +87,37 @@ func TestFileLog(t *testing.T) {
 		l.Error("this a error level log", zap.Any("test", "t"))
 
 	}
+
 	l.Sync()
 
+}
+func TestChangeOnRuntime(t *testing.T) {
+	//在运行时改变日志等级
+	config := Config{
+		Level:         "debug",
+		Stacktrace:    true,
+		AddCaller:     true,
+		CallerShip:    1,
+		Mode:          "console",
+		FileName:      "",
+		ErrorFileName: "",
+		MaxSize:       0,
+		MaxAge:        0,
+		MaxBackup:     0,
+		Async:         false,
+		Json:          false,
+		Compress:      false,
+		options:       nil,
+	}
+	l := config.Build()
+	l.Debug("this a debug level log", zap.Any("test", "t"))
+	l.Info("this a info level log", zap.Any("test", "t"))
+	l.Warn("this a warn level log", zap.Any("test", "t"))
+	l.Error("this a error level log", zap.Any("test", "t"))
+
+	config.ChangeLevel(zapcore.ErrorLevel)
+	l.Debug("this a debug level log", zap.Any("test", "t"))
+	l.Info("this a info level log", zap.Any("test", "t"))
+	l.Warn("this a warn level log", zap.Any("test", "t"))
+	l.Error("this a error level log", zap.Any("test", "t"))
 }
