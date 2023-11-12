@@ -1,6 +1,6 @@
 ## zap
 
-refer
+参考
 
  https://www.liwenzhou.com/posts/Go/zap/
 
@@ -44,6 +44,22 @@ logger.WithOptions(lc.options...)
 如果要定制zap的日志，修改对应的配置就好了
 
 ```go
+// NewCore creates a Core that writes logs to a WriteSyncer.
+func NewCore(enc Encoder, ws WriteSyncer, enab LevelEnabler) Core {
+    return &ioCore{
+       LevelEnabler: enab,
+       enc:          enc,
+       out:          ws,
+    }
+}
+
+//通过配置创建一个core
+core = zapcore.NewCore(encoder, ws, atomicLevel)
+//初始化logger
+var  logger *zap.Logger  := zap.New(core)
+//加上一些option
+logger.WithOptions(lc.options...)
+
 l.Debug("this a debug level log", zap.Any("test", "t"))
 l.Info("this a info level log", zap.Any("test", "t"))
 l.Warn("this a warn level log", zap.Any("test", "t"))
@@ -65,16 +81,11 @@ panic: this a panic level log [recovered]
 
 ```
 
-```go
-// NewCore creates a Core that writes logs to a WriteSyncer.
-func NewCore(enc Encoder, ws WriteSyncer, enab LevelEnabler) Core {
-    return &ioCore{
-       LevelEnabler: enab,
-       enc:          enc,
-       out:          ws,
-    }
-}
-```
+
+
+
+
+
 
 #### Encoder 
 
@@ -163,6 +174,8 @@ lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 
 
 
+
+
 ## 其他用法
 
 ### 异步落盘日志
@@ -210,11 +223,25 @@ func ExampleAtomicLevel() {
 }
 ```
 
+### 日志输出到多个目的地
+
+这个设置能将日志输出到不同的目的地。
+
+当你有将日志同时输出到不同地方可以设置这个，**还可以做到不同的级别的日志输出到不同的地方。**
+
+```go
+highCore := zapcore.NewCore(encoder, errorWs, zapcore.ErrorLevel)
+lowCore := zapcore.NewCore(encoder, ws, atomicLevel)
+core = zapcore.NewTee(highCore, lowCore)
+logger := zap.New(core)
+
+```
+
 ## 代码
 
-这个是我参考一些开源框架，自己对zap的一些封装[config.go](https://github.com/luxun9527/go-lib/blob/master/utils/zap/config.go)，如果您要了解zap的基础用法您可以参考一下。如果您深入了解，推荐您直接看zap的example和zap的源码。
+这个是我参考一些开源框架，自己对zap的一些封装[config.go](https://github.com/luxun9527/go-lib/blob/master/utils/zap/config.go)，如果您要了解zap的基础用法您可以参考一下。如果您深入了解，推荐您直接看zap的example和zap的源码。https://github.com/uber-go/zap/blob/master/example_test.go
 
-https://github.com/uber-go/zap/blob/master/example_test.go
+
 
 
 
