@@ -75,7 +75,6 @@ func (lc *Config) Build() *zap.Logger {
 		errorWs zapcore.WriteSyncer
 		encoder zapcore.Encoder
 	)
-
 	encoderConfig := zapcore.EncoderConfig{
 		//当存储的格式为JSON的时候这些作为可以key
 		MessageKey:    "message",
@@ -159,6 +158,7 @@ func (lc *Config) Build() *zap.Logger {
 	if lc.Stacktrace {
 		lc.options = append(lc.options, zap.AddStacktrace(zap.PanicLevel))
 	}
+
 	lc.atomicLevel = atomicLevel
 	return logger.WithOptions(lc.options...)
 
