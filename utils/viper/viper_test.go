@@ -1,20 +1,18 @@
-package main
+package viper
 
 import (
 	"fmt"
+	"github.com/fsnotify/fsnotify"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
+	"testing"
 )
 
-func main() {
-	//example1()
-	exampleUnmarshal()
-	//exampleWatchFile()
-}
-func example1() {
-	viper.SetConfigFile("E:\\demoproject\\go-lib\\utils\\viper\\config.toml")
+// refer https://github.com/spf13/viper
+func TestExample(t *testing.T) {
+	viper.SetConfigFile("./config.toml")
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal(err)
 	}
@@ -22,7 +20,7 @@ func example1() {
 	fmt.Printf("ip = %v \n", ip)
 }
 
-func exampleUnmarshal() {
+func TestUnmarshal(t *testing.T) {
 	//mapstrcture tag 指定配置文件中的变量
 	type Config struct {
 		Favorite []string `mapstructure:"fav"`
@@ -31,7 +29,7 @@ func exampleUnmarshal() {
 
 		Age string `mapstructure:"age"`
 	}
-	viper.SetConfigFile("./utils/viper/config.toml")
+	viper.SetConfigFile("./config.toml")
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println(err)
 		return
@@ -45,16 +43,18 @@ func exampleUnmarshal() {
 	}
 	fmt.Printf("config %+v \n", config)
 }
-func exampleWatchFile() {
+func TestWatchFile(t *testing.T) {
 	viper.SetConfigFile("./config.toml") // 指定配置文件
 	err := viper.ReadInConfig()          // 读取配置信息
 	if err != nil {                      // 读取配置信息失败
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
+	viper.OnConfigChange(func(in fsnotify.Event) {
+		log.Println("change")
+	})
 	// 监控配置文件变化
 	viper.WatchConfig()
-
 	r := gin.Default()
 	// 访问/version的返回值会随配置文件的变化而变化
 	r.GET("/version", func(c *gin.Context) {
@@ -65,4 +65,12 @@ func exampleWatchFile() {
 		fmt.Sprintf(":%d", viper.GetInt("gin.port"))); err != nil {
 		log.Panic(err)
 	}
+}
+func TestRemoteConfig(t *testing.T) {
+	err := viper.AddRemoteProvider("etcd3", "http://192.168.2.159:2379", "/config/hugo.json")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	viper.SetConfigType("json") // because there is no file extension in a stream of bytes, supported extensions are "json", "toml", "yaml", "yml", "properties", "props", "prop", "env", "dotenv"
 }
