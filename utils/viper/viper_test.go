@@ -5,9 +5,11 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	_ "github.com/spf13/viper/remote"
 	"log"
 	"net/http"
 	"testing"
+	"time"
 )
 
 // refer https://github.com/spf13/viper
@@ -67,10 +69,27 @@ func TestWatchFile(t *testing.T) {
 	}
 }
 func TestRemoteConfig(t *testing.T) {
-	err := viper.AddRemoteProvider("etcd3", "http://192.168.2.159:2379", "/config/hugo.json")
+	v := viper.New()
+	err := v.AddRemoteProvider("etcd3", "http://192.168.2.159:2379", "language/zh-CN")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	viper.SetConfigType("json") // because there is no file extension in a stream of bytes, supported extensions are "json", "toml", "yaml", "yml", "properties", "props", "prop", "env", "dotenv"
+	v.SetConfigType("yaml") // because there is no file extension in a stream of bytes, supported extensions are "json", "toml", "yaml", "yml", "properties", "props", "prop", "env", "dotenv"
+	if err := v.ReadRemoteConfig(); err != nil {
+		log.Println(err)
+		return
+	}
+	result := v.Get("110000")
+	log.Println(result)
+	if err := v.WatchRemoteConfig(); err != nil {
+		log.Println(err)
+		return
+	}
+	for {
+		time.Sleep(time.Second * 3)
+		result := v.Get("110000")
+		log.Println(result)
+	}
+
 }
