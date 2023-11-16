@@ -8,3 +8,6 @@
 
 [zap](https://github.com/luxun9527/go-lib/tree/master/utils/zap)
 
+### viper日志加载
+
+[viper](https://github.com/luxun9527/go-lib/tree/master/utils/viper)

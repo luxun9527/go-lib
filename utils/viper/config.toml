@@ -1,39 +1,37 @@
-[owner]
-name = "Tom Preston-Werner"
-organization = "Github"
-bio = "Github Cofounder &amp; CEO\nLikes tater tots and beer."
-dob = 1979-05-27T07:32:00Z # 日期时间是一等公民.为什么不呢？
-
-[database]
-server = "192.168.1.1"
-ports = [ 8001, 8001, 8002 ]
-connection_max = 5000
-enabled = true
-
-[servers]
-
-# 您可以依照您的意愿缩进.使用空格或Tab.TOML不会在意.
-[servers.alpha]
-ip = "10.0.0.1"
-dc = "eqdc10"
-
-[servers.beta]
-ip = "10.0.0.2"
-dc = "eqdc10"
+name = 'zhangsan'
 
 [clients]
-data = [ ["gamma", "delta"], [1, 2] ]
+data = [['gamma', 'delta'], [1, 2]]
 
-[person]
-name="张飒"
-age=23
-fav=["唱","跳","rap","篮球"]
-ageAge=1
-#AgeAge=2
-
-[gin]
-port=10010
-
+[database]
+connection_max = 5000
+enabled = true
+ports = [8001, 8001, 8002]
+server = '192.168.1.1'
 
 [file]
-version=8
+version = 8
+
+[gin]
+port = 10010
+
+[owner]
+bio = "Github Cofounder &amp; CEO\nLikes tater tots and beer."
+dob = 1979-05-27T07:32:00Z
+name = 'Tom Preston-Werner'
+organization = 'Github'
+
+[person]
+age = 23
+ageage = 1
+fav = ['唱', '跳', 'rap', '篮球']
+name = '张飒'
+
+[servers]
+[servers.alpha]
+dc = 'eqdc10'
+ip = '10.0.0.1'
+
+[servers.beta]
+dc = 'eqdc10'
+ip = '10.0.0.2'

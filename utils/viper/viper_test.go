@@ -21,6 +21,26 @@ func TestExample(t *testing.T) {
 	ip := viper.Get("servers.alpha.ip")
 	fmt.Printf("ip = %v \n", ip)
 }
+func TestSetConfig(t *testing.T) {
+	viper.SetConfigFile("./config.toml")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatal(err)
+	}
+	viper.Set("name", "zhangsan")
+	if err := viper.WriteConfig(); err != nil {
+		log.Println(err)
+	}
+	viper.AddConfigPath(".")
+	viper.SetConfigType("toml")
+	viper.SetConfigName("new")
+	//SafeWriteConfig 要 SetConfigType 和AddConfigPath 不能修改已经存在的配置文件必须新建。要覆盖可以使用WriteConfig
+	if err := viper.SafeWriteConfig(); err != nil {
+		log.Println(err)
+	}
+	if err := viper.WriteConfigAs("config.toml"); err != nil {
+		log.Println(err)
+	}
+}
 
 func TestUnmarshal(t *testing.T) {
 	//mapstrcture tag 指定配置文件中的变量
@@ -82,14 +102,30 @@ func TestRemoteConfig(t *testing.T) {
 	}
 	result := v.Get("110000")
 	log.Println(result)
-	if err := v.WatchRemoteConfig(); err != nil {
-		log.Println(err)
-		return
-	}
-	for {
-		time.Sleep(time.Second * 3)
-		result := v.Get("110000")
-		log.Println(result)
-	}
+
+	go func() {
+		for {
+			//相当于一直主动查询
+			time.Sleep(time.Second * 3)
+			if err := v.WatchRemoteConfig(); err != nil {
+				log.Println(err)
+				return
+			}
+			result := v.Get("110000")
+			log.Printf("tragger %v result %v", "WatchRemoteConfig", result)
+		}
+	}()
+
+	go func() {
+		for {
+			//主动推送当有修改的时候推送。
+			if err := v.WatchRemoteConfigOnChannel(); err != nil {
+				log.Println(err)
+				return
+			}
+			result := v.Get("110000")
+			log.Printf("tragger %v result %v", "WatchRemoteConfigOnChannel", result)
+		}
+	}()
 
 }
