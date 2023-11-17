@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"gopkg.in/ini.v1"
 	"os"
+	"testing"
 )
 
-func main() {
-	cfg, err := ini.Load("S:\\go-lib\\ini\\test.ini")
+func TestIni(t *testing.T) {
+	cfg, err := ini.Load("./test.ini")
 	if err != nil {
 		fmt.Printf("Fail to read file: %v", err)
 		os.Exit(1)
@@ -21,14 +22,24 @@ func main() {
 	fmt.Println("Server Protocol:",
 		cfg.Section("server").Key("protocol").In("http", []string{"http", "https"}))
 	// Value read that is not in candidates will be discarded and fall back to given default value
-	fmt.Println("Email Protocol:",
-		cfg.Section("server").Key("protocol").In("smtp", []string{"imap", "smtp"}))
+	fmt.Println("Email Protocol:", cfg.Section("server").Key("protocol").In("smtp", []string{"imap", "smtp"}))
 
-	// Try out auto-type conversion
-	fmt.Printf("Port Number: (%[1]T) %[1]d\n", cfg.Section("server").Key("http_port").MustInt(9999))
-	fmt.Printf("Enforce Domain: (%[1]T) %[1]v\n", cfg.Section("server").Key("enforce_domain").MustBool(false))
+	c := &Config{}
+	if err := cfg.MapTo(&c); err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log(c)
+}
 
-	// Now, make some changes and save it
-	cfg.Section("").Key("app_mode").SetValue("production")
-	cfg.SaveTo("my.ini.local")
+type Config struct {
+	AppMode string `ini:"app_mode"`
+	Paths   struct {
+		Data string `ini:"data"`
+	} `ini:"paths"`
+	Server struct {
+		Protocol      string `ini:"protocol"`
+		HttpPort      string `ini:"http_port"`
+		EnforceDomain string `ini:"enforce_domain"`
+	} `ini:"server"`
 }

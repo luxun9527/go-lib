@@ -52,6 +52,7 @@ require (
 	github.com/tidwall/evio v1.0.8
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.2.3
 	github.com/useflyent/fhttp v0.0.0-20211004035111-333f430cfbbf
+	github.com/yitter/idgenerator-go v1.3.3
 	github.com/zeromicro/go-zero v1.5.3
 	go.etcd.io/etcd/api/v3 v3.5.9
 	go.etcd.io/etcd/client/v3 v3.5.9

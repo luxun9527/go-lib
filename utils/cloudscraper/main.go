@@ -10,32 +10,33 @@ import (
 	"log"
 )
 
+// refer Port of HawkAPI's cloudscraper
 func main() {
 	//https://github.com/juiced-aio/hawk-go
 	//url := "https://goo.su/api/links/create"
 	//m := map[string]string{"x-goo-api-token": "W4exIOZZym2nxYwr3puHz2orStoMjdM1QmQVXvZidskftEgOi4VLqfufRKv1"}
-//
-	b := map[string]interface{}{"alias": "", "is_public": true, "group_id": 1, 	"url":"https://www.api.com"}
+	//
+	b := map[string]interface{}{"alias": "", "is_public": true, "group_id": 1, "url": "https://www.api.com"}
 	d, _ := json.Marshal(b)
-//
-//	// 创建http客户端
-//	client := &http.Client{}
-//
-//	// 创建请求对象
-//	req, err := http.NewRequest("POST", url, bytes.NewBuffer(d))
-//	if err != nil {
-//		fmt.Println("请求对象创建失败：", err)
-//		return
-//	}
-//
-//	//req.Header.Add("Accept-Encoding", "gzip, deflate")
-//	req.Header.Add("content-type", " application/json")
-//	req.Header.Add("user-agent", "Apifox/1.0.0 (https://apifox.com)")
-//	req.Header.Add("content-length", "71")
-//	req.Header.Add("accept", " */*")
-//	// 设置请求头
-////	req.Header.Set("x-goo-api-token","W4exIOZZym2nxYwr3puHz2orStoMjdM1QmQVXvZidskftEgOi4VLqfufRKv1")
-//	req.Header.Set("x-goo-api-token","W4exIOZZym2nxYwr3puHz2orStoMjdM1QmQVXvZidskftEgOi4VLqfufRKv1")
+	//
+	//	// 创建http客户端
+	//	client := &http.Client{}
+	//
+	//	// 创建请求对象
+	//	req, err := http.NewRequest("POST", url, bytes.NewBuffer(d))
+	//	if err != nil {
+	//		fmt.Println("请求对象创建失败：", err)
+	//		return
+	//	}
+	//
+	//	//req.Header.Add("Accept-Encoding", "gzip, deflate")
+	//	req.Header.Add("content-type", " application/json")
+	//	req.Header.Add("user-agent", "Apifox/1.0.0 (https://apifox.com)")
+	//	req.Header.Add("content-length", "71")
+	//	req.Header.Add("accept", " */*")
+	//	// 设置请求头
+	////	req.Header.Set("x-goo-api-token","W4exIOZZym2nxYwr3puHz2orStoMjdM1QmQVXvZidskftEgOi4VLqfufRKv1")
+	//	req.Header.Set("x-goo-api-token","W4exIOZZym2nxYwr3puHz2orStoMjdM1QmQVXvZidskftEgOi4VLqfufRKv1")
 	// 发送请求
 	//
 	//resp, err := client.Do(req)
@@ -58,11 +59,11 @@ func main() {
 	//}
 
 	// Client has to be from fhttp and up to CloudFlare's standards, this can include ja3 fingerprint/http2 settings.
-	client :=http.Client{}
+	client := http.Client{}
 	// Client also will need a cookie jar.
-	cookieJar, _:= cookiejar.New(nil)
+	cookieJar, _ := cookiejar.New(nil)
 	client.Jar = cookieJar
-	scraper:= hawk.CFInit(client, "YOUR_KEY_HERE", true)
+	scraper := hawk.CFInit(client, "YOUR_KEY_HERE", true)
 
 	// You will have to create your own function if you want to solve captchas.
 	scraper.CaptchaFunction = func(originalURL string, siteKey string) (string, error) {
@@ -70,7 +71,7 @@ func main() {
 		return "", nil
 	}
 
-	req, _ := http.NewRequest("POST", "https://goo.su/api/links/create",  bytes.NewBuffer(d))
+	req, _ := http.NewRequest("POST", "https://goo.su/api/links/create", bytes.NewBuffer(d))
 
 	req.Header = http.Header{
 		"sec-ch-ua":                 {`"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"`},
@@ -84,14 +85,14 @@ func main() {
 		"sec-fetch-dest":            {`document`},
 		"accept-encoding":           {`gzip, deflate`},
 		"accept-language":           {`en-US,en;q=0.9`},
-		"x-goo-api-token":{"W4exIOZZym2nxYwr3puHz2orStoMjdM1QmQVXvZidskftEgOi4VLqfufRKv1"},
+		"x-goo-api-token":           {"W4exIOZZym2nxYwr3puHz2orStoMjdM1QmQVXvZidskftEgOi4VLqfufRKv1"},
 		http.HeaderOrderKey:         {"sec-ch-ua", "sec-ch-ua-mobile", "upgrade-insecure-requests", "user-agent", "accept", "sec-fetch-site", "sec-fetch-mode", "sec-fetch-user", "sec-fetch-dest", "accept-encoding", "accept-language"},
 		http.PHeaderOrderKey:        {":method", ":authority", ":scheme", ":path"},
 	}
 
 	resp, err := scraper.Do(req)
-	if err!=nil{
-		log.Printf("err err=%v",err)
+	if err != nil {
+		log.Printf("err err=%v", err)
 	}
 	body, _ := io.ReadAll(resp.Body)
 	log.Println(string(body))

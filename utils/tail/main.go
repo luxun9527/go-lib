@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"time"
 
 	"github.com/hpcloud/tail"
@@ -29,14 +27,6 @@ func main() {
 	)
 	go func() {
 		time.Sleep(time.Second * 3)
-		for {
-			file, err := os.OpenFile("S:\\go-lib\\tail\\my.log", os.O_RDWR|os.O_APPEND, os.ModePerm)
-			if err != nil {
-				log.Println(err)
-			}
-			time.Sleep(time.Second)
-			file.WriteString(" *           CloudSync_TOS_APP_2.4.14_x86_64.tpk:100% /48.583Mi, 1.074Mi/s, 0sTransferred:         51.343 MiB / 51.343 MiB, 100%, 1.008 MiB/s, ETA 0s\nTransferred:            8 / 9, 89%\nElapsed time:      1m42.2s\nTransferring:")
-		}
 
 	}()
 	for {
