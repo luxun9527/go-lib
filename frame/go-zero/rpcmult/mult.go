@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-
 	"go-lib/frame/go-zero/rpcmult/internal/config"
 	userroleserviceServer "go-lib/frame/go-zero/rpcmult/internal/server/userroleservice"
 	userserviceServer "go-lib/frame/go-zero/rpcmult/internal/server/userservice"

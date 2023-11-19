@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql/driver"
 	"github.com/spf13/cast"
+	"go-lib/sdk/gorm/gen/dao/model"
 	"go-lib/sdk/gorm/gen/dao/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"log"
 	"reflect"
@@ -41,7 +43,7 @@ func TestGormClause(t *testing.T) {
 		Value:  1,
 	}).Find(u)
 	//SELECT * FROM `user` WHERE `user`.`c1` LIKE BINARY 1
-	//使用聚合函数
+
 
 }
 
@@ -72,6 +74,20 @@ func (s StringBinaryLike) Build(builder clause.Builder) {
 	builder.AddVar(builder, s.Value)
 }
 
+
+type CustomCond struct {
+	gen.DO
+	Sql string
+}
+
+func (s CustomCond) BeCond() interface{} {
+	return s
+}
+
+func (s CustomCond) Build(builder clause.Builder) {
+	builder.WriteString(s.Sql)
+}
+
 func TestGenCondition2(t *testing.T) {
 	dao := query.Use(db)
 	u := dao.User
@@ -87,6 +103,21 @@ func TestGenCondition2(t *testing.T) {
 
 }
 
+func TestGenCondition3(t *testing.T) {
+	dao := query.Use(db)
+	u := dao.User
+
+	sql := u.WithContext(context.Background()).UnderlyingDB().ToSQL(func(tx *gorm.DB) *gorm.DB {
+		m := make([]*model.User, 0, 19)
+		return tx.Select(u.ID.ColumnName().String()).Find(m)
+	})
+	s := &CustomCond{
+		Sql: "user.id NOT IN ( "+sql+")",
+	}
+	_, _ = u.WithContext(context.Background()).Where(s).Where(u.ID.Like(1)).First()
+	//SELECT * FROM `user` WHERE `table`.`column` LIKE binary 'v1' AND `user`.`id` LIKE 1 ORDER BY `user`.`id` LIMIT 1
+
+}
 
 func TestGenCondition1(t *testing.T) {
 	dao := query.Use(db)

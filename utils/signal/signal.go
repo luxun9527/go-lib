@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 )
-
+//https://www.cnblogs.com/zy666/p/10504272.html
 func main() {
 	//go env -w GOOS=linux
 	c := make(chan os.Signal)

@@ -34,6 +34,17 @@ func TestReflectStruct(t *testing.T){
 	}
 
 }
+func TestGetInterface(t *testing.T) {
+	type Person struct {
+		Name string
+	}
+	var p *Person=nil
+
+	var inter interface{} =p
+	valueOf := reflect.ValueOf(inter)
+	valueOf.IsNil()
+	log.Println(valueOf.IsNil())
+}
 
 //修改接口未导出的字段
 func TestUnExport(t *testing.T) {

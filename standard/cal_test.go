@@ -18,5 +18,4 @@ func TestCal(t *testing.T) {
 	log.Println(4 >>1)
 
 
-
 }

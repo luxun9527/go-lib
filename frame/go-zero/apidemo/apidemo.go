@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/proc"
 	"github.com/zeromicro/go-zero/rest"
 	"go-lib/frame/go-zero/apidemo/internal/config"
 	"go-lib/frame/go-zero/apidemo/internal/handler"
@@ -21,7 +22,14 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-	//httpx.SetValidator(validatorx.NewValidator())
+
+	_ = proc.AddWrapUpListener(func() {
+		log.Println("testsetset")
+	})
+	//go func() {
+	//	f1()
+	//}()
+	//listener()
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 	server.Use(RecoverHandler)
