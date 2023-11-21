@@ -1,0 +1,64 @@
+syntax = "proto3";
+//当别人导入这个protobuf文件，使用的包名 如 google/protobuf/empty.proto 定义的就是 package google.protobuf;
+package grpcdemo;
+
+//go_package = "./grpcdemo;grpcdemo"; ./grpcdemo表示生成的文件的位和生成命令指定的生成位置一起决定最后生成文件的位置，      grpcdemo表示生成的包名
+option go_package = "./grpcdemo;grpcdemo";
+
+
+//导入其他protobuf 导入我们自定义的protobuf 需要和	protoc   -I./pb -I./pb/googleapis -I参数组成完整的导入路径。
+import "google/protobuf/empty.proto";
+
+//导入我们自定义的protobuf 需要和	protoc   -I./pb -I./pb/googleapis -I参数组成完整的导入路径。
+import "grpcdemo/folder/imported.proto";
+
+//特殊情况当被导入的proto和我们是同一级的时候。可以不使用package.Message的形式 直接使用即可，CustomMessage
+import "grpcdemo/custom.proto";
+
+
+
+service GrpcDemo {
+    //grpc 4种调用类型
+
+    //Unary RPC （一元RPC）
+    rpc Call(NoticeReaderReq)returns(google.protobuf.Empty);
+
+    //Unary RPC （一元RPC）
+    rpc DemoImport(grpcdemo.folder.ImportedMessage)returns(CustomMessage);
+
+
+    //Client Streaming RPC （ 客户端流式RPC）
+    rpc PushData(stream Empty) returns(Data);
+
+    //Server Streaming RPC （ 服务器流式RPC）
+    rpc FetchData(Empty) returns(stream Data);
+
+    //Bidirectional Streaming RPC （双向流式RPC）
+    rpc Exchange(stream Req) returns(stream Resp);
+
+}
+message Req{
+    string firstName =1;
+}
+message Resp{
+    string lastName=1;
+}
+
+message Empty{}
+
+message Data{
+    string uid =1;
+    string topic=2;
+    bytes data=3;
+}
+
+
+// protobuf oneof的用法。
+message NoticeReaderReq{
+    string msg = 1;
+    oneof notice_way{
+        string email = 2;
+        string phone = 3;
+    }
+}
+

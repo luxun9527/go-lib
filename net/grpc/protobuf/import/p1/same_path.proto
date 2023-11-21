@@ -1,8 +1,0 @@
-
-syntax = "proto3";
-package p1;
-//./表示pb 文件生成的路径 hellopb 表示包名称
-option go_package = "protobuf/import/p1;p1";
-message P10086{
-  string name =1;
-}

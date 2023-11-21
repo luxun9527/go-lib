@@ -56,12 +56,11 @@ var _httpCli = &http.Client{
 	Timeout: time.Duration(15) * time.Second,
 
 	Transport: &http.Transport{
-		//MaxIdleConns:          1,
-		MaxIdleConnsPerHost:   1, //每个host最多保持多少个空闲连接， 如果连接数超过MaxIdleConnsPerHost 则会关闭多余的连接。
-		MaxConnsPerHost:       2,//MaxConnPerHost 2 决定了每个host最大的连接数，包括正在使用的，正在建立连接的，空闲的，决定了最大并发请求。超过则会阻塞
-		IdleConnTimeout:       90 * time.Second, //空闲的连接超时时间，当超过这个时间则会关闭空闲的连接
-		TLSHandshakeTimeout:   10 * time.Second,
-		//ExpectContinueTimeout: 1 * time.Second,
+		TLSHandshakeTimeout:    10 * time.Second,
+		MaxIdleConns:          1,
+		MaxIdleConnsPerHost:    1,                //每个host最多保持多少个空闲连接， 如果连接数超过MaxIdleConnsPerHost 则会关闭多余的连接。
+		MaxConnsPerHost:        2,                //MaxConnPerHost 2 决定了每个host最大的连接数，包括正在使用的，正在建立连接的，空闲的，决定了最大并发请求。超过则会阻塞
+		IdleConnTimeout:        90 * time.Second, //空闲的连接超时时间，当超过这个时间则会关闭空闲的连接
 	},
 	//5个goroutine 并发请求，会有两个并发，其他三个阻塞，
 }

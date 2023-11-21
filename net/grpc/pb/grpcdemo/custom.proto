@@ -1,0 +1,8 @@
+syntax = "proto3";
+//当别人导入这个protobuf文件，使用的包名 如 google/protobuf/empty.proto 定义的就是 package google.protobuf;
+package grpcdemo;
+option go_package = "./grpcdemo;grpcdemo";
+
+message CustomMessage{
+  string custom_message=1;
+}
