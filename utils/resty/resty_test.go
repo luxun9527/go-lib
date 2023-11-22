@@ -2,39 +2,16 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"testing"
 	"time"
 )
-
-func TestProxy(t *testing.T) {
-	// 创建一个Clash代理的HTTP Transport
-	proxyURL, err := url.Parse("http://192.168.11.85:7890") // 替换为你的Clash代理地址和端口
-	if err != nil {
-		log.Fatal(err)
-	}
-	// 创建一个Transport，使用Clash代理
-	transport := &http.Transport{
-		MaxIdleConns:        5,
-		MaxIdleConnsPerHost: 10,
-		MaxConnsPerHost:     50,
-		IdleConnTimeout:     30 * time.Second,
-		Proxy:               http.ProxyURL(proxyURL),
-	}
-	//resty.New().
-	response, err := resty.New().SetTransport(transport).R().Get("https://is.gd/create.php?format=json&url=www.baidu.com")
-	if err != nil {
-		log.Fatal(err)
-	}
-	body := response.Body()
-	log.Println(string(body))
-}
 
 func TestExample(t *testing.T) {
 	// Create a Resty Client
@@ -89,7 +66,7 @@ func TestBaseGetPostBase(t *testing.T) {
 		log.Printf("Send GET Requst failed %v ", err)
 		return
 	}
-	log.Printf("GET body =%v result=%v", string(resp.Body()), h)
+	log.Printf("[GET] body =%v result=%v", string(resp.Body()), h)
 
 	//post 方法
 	h = gin.H{}
@@ -113,7 +90,7 @@ func TestBaseGetPostBase(t *testing.T) {
 		log.Printf("Send Post Requst failed %v ", err)
 		return
 	}
-	log.Printf("POST body =%v result=%v", string(resp.Body()), h)
+	log.Printf("[post] body =%v result=%v", string(resp.Body()), h)
 
 	//上传文件
 	fs, err := os.ReadFile("./test.txt")
@@ -133,8 +110,31 @@ func TestBaseGetPostBase(t *testing.T) {
 		log.Printf("Send Upload Requst failed %v ", err)
 		return
 	}
-	log.Printf("POST Upload body =%v result=%v", string(resp.Body()), h)
+	log.Printf("[POST] Upload body =%v result=%v", string(resp.Body()), h)
+	//设置代理
+	resp, err = client.SetProxy("http://127.0.0.1:7890").R().Get("http://localhost:9999/get")
+	if err != nil {
+		log.Printf("Test proxy body =%v result=%v", string(resp.Body()), h)
+		return
+	}
+	log.Printf("[GET proxy] data %v", string(resp.Body()))
+	fmt.Println("  Status Code:", resp.StatusCode())
+	fmt.Println("  Status     :", resp.Status())
 
+	// backoff to increase retry intervals after each attempt. 重试
+	client. // Set retry count to non zero to enable retries
+		SetRetryCount(3).
+		// You can override initial retry wait time.
+		// Default is 100 milliseconds.
+		SetRetryWaitTime(5 * time.Second).
+		// MaxWaitTime can be overridden as well.
+		// Default is 2 seconds.
+		SetRetryMaxWaitTime(20 * time.Second).
+		// SetRetryAfter sets callback to calculate wait time between retries.
+		// Default (nil) implies exponential backoff with jitter
+		SetRetryAfter(func(client *resty.Client, resp *resty.Response) (time.Duration, error) {
+			return 0, errors.New("quota exceeded")
+		})
 }
 func TestServer(t *testing.T) {
 	engine := gin.New()
