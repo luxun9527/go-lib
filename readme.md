@@ -8,6 +8,10 @@
 
 [zap](https://github.com/luxun9527/go-lib/tree/master/utils/zap)
 
-### viper日志加载
+### viper配置加载
 
 [viper](https://github.com/luxun9527/go-lib/tree/master/utils/viper)
+
+### resty http客户端
+
+[resty http客户端](https://github.com/luxun9527/go-lib/tree/master/utils/resty)
