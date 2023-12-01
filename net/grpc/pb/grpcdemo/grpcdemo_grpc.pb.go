@@ -23,11 +23,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	GrpcDemo_Call_FullMethodName       = "/grpcdemo.GrpcDemo/Call"
-	GrpcDemo_DemoImport_FullMethodName = "/grpcdemo.GrpcDemo/DemoImport"
-	GrpcDemo_PushData_FullMethodName   = "/grpcdemo.GrpcDemo/PushData"
-	GrpcDemo_FetchData_FullMethodName  = "/grpcdemo.GrpcDemo/FetchData"
-	GrpcDemo_Exchange_FullMethodName   = "/grpcdemo.GrpcDemo/Exchange"
+	GrpcDemo_Call_FullMethodName            = "/grpcdemo.GrpcDemo/Call"
+	GrpcDemo_DemoImport_FullMethodName      = "/grpcdemo.GrpcDemo/DemoImport"
+	GrpcDemo_PushData_FullMethodName        = "/grpcdemo.GrpcDemo/PushData"
+	GrpcDemo_FetchData_FullMethodName       = "/grpcdemo.GrpcDemo/FetchData"
+	GrpcDemo_Exchange_FullMethodName        = "/grpcdemo.GrpcDemo/Exchange"
+	GrpcDemo_CallGrpcGateway_FullMethodName = "/grpcdemo.GrpcDemo/CallGrpcGateway"
 )
 
 // GrpcDemoClient is the client API for GrpcDemo service.
@@ -44,6 +45,8 @@ type GrpcDemoClient interface {
 	FetchData(ctx context.Context, in *Empty, opts ...grpc.CallOption) (GrpcDemo_FetchDataClient, error)
 	// Bidirectional Streaming RPC （双向流式RPC）
 	Exchange(ctx context.Context, opts ...grpc.CallOption) (GrpcDemo_ExchangeClient, error)
+	// grpc-gateway
+	CallGrpcGateway(ctx context.Context, in *NoticeReaderReq, opts ...grpc.CallOption) (*NoticeReaderResp, error)
 }
 
 type grpcDemoClient struct {
@@ -169,6 +172,15 @@ func (x *grpcDemoExchangeClient) Recv() (*Resp, error) {
 	return m, nil
 }
 
+func (c *grpcDemoClient) CallGrpcGateway(ctx context.Context, in *NoticeReaderReq, opts ...grpc.CallOption) (*NoticeReaderResp, error) {
+	out := new(NoticeReaderResp)
+	err := c.cc.Invoke(ctx, GrpcDemo_CallGrpcGateway_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GrpcDemoServer is the server API for GrpcDemo service.
 // All implementations must embed UnimplementedGrpcDemoServer
 // for forward compatibility
@@ -183,6 +195,8 @@ type GrpcDemoServer interface {
 	FetchData(*Empty, GrpcDemo_FetchDataServer) error
 	// Bidirectional Streaming RPC （双向流式RPC）
 	Exchange(GrpcDemo_ExchangeServer) error
+	// grpc-gateway
+	CallGrpcGateway(context.Context, *NoticeReaderReq) (*NoticeReaderResp, error)
 	mustEmbedUnimplementedGrpcDemoServer()
 }
 
@@ -204,6 +218,9 @@ func (UnimplementedGrpcDemoServer) FetchData(*Empty, GrpcDemo_FetchDataServer) e
 }
 func (UnimplementedGrpcDemoServer) Exchange(GrpcDemo_ExchangeServer) error {
 	return status.Errorf(codes.Unimplemented, "method Exchange not implemented")
+}
+func (UnimplementedGrpcDemoServer) CallGrpcGateway(context.Context, *NoticeReaderReq) (*NoticeReaderResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CallGrpcGateway not implemented")
 }
 func (UnimplementedGrpcDemoServer) mustEmbedUnimplementedGrpcDemoServer() {}
 
@@ -327,6 +344,24 @@ func (x *grpcDemoExchangeServer) Recv() (*Req, error) {
 	return m, nil
 }
 
+func _GrpcDemo_CallGrpcGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NoticeReaderReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GrpcDemoServer).CallGrpcGateway(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GrpcDemo_CallGrpcGateway_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GrpcDemoServer).CallGrpcGateway(ctx, req.(*NoticeReaderReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GrpcDemo_ServiceDesc is the grpc.ServiceDesc for GrpcDemo service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -341,6 +376,10 @@ var GrpcDemo_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DemoImport",
 			Handler:    _GrpcDemo_DemoImport_Handler,
+		},
+		{
+			MethodName: "CallGrpcGateway",
+			Handler:    _GrpcDemo_CallGrpcGateway_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
@@ -361,5 +400,95 @@ var GrpcDemo_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
+	Metadata: "grpcdemo/grpcdemo.proto",
+}
+
+const (
+	GrpcGatewayDemo_CallGrpcGatewayDemo_FullMethodName = "/grpcdemo.GrpcGatewayDemo/CallGrpcGatewayDemo"
+)
+
+// GrpcGatewayDemoClient is the client API for GrpcGatewayDemo service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type GrpcGatewayDemoClient interface {
+	CallGrpcGatewayDemo(ctx context.Context, in *NoticeReaderReq, opts ...grpc.CallOption) (*NoticeReaderResp, error)
+}
+
+type grpcGatewayDemoClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewGrpcGatewayDemoClient(cc grpc.ClientConnInterface) GrpcGatewayDemoClient {
+	return &grpcGatewayDemoClient{cc}
+}
+
+func (c *grpcGatewayDemoClient) CallGrpcGatewayDemo(ctx context.Context, in *NoticeReaderReq, opts ...grpc.CallOption) (*NoticeReaderResp, error) {
+	out := new(NoticeReaderResp)
+	err := c.cc.Invoke(ctx, GrpcGatewayDemo_CallGrpcGatewayDemo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// GrpcGatewayDemoServer is the server API for GrpcGatewayDemo service.
+// All implementations must embed UnimplementedGrpcGatewayDemoServer
+// for forward compatibility
+type GrpcGatewayDemoServer interface {
+	CallGrpcGatewayDemo(context.Context, *NoticeReaderReq) (*NoticeReaderResp, error)
+	mustEmbedUnimplementedGrpcGatewayDemoServer()
+}
+
+// UnimplementedGrpcGatewayDemoServer must be embedded to have forward compatible implementations.
+type UnimplementedGrpcGatewayDemoServer struct {
+}
+
+func (UnimplementedGrpcGatewayDemoServer) CallGrpcGatewayDemo(context.Context, *NoticeReaderReq) (*NoticeReaderResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CallGrpcGatewayDemo not implemented")
+}
+func (UnimplementedGrpcGatewayDemoServer) mustEmbedUnimplementedGrpcGatewayDemoServer() {}
+
+// UnsafeGrpcGatewayDemoServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to GrpcGatewayDemoServer will
+// result in compilation errors.
+type UnsafeGrpcGatewayDemoServer interface {
+	mustEmbedUnimplementedGrpcGatewayDemoServer()
+}
+
+func RegisterGrpcGatewayDemoServer(s grpc.ServiceRegistrar, srv GrpcGatewayDemoServer) {
+	s.RegisterService(&GrpcGatewayDemo_ServiceDesc, srv)
+}
+
+func _GrpcGatewayDemo_CallGrpcGatewayDemo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NoticeReaderReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GrpcGatewayDemoServer).CallGrpcGatewayDemo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GrpcGatewayDemo_CallGrpcGatewayDemo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GrpcGatewayDemoServer).CallGrpcGatewayDemo(ctx, req.(*NoticeReaderReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// GrpcGatewayDemo_ServiceDesc is the grpc.ServiceDesc for GrpcGatewayDemo service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var GrpcGatewayDemo_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "grpcdemo.GrpcGatewayDemo",
+	HandlerType: (*GrpcGatewayDemoServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CallGrpcGatewayDemo",
+			Handler:    _GrpcGatewayDemo_CallGrpcGatewayDemo_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "grpcdemo/grpcdemo.proto",
 }

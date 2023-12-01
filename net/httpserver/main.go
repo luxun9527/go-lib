@@ -16,6 +16,7 @@ func main() {
 	if err != nil {
 		panic("AAAAH")
 	}
+	http.HandleFunc("/hello", hello)
 
 	/* HTTP server */
 	s := http.Server{

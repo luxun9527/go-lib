@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
@@ -121,21 +120,34 @@ func TestBaseGetPostBase(t *testing.T) {
 	fmt.Println("  Status Code:", resp.StatusCode())
 	fmt.Println("  Status     :", resp.Status())
 
+
+}
+func TestRetry(t *testing.T) {
+	client := resty.New()
+	client = client.AddRetryCondition(func(resp *resty.Response, err error) bool {
+		return resp.StatusCode() == 200
+	})
 	// backoff to increase retry intervals after each attempt. 重试
-	client. // Set retry count to non zero to enable retries
-		SetRetryCount(3).
+	resp, err := client. // Set retry count to non zero to enable retries
+		SetRetryCount(5).SetDebug(true).
 		// You can override initial retry wait time.
 		// Default is 100 milliseconds.
-		SetRetryWaitTime(5 * time.Second).
+		SetRetryWaitTime(1 * time.Second).
 		// MaxWaitTime can be overridden as well.
 		// Default is 2 seconds.
-		SetRetryMaxWaitTime(20 * time.Second).
+		SetRetryMaxWaitTime(9 * time.Second).
 		// SetRetryAfter sets callback to calculate wait time between retries.
 		// Default (nil) implies exponential backoff with jitter
-		SetRetryAfter(func(client *resty.Client, resp *resty.Response) (time.Duration, error) {
-			return 0, errors.New("quota exceeded")
-		})
+		R().Get("http://localhost:9999/get")
+	if err!=nil{
+		log.Println(err)
+	}
+	log.Printf("[GET proxy] data %v", string(resp.Body()))
+	select {
+
+	}
 }
+
 func TestServer(t *testing.T) {
 	engine := gin.New()
 	engine.GET("/get", func(c *gin.Context) {
