@@ -1,4 +1,4 @@
-package main
+package resty
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 
 func TestExample(t *testing.T) {
 	// Create a Resty Client
-	client := resty.New().SetRetryCount(4)
+	client := resty.New()
 
 	resp, err := client.R().
 		EnableTrace().
@@ -48,10 +48,24 @@ func TestExample(t *testing.T) {
 	fmt.Println("  RemoteAddr    :", ti.RemoteAddr.String())
 }
 
-// get post基本用法
-func TestBaseGetPostBase(t *testing.T) {
+func TestProxy(t *testing.T) {
 	client := resty.New()
-	// get方法
+
+	//设置代理
+	resp, err := client.SetProxy("http://127.0.0.1:7890").R().Get("http://localhost:9999/get")
+	if err != nil {
+		log.Printf("Test proxy body =%v ", string(resp.Body()))
+		return
+	}
+	log.Printf("[GET proxy] data %v", string(resp.Body()))
+	fmt.Println("  Status Code:", resp.StatusCode())
+	fmt.Println("  Status     :", resp.Status())
+
+}
+
+func TestGET(t *testing.T) {
+	client := resty.New()
+	// ==================get方法
 	h := gin.H{}
 	resp, err := client.R().
 		//SetQueryString("productId=232&template=fresh-sample&cat=resty&source=google&kw=buy a lot more").
@@ -66,9 +80,12 @@ func TestBaseGetPostBase(t *testing.T) {
 		return
 	}
 	log.Printf("[GET] body =%v result=%v", string(resp.Body()), h)
+}
 
+func TestPost(t *testing.T) {
+	client := resty.New()
 	//post 方法
-	h = gin.H{}
+	h := gin.H{}
 
 	/*
 		 setbody()
@@ -80,7 +97,7 @@ func TestBaseGetPostBase(t *testing.T) {
 						Password: "welcome2resty",
 				})
 	*/
-	resp, err = client.R().
+	resp, err := client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(`{"username":"testuser", "password":"testpass"}`).
 		SetResult(&h). // or SetResult(AuthSuccess{}).
@@ -110,42 +127,32 @@ func TestBaseGetPostBase(t *testing.T) {
 		return
 	}
 	log.Printf("[POST] Upload body =%v result=%v", string(resp.Body()), h)
-	//设置代理
-	resp, err = client.SetProxy("http://127.0.0.1:7890").R().Get("http://localhost:9999/get")
-	if err != nil {
-		log.Printf("Test proxy body =%v result=%v", string(resp.Body()), h)
-		return
-	}
-	log.Printf("[GET proxy] data %v", string(resp.Body()))
-	fmt.Println("  Status Code:", resp.StatusCode())
-	fmt.Println("  Status     :", resp.Status())
-
-
 }
+
 func TestRetry(t *testing.T) {
+	//https://github.com/go-resty/resty#retries
 	client := resty.New()
-	client = client.AddRetryCondition(func(resp *resty.Response, err error) bool {
-		return resp.StatusCode() == 200
-	})
+	client.AddRetryCondition(
+		// RetryConditionFunc type is for retry condition function
+		// input: non-nil Response OR request execution error
+		func(r *resty.Response, err error) bool {
+			return r.StatusCode() == 200
+		},
+	)
 	// backoff to increase retry intervals after each attempt. 重试
-	resp, err := client. // Set retry count to non zero to enable retries
-		SetRetryCount(5).SetDebug(true).
+	client. // Set retry count to non zero to enable retries
+		SetRetryCount(3).
 		// You can override initial retry wait time.
 		// Default is 100 milliseconds.
 		SetRetryWaitTime(1 * time.Second).
 		// MaxWaitTime can be overridden as well.
 		// Default is 2 seconds.
-		SetRetryMaxWaitTime(9 * time.Second).
-		// SetRetryAfter sets callback to calculate wait time between retries.
-		// Default (nil) implies exponential backoff with jitter
-		R().Get("http://localhost:9999/get")
-	if err!=nil{
-		log.Println(err)
-	}
-	log.Printf("[GET proxy] data %v", string(resp.Body()))
-	select {
+		SetRetryMaxWaitTime(20 * time.Second).R().SetQueryParams(map[string]string{
+		"page_no": "1",
+		"limit":   "20",
+	}).Get("http://localhost:9999/get")
 
-	}
+	select {}
 }
 
 func TestServer(t *testing.T) {
