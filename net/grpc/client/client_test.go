@@ -22,7 +22,7 @@ func TestClient(t *testing.T) {
 	cli := grpcdemo.NewGrpcDemoClient(conn)
 
 	time.Sleep(10 * time.Second)
-	result, err := cli.Call(context.Background(), &grpcdemo.NoticeReaderReq{
+	result, err := cli.UnaryCall(context.Background(), &grpcdemo.NoticeReaderReq{
 		Msg:       "",
 		NoticeWay: &grpcdemo.NoticeReaderReq_Email{Email: "test"},
 	})
@@ -32,9 +32,9 @@ func TestClient(t *testing.T) {
 	}
 
 	log.Printf("result = %v", result)
-	for  {
-		time.Sleep(time.Second*10)
-		result, err := cli.Call(context.Background(), &grpcdemo.NoticeReaderReq{
+	for {
+		time.Sleep(time.Second * 10)
+		result, err := cli.UnaryCall(context.Background(), &grpcdemo.NoticeReaderReq{
 			Msg:       "",
 			NoticeWay: &grpcdemo.NoticeReaderReq_Email{Email: "test"},
 		})
@@ -55,7 +55,7 @@ func TestPush(t *testing.T) {
 		return
 	}
 	cli := grpcdemo.NewGrpcDemoClient(conn)
-	result, err := cli.Call(context.Background(), &grpcdemo.NoticeReaderReq{
+	result, err := cli.UnaryCall(context.Background(), &grpcdemo.NoticeReaderReq{
 		Msg:       "",
 		NoticeWay: &grpcdemo.NoticeReaderReq_Email{Email: "test"},
 	})
@@ -75,7 +75,7 @@ func TestFetchData(t *testing.T) {
 		return
 	}
 	cli := grpcdemo.NewGrpcDemoClient(conn)
-	result, err := cli.Call(context.Background(), &grpcdemo.NoticeReaderReq{
+	result, err := cli.UnaryCall(context.Background(), &grpcdemo.NoticeReaderReq{
 		Msg:       "",
 		NoticeWay: &grpcdemo.NoticeReaderReq_Email{Email: "test"},
 	})

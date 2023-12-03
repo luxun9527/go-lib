@@ -1,9 +1,7 @@
 package server
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go-lib/net/grpc/pb/grpcdemo"
@@ -11,8 +9,8 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net"
@@ -22,14 +20,19 @@ import (
 )
 
 type GrpcDemoServer struct {
+	port int32
 	grpcdemo.UnimplementedGrpcDemoServer
 }
 
-func (GrpcDemoServer) Call(ctx context.Context, req *grpcdemo.NoticeReaderReq) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Call not implemented")
+func (c GrpcDemoServer) UnaryCall(ctx context.Context, req *grpcdemo.NoticeReaderReq) (*emptypb.Empty, error) {
+	log.Printf("port is %v", c.port)
+	return &emptypb.Empty{}, nil
 }
-func (GrpcDemoServer) DemoImport(ctx context.Context, req *folder.ImportedMessage) (*grpcdemo.CustomMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DemoImport not implemented")
+func (c GrpcDemoServer) DemoImport(ctx context.Context, req *folder.ImportedMessage) (*grpcdemo.CustomMessage, error) {
+	log.Printf("port is %v", c.port)
+	return &grpcdemo.CustomMessage{
+		CustomMessage: fmt.Sprintf("%v", c.port),
+	}, nil
 }
 func (GrpcDemoServer) PushData(c grpcdemo.GrpcDemo_PushDataServer) error {
 	for {
@@ -84,56 +87,29 @@ func (GrpcDemoServer) CallGrpcGateway(ctx context.Context, req *grpcdemo.NoticeR
 	log.Println(req)
 	switch req.Msg {
 	case "1":
-		return nil,status.Error(codes.NotFound,"not found")
+		return nil, status.Error(codes.NotFound, "not found")
 	case "2":
-		return nil,fmt.Errorf("custom error")
+		return nil, fmt.Errorf("custom error")
 
 	}
 	return &grpcdemo.NoticeReaderResp{FavBook: ""}, nil
 }
 
-
 type GrpcGatewayDemo struct {
 	grpcdemo.GrpcGatewayDemoServer
 }
 
-func (GrpcGatewayDemo)CallGrpcGatewayDemo(ctx context.Context,req *grpcdemo.NoticeReaderReq) (*grpcdemo.NoticeReaderResp, error){
+func (GrpcGatewayDemo) CallGrpcGatewayDemo(ctx context.Context, req *grpcdemo.NoticeReaderReq) (*grpcdemo.NoticeReaderResp, error) {
 	switch req.Msg {
 	case "1":
-		return nil,status.Error(codes.NotFound,"CallGrpcGatewayDemo not found")
+		return nil, status.Error(codes.NotFound, "CallGrpcGatewayDemo not found")
 	case "2":
-		return nil,fmt.Errorf("CallGrpcGatewayDemo custom error")
+		return nil, fmt.Errorf("CallGrpcGatewayDemo custom error")
 
 	}
 	return &grpcdemo.NoticeReaderResp{FavBook: "test11"}, nil
 }
 
-type Response struct {
-	Code int32       `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data"`
-}
-
-func TestMarshal(t *testing.T) {
-	r := Response{
-		Code: 0,
-		Msg:  "success",
-		Data: struct {
-		}{},
-	}
-	d, err := json.Marshal(r)
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println([]byte{':'})
-	indexByte := bytes.LastIndexByte(d, ':')
-	log.Println(indexByte)
-
-	for _, v := range d {
-		fmt.Printf("%v,", v)
-	}
-
-}
 func TestServer(t *testing.T) {
 	listener, err := net.Listen("tcp", "0.0.0.0:8899")
 	if err != nil {
@@ -142,88 +118,43 @@ func TestServer(t *testing.T) {
 	}
 	s := grpc.NewServer()
 	grpcdemo.RegisterGrpcDemoServer(s, new(GrpcDemoServer))
-	grpcdemo.RegisterGrpcGatewayDemoServer(s, new(GrpcGatewayDemo))
 	if err := s.Serve(listener); err != nil {
 		log.Println("failed to serve...", err)
 		return
 	}
+
 }
 
-var (
-	_responsePrefix = []byte{123,34,99,111,100,101,34,58,48,44,34,109,115,103,34,58,34,115,117,99,99,101,115,115,34,44,34,100,97,116,97,34,58}
-	_responseSuffix = []byte{125}
-	_responsePrefixLen = len(_responsePrefix)
-	_responseSuffixLen = len(_responseSuffix)
-	_empty = struct {}{}
-)
-
-
-func (j *JSONPbWrap) Marshal(v interface{}) ([]byte, error) {
-	data, err := j.JSONPb.Marshal(v)
-	if err != nil {
-		return nil, err
-	}
-	//给返回的数据加上加上我们自定义的一些数据，使其统一格式。
-	extra := _responsePrefixLen + _responseSuffixLen
-	size :=len(data)+extra
-	d := make([]byte, len(data)+extra)
-	copy(d, _responsePrefix)
-	copy(d[_responsePrefixLen:], data[:])
-	copy(d[size-1:], _responseSuffix)
-	return d, nil
-}
-
-type JSONPbWrap struct {
-	runtime.JSONPb
-}
-
-func TestGrpcGateWay(t *testing.T) {
+func TestGrpcGateWayServer(t *testing.T) {
+	go func() {
+		listener, err := net.Listen("tcp", "0.0.0.0:8899")
+		if err != nil {
+			log.Println("net listen err ", err)
+			return
+		}
+		s := grpc.NewServer()
+		grpcdemo.RegisterGrpcDemoServer(s, new(GrpcDemoServer))
+		grpcdemo.RegisterGrpcGatewayDemoServer(s, new(GrpcGatewayDemo))
+		if err := s.Serve(listener); err != nil {
+			log.Println("failed to serve...", err)
+			return
+		}
+	}()
 	conn, err := grpc.Dial(
 		"127.0.0.1:8899",
-		grpc.WithInsecure(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
 		log.Panic("dail proxy grpc serve failed ", zap.Error(err))
 	}
-	marshaler := &runtime.HTTPBodyMarshaler{
-		Marshaler: &JSONPbWrap{runtime.JSONPb{
-			MarshalOptions: protojson.MarshalOptions{
-				EmitUnpopulated: true,
-				UseProtoNames:   true,
-			},
-			UnmarshalOptions: protojson.UnmarshalOptions{
-				DiscardUnknown: true,
-			},
-		},
-		},
-	}
-	m := runtime.WithMarshalerOption("application/json", marshaler)
-	errorHandler := runtime.WithErrorHandler(func(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, writer http.ResponseWriter, request *http.Request, err error) {
-		// return Internal when Marshal failed
-		var r Response
-		s, ok := status.FromError(err)
-		if !ok {
-			r = Response{
-				Code: int32(codes.Unknown),
-				Msg:  err.Error(),
-				Data: _empty,
-			}
-		}
-		r = Response{
-			Code: int32(s.Code()),
-			Msg:  s.Message(),
-			Data: _empty,
-		}
-		buf, _ := json.Marshal(r)
-		writer.Write(buf)
-	})
-	gwmux := runtime.NewServeMux(errorHandler,m)
+
+	gwmux := runtime.NewServeMux()
 
 	if err = grpcdemo.RegisterGrpcDemoHandler(context.Background(), gwmux, conn); err != nil {
-		log.Panic("Failed to register gateway ", zap.Error(err))
+		log.Panicf("Failed to register gateway %v", err)
 	}
 	if err = grpcdemo.RegisterGrpcGatewayDemoHandler(context.Background(), gwmux, conn); err != nil {
-		log.Panic("Failed to register gateway ", zap.Error(err))
+		log.Panicf("Failed to register gateway %v", err)
 	}
 
 	gwServer := &http.Server{

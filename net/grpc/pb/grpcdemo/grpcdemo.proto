@@ -1,8 +1,9 @@
 syntax = "proto3";
-//当别人导入这个protobuf文件，使用的包名 如 google/protobuf/empty.proto 定义的就是 package google.protobuf;
+//当别人导入这个protobuf文件，使用的包名 如 google/protobuf/empty.proto 定义的就是 package google.protobuf,我们要使用这个文件中message 使用方法为 package.Message
+//如google.protobuf.Empty
 package grpcdemo;
 
-//go_package = "./grpcdemo;grpcdemo"; ./grpcdemo表示生成的文件的位和生成命令指定的生成位置一起决定最后生成文件的位置，      grpcdemo表示生成的包名
+//go_package = "./grpcdemo;grpcdemo"; ./grpcdemo表示生成的文件的位置和生成命令指定的生成位置,一起决定最后生成文件的位置。       grpcdemo表示生成的包名
 option go_package = "./grpcdemo;grpcdemo";
 
 
@@ -21,7 +22,7 @@ service GrpcDemo {
     //grpc 4种调用类型
 
     //Unary RPC （一元RPC）
-    rpc Call(NoticeReaderReq)returns(google.protobuf.Empty);
+    rpc UnaryCall(NoticeReaderReq)returns(google.protobuf.Empty);
 
     //Unary RPC （一元RPC）
     rpc DemoImport(grpcdemo.folder.ImportedMessage)returns(CustomMessage);
@@ -34,7 +35,7 @@ service GrpcDemo {
 
     //Bidirectional Streaming RPC （双向流式RPC）
     rpc Exchange(stream Req) returns(stream Resp);
-    //grpc-gateway
+    //grpc-gateway调用
     rpc CallGrpcGateway(NoticeReaderReq)returns(NoticeReaderResp){
         option (google.api.http) = {
             post: "/v1/call"
@@ -70,7 +71,9 @@ message NoticeReaderReq{
     }
 }
 
-
+/*
+ 一个pb文件可以定义多个service
+*/
 service GrpcGatewayDemo {
     rpc CallGrpcGatewayDemo(NoticeReaderReq)returns(NoticeReaderResp){
         option (google.api.http) = {
