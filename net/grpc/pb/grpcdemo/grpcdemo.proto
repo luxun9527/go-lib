@@ -7,10 +7,10 @@ package grpcdemo;
 option go_package = "./grpcdemo;grpcdemo";
 
 
-//导入其他protobuf 导入我们自定义的protobuf 需要和	protoc   -I./pb -I./pb/googleapis -I参数组成完整的导入路径。
+//导入其他protobuf 导入我们自定义的protobuf 需要和protoc 命令 -I参数组成完整的导入路径。例如，导入google/protobuf/empty.proto需要指定 -I./pb/googleapis
 import "google/protobuf/empty.proto";
 
-//导入我们自定义的protobuf 需要和	protoc   -I./pb -I./pb/googleapis -I参数组成完整的导入路径。
+//导入我们自定义的protobuf 需要和	protoc -I参数组成完整的导入路径。
 import "grpcdemo/folder/imported.proto";
 
 //特殊情况当被导入的proto和我们是同一级的时候。可以不使用package.Message的形式 直接使用即可，CustomMessage
@@ -45,6 +45,7 @@ service GrpcDemo {
 }
 message Req{
     string firstName =1;
+    optional string age=2;
 }
 message Resp{
     string lastName=1;

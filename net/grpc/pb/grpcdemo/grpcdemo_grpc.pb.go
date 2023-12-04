@@ -4,7 +4,8 @@
 // - protoc             v3.19.4
 // source: grpcdemo/grpcdemo.proto
 
-//当别人导入这个protobuf文件，使用的包名 如 google/protobuf/empty.proto 定义的就是 package google.protobuf;
+//当别人导入这个protobuf文件，使用的包名 如 google/protobuf/empty.proto 定义的就是 package google.protobuf,我们要使用这个文件中message 使用方法为 package.Message
+//如google.protobuf.Empty
 
 package grpcdemo
 
