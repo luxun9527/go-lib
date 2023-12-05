@@ -14,7 +14,7 @@ https://www.liwenzhou.com/posts/Go/name-resolving-and-load-balancing-in-grpc/
 
 介绍grpc常用用法。
 
-本文代码地址https://github.com/luxun9527/go-lib/tree/master/net/grpc
+本文代码地址https://github.com/luxun9527/go-lib/tree/master/net/grpc ，您的star就是我更新的动力。
 
 ## 基本概念
 
