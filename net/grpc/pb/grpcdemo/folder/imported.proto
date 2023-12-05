@@ -2,7 +2,7 @@ syntax = "proto3";
 //当别人导入这个protobuf文件，使用的包名 如 google/protobuf/empty.proto 定义的就是 package google.protobuf;
 package grpcdemo.folder;
 
-//即是文件生成的路径，别人导入的路径 go-lib/net/grpc/pb/grpcdemo/folder
+//即是文件生成的路径也是别人导入的go代码生成的导入路径 go-lib/net/grpc/pb/grpcdemo/folder
 option go_package = "go-lib/net/grpc/pb/grpcdemo/folder;folder";
 
 

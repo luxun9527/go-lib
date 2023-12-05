@@ -1,0 +1,287 @@
+swagger: "2.0"
+info:
+  title: |-
+    当别人导入这个protobuf文件，使用的包名 如 google/protobuf/empty.proto 定义的就是 package google.protobuf,我们要使用这个文件中message 使用方法为 package.Message
+    如google.protobuf.Empty
+  version: version not set
+tags:
+  - name: GrpcDemo
+  - name: GrpcGatewayDemo
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /grpcdemo.GrpcDemo/DemoImport:
+    post:
+      summary: Unary RPC 当导入其他protobuf怎么使用
+      operationId: GrpcDemo_DemoImport
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/grpcdemoCustomMessage'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/folderImportedMessage'
+      tags:
+        - GrpcDemo
+  /grpcdemo.GrpcDemo/Exchange:
+    post:
+      summary: Bidirectional Streaming RPC （双向流式RPC）
+      operationId: GrpcDemo_Exchange
+      responses:
+        "200":
+          description: A successful response.(streaming responses)
+          schema:
+            type: object
+            properties:
+              result:
+                $ref: '#/definitions/grpcdemoExchangeResp'
+              error:
+                $ref: '#/definitions/rpcStatus'
+            title: Stream result of grpcdemoExchangeResp
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          description: ' (streaming inputs)'
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/grpcdemoExchangeReq'
+      tags:
+        - GrpcDemo
+  /grpcdemo.GrpcDemo/FetchData:
+    post:
+      summary: Server Streaming RPC （ 服务器流式RPC）
+      operationId: GrpcDemo_FetchData
+      responses:
+        "200":
+          description: A successful response.(streaming responses)
+          schema:
+            type: object
+            properties:
+              result:
+                $ref: '#/definitions/grpcdemoFetchDataResp'
+              error:
+                $ref: '#/definitions/rpcStatus'
+            title: Stream result of grpcdemoFetchDataResp
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/grpcdemoFetchDataReq'
+      tags:
+        - GrpcDemo
+  /grpcdemo.GrpcDemo/PushData:
+    post:
+      summary: Client Streaming RPC （ 客户端流式RPC）
+      operationId: GrpcDemo_PushData
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/grpcdemoPushDataResp'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          description: ' (streaming inputs)'
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/grpcdemoPushDataReq'
+      tags:
+        - GrpcDemo
+  /grpcdemo.GrpcDemo/UnaryCall:
+    post:
+      summary: Unary RPC （一元RPC）
+      operationId: GrpcDemo_UnaryCall
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/grpcdemoUnaryCallResp'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties: {}
+      tags:
+        - GrpcDemo
+  /v1/call:
+    post:
+      summary: grpc-gateway调用
+      operationId: GrpcDemo_CallGrpcGateway
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/grpcdemoCallGrpcGatewayResp'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/grpcdemoCallGrpcGatewayReq'
+      tags:
+        - GrpcDemo
+  /v1/gateway:
+    post:
+      operationId: GrpcGatewayDemo_CallGrpcGatewayDemo
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/grpcdemoCallGrpcGatewayDemoResp'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/grpcdemoCallGrpcGatewayDemoReq'
+      tags:
+        - GrpcGatewayDemo
+definitions:
+  folderImportedMessage:
+    type: object
+    properties:
+      imported_message:
+        type: string
+  grpcdemoCallGrpcGatewayDemoReq:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+  grpcdemoCallGrpcGatewayDemoResp:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+  grpcdemoCallGrpcGatewayReq:
+    type: object
+    properties:
+      config:
+        type: object
+        additionalProperties:
+          type: string
+    title: map类型
+  grpcdemoCallGrpcGatewayResp:
+    type: object
+    properties:
+      config:
+        type: object
+        additionalProperties:
+          type: string
+  grpcdemoCustomMessage:
+    type: object
+    properties:
+      custom_message:
+        type: string
+  grpcdemoExchangeReq:
+    type: object
+    properties:
+      first_name:
+        type: string
+      age:
+        type: string
+  grpcdemoExchangeResp:
+    type: object
+    properties:
+      last_name:
+        type: string
+      gender:
+        $ref: '#/definitions/grpcdemoGender'
+  grpcdemoFetchDataReq:
+    type: object
+    properties:
+      msg:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+    title: protobuf oneof的用法。
+  grpcdemoFetchDataResp:
+    type: object
+    properties:
+      fav_book:
+        type: string
+        title: 最爱的书
+  grpcdemoGender:
+    type: string
+    enum:
+      - Unknown
+      - Male
+      - Female
+    default: Unknown
+    title: 枚举类
+  grpcdemoPushDataReq:
+    type: object
+    properties:
+      foo:
+        type: string
+  grpcdemoPushDataResp:
+    type: object
+    properties:
+      foo:
+        type: string
+  grpcdemoUnaryCallResp:
+    type: object
+    properties:
+      username:
+        type: string
+  protobufAny:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  rpcStatus:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/protobufAny'

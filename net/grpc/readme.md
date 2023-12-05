@@ -3,12 +3,18 @@
 refer
 
 https://www.liwenzhou.com/posts/Go/name-resolving-and-load-balancing-in-grpc/
+
 https://github.com/win5do/go-microservice-demo/blob/main/docs/sections/grpc-lb.md
+
 https://www.cnblogs.com/FireworksEasyCool/p/12912839.html
 
+https://cloud.tencent.com/developer/article/2136435
 
+https://www.liwenzhou.com/posts/Go/name-resolving-and-load-balancing-in-grpc/
 
 介绍grpc常用用法。
+
+本文代码地址https://github.com/luxun9527/go-lib/tree/master/net/grpc
 
 ## 基本概念
 
@@ -55,7 +61,7 @@ syntax = "proto3";
 //如google.protobuf(包名).Empty(message)
 package grpcdemo;
 
-//go_package = "./grpcdemo;grpcdemo"; ./grpcdemo表示生成的文件的位置和生成命令指定的生成位置,一起决定最后生成文件的位置。  grpcdemo表示生成pb文件的包名
+//go_package = "./grpcdemo;grpcdemo"; ./grpcdemo表示生成的文件的位置和生成命令指定的生成位置,一起决定最后生成文件的位置 grpcdemo表示生成pb文件的包名
 option go_package = "./grpcdemo;grpcdemo";
 
 
@@ -101,6 +107,13 @@ message Req{
 }
 message Resp{
     string lastName=1;
+    Gender gender=2;
+}
+//枚举类
+enum Gender{
+    Unknown =0;
+    Male=1;
+    Female=2;
 }
 
 message Empty{}
@@ -151,6 +164,8 @@ proto:
     protoc   -I./pb --go_out=./pb --openapiv2_out=.  grpcdemo/custom.proto
     protoc   -I./pb --go_out=../../../ --openapiv2_out=. grpcdemo/folder/imported.proto
 	
+	#--openapiv2_opt 定义参数 https://github.com/grpc-ecosystem/grpc-gateway/blob/main/protoc-gen-openapiv2/main.go
+   #--grpc-gateway_opt定义参数 https://github.com/grpc-ecosystem/grpc-gateway/blob/main/protoc-gen-grpc-gateway/main.go
 	#-I 表示要从哪里开始找protobuf文件。--openapiv2_out生成的swagger文件放在哪
 	# --grpc-gateway_out=./pb 生成的grpcgateway文件放在哪 --go_out=./pb  --go-grpc_out=./pb 也是一样的。
 	
@@ -167,14 +182,36 @@ proto:
 服务端
 
 ```go
+package server
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"go-lib/net/grpc/pb/grpcdemo"
+	"go-lib/net/grpc/pb/grpcdemo/folder"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
+	"net"
+	"net/http"
+	"sync"
+	"testing"
+)
+
 type GrpcDemoServer struct {
 	port int32
 	grpcdemo.UnimplementedGrpcDemoServer
 }
 
-func (c GrpcDemoServer) UnaryCall(ctx context.Context, req *grpcdemo.NoticeReaderReq) (*emptypb.Empty, error) {
+func (c GrpcDemoServer) UnaryCall(ctx context.Context, req *emptypb.Empty) (*grpcdemo.UnaryCallResp, error) {
 	log.Printf("port is %v", c.port)
-	return &emptypb.Empty{}, nil
+	return &grpcdemo.UnaryCallResp{Username: "zhangsan"}, nil
 }
 func (c GrpcDemoServer) DemoImport(ctx context.Context, req *folder.ImportedMessage) (*grpcdemo.CustomMessage, error) {
 	log.Printf("port is %v", c.port)
@@ -189,14 +226,16 @@ func (GrpcDemoServer) PushData(c grpcdemo.GrpcDemo_PushDataServer) error {
 			log.Printf("err %v", err)
 			return err
 		}
-		log.Println(data)
+		log.Printf("recv data %v", data)
 	}
 
 }
-func (GrpcDemoServer) FetchData(req *grpcdemo.Empty, c grpcdemo.GrpcDemo_FetchDataServer) error {
+func (GrpcDemoServer) FetchData(req *grpcdemo.FetchDataReq, c grpcdemo.GrpcDemo_FetchDataServer) error {
 	for i := 0; i < 10; i++ {
-		if err := c.Send(&grpcdemo.Data{}); err != nil {
-			log.Println(err)
+		if err := c.Send(&grpcdemo.FetchDataResp{
+			FavBook: "book",
+		}); err != nil {
+			log.Printf("err %v", err)
 			return err
 		}
 	}
@@ -207,56 +246,116 @@ func (GrpcDemoServer) Exchange(c grpcdemo.GrpcDemo_ExchangeServer) error {
 
 	g.Add(2)
 	go func() {
+		defer g.Done()
 		for {
-			req, err := c.Recv()
+			data, err := c.Recv()
 			if err != nil {
 				log.Println(err)
+				return
 			}
-			log.Println(req)
+			log.Printf("exchange recv message %v", data)
 		}
-		g.Done()
 
 	}()
 	go func() {
+		defer g.Done()
 		for {
-			if err := c.Send(&grpcdemo.Resp{LastName: "test"}); err != nil {
+			if err := c.Send(&grpcdemo.ExchangeResp{LastName: "test"}); err != nil {
 				if err != nil {
 					log.Println(err)
+					return
 				}
 			}
 		}
-		g.Done()
+
 	}()
 	g.Wait()
 	return nil
 }
 
-func (GrpcDemoServer) CallGrpcGateway(ctx context.Context, req *grpcdemo.NoticeReaderReq) (*grpcdemo.NoticeReaderResp, error) {
-	log.Println(req)
-	switch req.Msg {
-	case "1":
+func (GrpcDemoServer) CallGrpcGateway(ctx context.Context, req *grpcdemo.CallGrpcGatewayReq) (*grpcdemo.CallGrpcGatewayResp, error) {
+	log.Printf("recv message %v", req.Config)
+	name := req.Config["name"]
+	switch name {
+	case "zhangsan":
 		return nil, status.Error(codes.NotFound, "not found")
-	case "2":
-		return nil, fmt.Errorf("custom error")
+	case "lisi":
+		return nil, errors.New("this is custom error")
 
 	}
-	return &grpcdemo.NoticeReaderResp{FavBook: ""}, nil
+	return &grpcdemo.CallGrpcGatewayResp{Config: req.Config}, nil
 }
 
 type GrpcGatewayDemo struct {
 	grpcdemo.GrpcGatewayDemoServer
 }
 
-func (GrpcGatewayDemo) CallGrpcGatewayDemo(ctx context.Context, req *grpcdemo.NoticeReaderReq) (*grpcdemo.NoticeReaderResp, error) {
-	switch req.Msg {
-	case "1":
-		return nil, status.Error(codes.NotFound, "CallGrpcGatewayDemo not found")
-	case "2":
-		return nil, fmt.Errorf("CallGrpcGatewayDemo custom error")
+func (GrpcGatewayDemo) CallGrpcGatewayDemo(ctx context.Context, req *grpcdemo.CallGrpcGatewayDemoReq) (*grpcdemo.CallGrpcGatewayDemoResp, error) {
 
-	}
-	return &grpcdemo.NoticeReaderResp{FavBook: "test11"}, nil
+	return &grpcdemo.CallGrpcGatewayDemoResp{
+		Username: req.Username,
+		Password: req.Password,
+	}, nil
 }
+
+func TestServer(t *testing.T) {
+	listener, err := net.Listen("tcp", "0.0.0.0:8899")
+	if err != nil {
+		log.Println("net listen err ", err)
+		return
+	}
+	s := grpc.NewServer()
+	grpcdemo.RegisterGrpcDemoServer(s, new(GrpcDemoServer))
+	log.Printf("start server at %v", 8899)
+	if err := s.Serve(listener); err != nil {
+		log.Println("failed to serve...", err)
+		return
+	}
+
+}
+
+func TestGrpcGateWayServer(t *testing.T) {
+	go func() {
+		listener, err := net.Listen("tcp", "0.0.0.0:8899")
+		if err != nil {
+			log.Println("net listen err ", err)
+			return
+		}
+		s := grpc.NewServer()
+		grpcdemo.RegisterGrpcDemoServer(s, new(GrpcDemoServer))
+		grpcdemo.RegisterGrpcGatewayDemoServer(s, new(GrpcGatewayDemo))
+		if err := s.Serve(listener); err != nil {
+			log.Println("failed to serve...", err)
+			return
+		}
+	}()
+	conn, err := grpc.Dial(
+		"127.0.0.1:8899",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Panic("dail proxy grpc serve failed ", zap.Error(err))
+	}
+
+	gwmux := runtime.NewServeMux()
+
+	if err = grpcdemo.RegisterGrpcDemoHandler(context.Background(), gwmux, conn); err != nil {
+		log.Panicf("Failed to register gateway %v", err)
+	}
+	if err = grpcdemo.RegisterGrpcGatewayDemoHandler(context.Background(), gwmux, conn); err != nil {
+		log.Panicf("Failed to register gateway %v", err)
+	}
+
+	gwServer := &http.Server{
+		Addr:    ":10080",
+		Handler: gwmux,
+	}
+	if err := gwServer.ListenAndServe(); err != nil {
+		log.Panic("init proxy http serve failed err", zap.Error(err))
+	}
+
+}
+
 
 ```
 
@@ -266,101 +365,140 @@ func (GrpcGatewayDemo) CallGrpcGatewayDemo(ctx context.Context, req *grpcdemo.No
 package client
 
 import (
-    "context"
-    "go-lib/net/grpc/pb/grpcdemo"
-    "google.golang.org/grpc"
-    "google.golang.org/grpc/credentials/insecure"
-    "log"
-    "testing"
-    "time"
+	"context"
+	"go-lib/net/grpc/pb/grpcdemo"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
+	"sync"
+	"testing"
+	"time"
 )
 
 func TestClient(t *testing.T) {
 
-    ctx, cancel := context.WithCancel(context.Background())
-    defer cancel()
-    conn, err := grpc.DialContext(ctx, "127.0.0.1:8899", grpc.WithTransportCredentials(insecure.NewCredentials()))
-    if err != nil {
-       log.Printf("DialContext failed %v", err)
-       return
-    }
-    cli := grpcdemo.NewGrpcDemoClient(conn)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	conn, err := grpc.DialContext(ctx, "127.0.0.1:8899", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Printf("DialContext failed %v", err)
+		return
+	}
+	cli := grpcdemo.NewGrpcDemoClient(conn)
 
-    time.Sleep(10 * time.Second)
-    result, err := cli.UnaryCall(context.Background(), &grpcdemo.NoticeReaderReq{
-       Msg:       "",
-       NoticeWay: &grpcdemo.NoticeReaderReq_Email{Email: "test"},
-    })
-    if err != nil {
-       log.Printf("Call  failed %v", err)
-
-    }
-
-    log.Printf("result = %v", result)
-    for {
-       time.Sleep(time.Second * 10)
-       result, err := cli.UnaryCall(context.Background(), &grpcdemo.NoticeReaderReq{
-          Msg:       "",
-          NoticeWay: &grpcdemo.NoticeReaderReq_Email{Email: "test"},
-       })
-       if err != nil {
-          log.Printf("Call  failed %v", err)
-
-       }
-       log.Printf("============================result =================================== %v", result)
-    }
+	for {
+		time.Sleep(time.Second * 10)
+		result, err := cli.UnaryCall(context.Background(), &emptypb.Empty{})
+		if err != nil {
+			log.Printf("Call  failed %v", err)
+		} else {
+			log.Printf("resp %v", result)
+		}
+	}
 }
 
 func TestPush(t *testing.T) {
-    ctx, cancel := context.WithCancel(context.Background())
-    defer cancel()
-    conn, err := grpc.DialContext(ctx, "127.0.0.1:8899", grpc.WithTransportCredentials(insecure.NewCredentials()))
-    if err != nil {
-       log.Printf("DialContext failed %v", err)
-       return
-    }
-    cli := grpcdemo.NewGrpcDemoClient(conn)
-    result, err := cli.UnaryCall(context.Background(), &grpcdemo.NoticeReaderReq{
-       Msg:       "",
-       NoticeWay: &grpcdemo.NoticeReaderReq_Email{Email: "test"},
-    })
-    if err != nil {
-       log.Printf("Call  failed %v", err)
-       return
-    }
-    log.Printf("result = %v", result)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	conn, err := grpc.DialContext(ctx, "127.0.0.1:8899", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Printf("DialContext failed %v", err)
+		return
+	}
+	cli := grpcdemo.NewGrpcDemoClient(conn)
+
+	c, err := cli.PushData(context.Background())
+	if err != nil {
+		log.Printf("get pushdata connection failed %v", err)
+		return
+	}
+	for i := 0; i < 10; i++ {
+		if err := c.Send(&grpcdemo.PushDataReq{Foo: "foo"}); err != nil {
+			log.Printf("push data failed %v", err)
+			return
+		}
+	}
+
 }
 
 func TestFetchData(t *testing.T) {
-    ctx, cancel := context.WithCancel(context.Background())
-    defer cancel()
-    conn, err := grpc.DialContext(ctx, "127.0.0.1:8899", grpc.WithTransportCredentials(insecure.NewCredentials()))
-    if err != nil {
-       log.Printf("DialContext failed %v", err)
-       return
-    }
-    cli := grpcdemo.NewGrpcDemoClient(conn)
-    result, err := cli.UnaryCall(context.Background(), &grpcdemo.NoticeReaderReq{
-       Msg:       "",
-       NoticeWay: &grpcdemo.NoticeReaderReq_Email{Email: "test"},
-    })
-    if err != nil {
-       log.Printf("Call  failed %v", err)
-       return
-    }
-    log.Printf("result = %v", result)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	conn, err := grpc.DialContext(ctx, "127.0.0.1:8899", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Printf("DialContext failed %v", err)
+		return
+	}
+	cli := grpcdemo.NewGrpcDemoClient(conn)
+	c, err := cli.FetchData(context.Background(), &grpcdemo.FetchDataReq{
+		Msg:       "",
+		NoticeWay: &grpcdemo.FetchDataReq_Email{Email: "test"},
+	})
+	if err != nil {
+		log.Printf("get fetchdata connection failed %v", err)
+		return
+	}
+
+	for {
+		data, err := c.Recv()
+		if err != nil {
+			log.Printf("recv data failed %v", err)
+			return
+		}
+		log.Printf("data =%v", data)
+	}
+
 }
+func TestExchangeData(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	conn, err := grpc.DialContext(ctx, "127.0.0.1:8899", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Printf("DialContext failed %v", err)
+		return
+	}
+	cli := grpcdemo.NewGrpcDemoClient(conn)
+	c, err := cli.Exchange(context.Background())
+	if err != nil {
+		log.Printf("get Exchangedata connection failed %v", err)
+		return
+	}
+	group := sync.WaitGroup{}
+	group.Add(2)
+	go func() {
+		for {
+			defer group.Done()
+			data, err := c.Recv()
+			if err != nil {
+				log.Printf("recv data failed %v", err)
+				return
+			}
+			log.Printf("data =%v", data)
+		}
+	}()
+	go func() {
+		for {
+			defer group.Done()
+			var age = "12"
+			err := c.Send(&grpcdemo.ExchangeReq{
+				FirstName: "zhangsan",
+				Age:       &age,
+			})
+			if err != nil {
+				log.Printf("recv data failed %v", err)
+				return
+			}
+		}
+	}()
+	group.Wait()
+}
+
 ```
 
 ## grpc自定义target解析
 
-场景 ：我们有多个服务端实例怎么去实现负载均衡，dial直接使用地址只能连接一个，这时候只能使用自定义target解析，并使用round_robin负载均衡策略来实现。
-
-具体代码如下。
-
-referhttps://cloud.tencent.com/developer/article/2136435
-
-https://www.liwenzhou.com/posts/Go/name-resolving-and-load-balancing-in-grpc/
+场景 ：我们有多个服务端实例怎么去实现负载均衡，dial直接使用地址只能连接一个，这时候可以使用自定义target解析，并使用round_robin负载均衡策略来实现。
 
 **客户端**
 
@@ -593,10 +731,14 @@ func TestResolverServer(t *testing.T) {
 
 ## grpc自定义负载均衡
 
+grpc 的客户端的负载均衡可以通过自定义客户端balance来实现。
+
 自定义负载均衡日常使用基本用不到，如果有兴趣可以参考go-zero的实现。
 
 https://www.cnblogs.com/kevinwan/p/16571213.html
 
-https://github.com/win5do/go-microservice-demo/blob/main/docs/sections/grpc-lb.md
-
 https://github.com/zeromicro/go-zero/blob/master/zrpc/internal/balancer/p2c/p2c.go
+
+grpc也可以服务端来实现负载均衡具体可以参考。·
+
+https://github.com/win5do/go-microservice-demo/blob/main/docs/sections/grpc-lb.md

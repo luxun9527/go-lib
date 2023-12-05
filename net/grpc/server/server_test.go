@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go-lib/net/grpc/pb/grpcdemo"
@@ -24,9 +25,9 @@ type GrpcDemoServer struct {
 	grpcdemo.UnimplementedGrpcDemoServer
 }
 
-func (c GrpcDemoServer) UnaryCall(ctx context.Context, req *grpcdemo.NoticeReaderReq) (*emptypb.Empty, error) {
+func (c GrpcDemoServer) UnaryCall(ctx context.Context, req *emptypb.Empty) (*grpcdemo.UnaryCallResp, error) {
 	log.Printf("port is %v", c.port)
-	return &emptypb.Empty{}, nil
+	return &grpcdemo.UnaryCallResp{Username: "zhangsan"}, nil
 }
 func (c GrpcDemoServer) DemoImport(ctx context.Context, req *folder.ImportedMessage) (*grpcdemo.CustomMessage, error) {
 	log.Printf("port is %v", c.port)
@@ -41,14 +42,16 @@ func (GrpcDemoServer) PushData(c grpcdemo.GrpcDemo_PushDataServer) error {
 			log.Printf("err %v", err)
 			return err
 		}
-		log.Println(data)
+		log.Printf("recv data %v", data)
 	}
 
 }
-func (GrpcDemoServer) FetchData(req *grpcdemo.Empty, c grpcdemo.GrpcDemo_FetchDataServer) error {
+func (GrpcDemoServer) FetchData(req *grpcdemo.FetchDataReq, c grpcdemo.GrpcDemo_FetchDataServer) error {
 	for i := 0; i < 10; i++ {
-		if err := c.Send(&grpcdemo.Data{}); err != nil {
-			log.Println(err)
+		if err := c.Send(&grpcdemo.FetchDataResp{
+			FavBook: "book",
+		}); err != nil {
+			log.Printf("err %v", err)
 			return err
 		}
 	}
@@ -59,55 +62,56 @@ func (GrpcDemoServer) Exchange(c grpcdemo.GrpcDemo_ExchangeServer) error {
 
 	g.Add(2)
 	go func() {
+		defer g.Done()
 		for {
-			req, err := c.Recv()
+			data, err := c.Recv()
 			if err != nil {
 				log.Println(err)
+				return
 			}
-			log.Println(req)
+			log.Printf("exchange recv message %v", data)
 		}
-		g.Done()
 
 	}()
 	go func() {
+		defer g.Done()
 		for {
-			if err := c.Send(&grpcdemo.Resp{LastName: "test"}); err != nil {
+			if err := c.Send(&grpcdemo.ExchangeResp{LastName: "test"}); err != nil {
 				if err != nil {
 					log.Println(err)
+					return
 				}
 			}
 		}
-		g.Done()
+
 	}()
 	g.Wait()
 	return nil
 }
 
-func (GrpcDemoServer) CallGrpcGateway(ctx context.Context, req *grpcdemo.NoticeReaderReq) (*grpcdemo.NoticeReaderResp, error) {
-	log.Println(req)
-	switch req.Msg {
-	case "1":
+func (GrpcDemoServer) CallGrpcGateway(ctx context.Context, req *grpcdemo.CallGrpcGatewayReq) (*grpcdemo.CallGrpcGatewayResp, error) {
+	log.Printf("recv message %v", req.Config)
+	name := req.Config["name"]
+	switch name {
+	case "zhangsan":
 		return nil, status.Error(codes.NotFound, "not found")
-	case "2":
-		return nil, fmt.Errorf("custom error")
+	case "lisi":
+		return nil, errors.New("this is custom error")
 
 	}
-	return &grpcdemo.NoticeReaderResp{FavBook: ""}, nil
+	return &grpcdemo.CallGrpcGatewayResp{Config: req.Config}, nil
 }
 
 type GrpcGatewayDemo struct {
 	grpcdemo.GrpcGatewayDemoServer
 }
 
-func (GrpcGatewayDemo) CallGrpcGatewayDemo(ctx context.Context, req *grpcdemo.NoticeReaderReq) (*grpcdemo.NoticeReaderResp, error) {
-	switch req.Msg {
-	case "1":
-		return nil, status.Error(codes.NotFound, "CallGrpcGatewayDemo not found")
-	case "2":
-		return nil, fmt.Errorf("CallGrpcGatewayDemo custom error")
+func (GrpcGatewayDemo) CallGrpcGatewayDemo(ctx context.Context, req *grpcdemo.CallGrpcGatewayDemoReq) (*grpcdemo.CallGrpcGatewayDemoResp, error) {
 
-	}
-	return &grpcdemo.NoticeReaderResp{FavBook: "test11"}, nil
+	return &grpcdemo.CallGrpcGatewayDemoResp{
+		Username: req.Username,
+		Password: req.Password,
+	}, nil
 }
 
 func TestServer(t *testing.T) {
@@ -118,6 +122,7 @@ func TestServer(t *testing.T) {
 	}
 	s := grpc.NewServer()
 	grpcdemo.RegisterGrpcDemoServer(s, new(GrpcDemoServer))
+	log.Printf("start server at %v", 8899)
 	if err := s.Serve(listener); err != nil {
 		log.Println("failed to serve...", err)
 		return
@@ -161,11 +166,8 @@ func TestGrpcGateWayServer(t *testing.T) {
 		Addr:    ":10080",
 		Handler: gwmux,
 	}
+	if err := gwServer.ListenAndServe(); err != nil {
+		log.Panic("init proxy http serve failed err", zap.Error(err))
+	}
 
-	go func() {
-		if err := gwServer.ListenAndServe(); err != nil {
-			log.Panic("init proxy http serve failed err", zap.Error(err))
-		}
-	}()
-	select {}
 }

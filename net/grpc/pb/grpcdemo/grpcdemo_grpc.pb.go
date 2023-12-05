@@ -37,17 +37,17 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GrpcDemoClient interface {
 	// Unary RPC （一元RPC）
-	UnaryCall(ctx context.Context, in *NoticeReaderReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// Unary RPC （一元RPC）
+	UnaryCall(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UnaryCallResp, error)
+	// Unary RPC 当导入其他protobuf怎么使用
 	DemoImport(ctx context.Context, in *folder.ImportedMessage, opts ...grpc.CallOption) (*CustomMessage, error)
 	// Client Streaming RPC （ 客户端流式RPC）
 	PushData(ctx context.Context, opts ...grpc.CallOption) (GrpcDemo_PushDataClient, error)
 	// Server Streaming RPC （ 服务器流式RPC）
-	FetchData(ctx context.Context, in *Empty, opts ...grpc.CallOption) (GrpcDemo_FetchDataClient, error)
+	FetchData(ctx context.Context, in *FetchDataReq, opts ...grpc.CallOption) (GrpcDemo_FetchDataClient, error)
 	// Bidirectional Streaming RPC （双向流式RPC）
 	Exchange(ctx context.Context, opts ...grpc.CallOption) (GrpcDemo_ExchangeClient, error)
 	// grpc-gateway调用
-	CallGrpcGateway(ctx context.Context, in *NoticeReaderReq, opts ...grpc.CallOption) (*NoticeReaderResp, error)
+	CallGrpcGateway(ctx context.Context, in *CallGrpcGatewayReq, opts ...grpc.CallOption) (*CallGrpcGatewayResp, error)
 }
 
 type grpcDemoClient struct {
@@ -58,8 +58,8 @@ func NewGrpcDemoClient(cc grpc.ClientConnInterface) GrpcDemoClient {
 	return &grpcDemoClient{cc}
 }
 
-func (c *grpcDemoClient) UnaryCall(ctx context.Context, in *NoticeReaderReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *grpcDemoClient) UnaryCall(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UnaryCallResp, error) {
+	out := new(UnaryCallResp)
 	err := c.cc.Invoke(ctx, GrpcDemo_UnaryCall_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -86,8 +86,8 @@ func (c *grpcDemoClient) PushData(ctx context.Context, opts ...grpc.CallOption) 
 }
 
 type GrpcDemo_PushDataClient interface {
-	Send(*Empty) error
-	CloseAndRecv() (*Data, error)
+	Send(*PushDataReq) error
+	CloseAndRecv() (*PushDataResp, error)
 	grpc.ClientStream
 }
 
@@ -95,22 +95,22 @@ type grpcDemoPushDataClient struct {
 	grpc.ClientStream
 }
 
-func (x *grpcDemoPushDataClient) Send(m *Empty) error {
+func (x *grpcDemoPushDataClient) Send(m *PushDataReq) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *grpcDemoPushDataClient) CloseAndRecv() (*Data, error) {
+func (x *grpcDemoPushDataClient) CloseAndRecv() (*PushDataResp, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
-	m := new(Data)
+	m := new(PushDataResp)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *grpcDemoClient) FetchData(ctx context.Context, in *Empty, opts ...grpc.CallOption) (GrpcDemo_FetchDataClient, error) {
+func (c *grpcDemoClient) FetchData(ctx context.Context, in *FetchDataReq, opts ...grpc.CallOption) (GrpcDemo_FetchDataClient, error) {
 	stream, err := c.cc.NewStream(ctx, &GrpcDemo_ServiceDesc.Streams[1], GrpcDemo_FetchData_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
@@ -126,7 +126,7 @@ func (c *grpcDemoClient) FetchData(ctx context.Context, in *Empty, opts ...grpc.
 }
 
 type GrpcDemo_FetchDataClient interface {
-	Recv() (*Data, error)
+	Recv() (*FetchDataResp, error)
 	grpc.ClientStream
 }
 
@@ -134,8 +134,8 @@ type grpcDemoFetchDataClient struct {
 	grpc.ClientStream
 }
 
-func (x *grpcDemoFetchDataClient) Recv() (*Data, error) {
-	m := new(Data)
+func (x *grpcDemoFetchDataClient) Recv() (*FetchDataResp, error) {
+	m := new(FetchDataResp)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -152,8 +152,8 @@ func (c *grpcDemoClient) Exchange(ctx context.Context, opts ...grpc.CallOption) 
 }
 
 type GrpcDemo_ExchangeClient interface {
-	Send(*Req) error
-	Recv() (*Resp, error)
+	Send(*ExchangeReq) error
+	Recv() (*ExchangeResp, error)
 	grpc.ClientStream
 }
 
@@ -161,20 +161,20 @@ type grpcDemoExchangeClient struct {
 	grpc.ClientStream
 }
 
-func (x *grpcDemoExchangeClient) Send(m *Req) error {
+func (x *grpcDemoExchangeClient) Send(m *ExchangeReq) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *grpcDemoExchangeClient) Recv() (*Resp, error) {
-	m := new(Resp)
+func (x *grpcDemoExchangeClient) Recv() (*ExchangeResp, error) {
+	m := new(ExchangeResp)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *grpcDemoClient) CallGrpcGateway(ctx context.Context, in *NoticeReaderReq, opts ...grpc.CallOption) (*NoticeReaderResp, error) {
-	out := new(NoticeReaderResp)
+func (c *grpcDemoClient) CallGrpcGateway(ctx context.Context, in *CallGrpcGatewayReq, opts ...grpc.CallOption) (*CallGrpcGatewayResp, error) {
+	out := new(CallGrpcGatewayResp)
 	err := c.cc.Invoke(ctx, GrpcDemo_CallGrpcGateway_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -187,17 +187,17 @@ func (c *grpcDemoClient) CallGrpcGateway(ctx context.Context, in *NoticeReaderRe
 // for forward compatibility
 type GrpcDemoServer interface {
 	// Unary RPC （一元RPC）
-	UnaryCall(context.Context, *NoticeReaderReq) (*emptypb.Empty, error)
-	// Unary RPC （一元RPC）
+	UnaryCall(context.Context, *emptypb.Empty) (*UnaryCallResp, error)
+	// Unary RPC 当导入其他protobuf怎么使用
 	DemoImport(context.Context, *folder.ImportedMessage) (*CustomMessage, error)
 	// Client Streaming RPC （ 客户端流式RPC）
 	PushData(GrpcDemo_PushDataServer) error
 	// Server Streaming RPC （ 服务器流式RPC）
-	FetchData(*Empty, GrpcDemo_FetchDataServer) error
+	FetchData(*FetchDataReq, GrpcDemo_FetchDataServer) error
 	// Bidirectional Streaming RPC （双向流式RPC）
 	Exchange(GrpcDemo_ExchangeServer) error
 	// grpc-gateway调用
-	CallGrpcGateway(context.Context, *NoticeReaderReq) (*NoticeReaderResp, error)
+	CallGrpcGateway(context.Context, *CallGrpcGatewayReq) (*CallGrpcGatewayResp, error)
 	mustEmbedUnimplementedGrpcDemoServer()
 }
 
@@ -205,7 +205,7 @@ type GrpcDemoServer interface {
 type UnimplementedGrpcDemoServer struct {
 }
 
-func (UnimplementedGrpcDemoServer) UnaryCall(context.Context, *NoticeReaderReq) (*emptypb.Empty, error) {
+func (UnimplementedGrpcDemoServer) UnaryCall(context.Context, *emptypb.Empty) (*UnaryCallResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnaryCall not implemented")
 }
 func (UnimplementedGrpcDemoServer) DemoImport(context.Context, *folder.ImportedMessage) (*CustomMessage, error) {
@@ -214,13 +214,13 @@ func (UnimplementedGrpcDemoServer) DemoImport(context.Context, *folder.ImportedM
 func (UnimplementedGrpcDemoServer) PushData(GrpcDemo_PushDataServer) error {
 	return status.Errorf(codes.Unimplemented, "method PushData not implemented")
 }
-func (UnimplementedGrpcDemoServer) FetchData(*Empty, GrpcDemo_FetchDataServer) error {
+func (UnimplementedGrpcDemoServer) FetchData(*FetchDataReq, GrpcDemo_FetchDataServer) error {
 	return status.Errorf(codes.Unimplemented, "method FetchData not implemented")
 }
 func (UnimplementedGrpcDemoServer) Exchange(GrpcDemo_ExchangeServer) error {
 	return status.Errorf(codes.Unimplemented, "method Exchange not implemented")
 }
-func (UnimplementedGrpcDemoServer) CallGrpcGateway(context.Context, *NoticeReaderReq) (*NoticeReaderResp, error) {
+func (UnimplementedGrpcDemoServer) CallGrpcGateway(context.Context, *CallGrpcGatewayReq) (*CallGrpcGatewayResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CallGrpcGateway not implemented")
 }
 func (UnimplementedGrpcDemoServer) mustEmbedUnimplementedGrpcDemoServer() {}
@@ -237,7 +237,7 @@ func RegisterGrpcDemoServer(s grpc.ServiceRegistrar, srv GrpcDemoServer) {
 }
 
 func _GrpcDemo_UnaryCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NoticeReaderReq)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -249,7 +249,7 @@ func _GrpcDemo_UnaryCall_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: GrpcDemo_UnaryCall_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GrpcDemoServer).UnaryCall(ctx, req.(*NoticeReaderReq))
+		return srv.(GrpcDemoServer).UnaryCall(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -277,8 +277,8 @@ func _GrpcDemo_PushData_Handler(srv interface{}, stream grpc.ServerStream) error
 }
 
 type GrpcDemo_PushDataServer interface {
-	SendAndClose(*Data) error
-	Recv() (*Empty, error)
+	SendAndClose(*PushDataResp) error
+	Recv() (*PushDataReq, error)
 	grpc.ServerStream
 }
 
@@ -286,12 +286,12 @@ type grpcDemoPushDataServer struct {
 	grpc.ServerStream
 }
 
-func (x *grpcDemoPushDataServer) SendAndClose(m *Data) error {
+func (x *grpcDemoPushDataServer) SendAndClose(m *PushDataResp) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *grpcDemoPushDataServer) Recv() (*Empty, error) {
-	m := new(Empty)
+func (x *grpcDemoPushDataServer) Recv() (*PushDataReq, error) {
+	m := new(PushDataReq)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -299,7 +299,7 @@ func (x *grpcDemoPushDataServer) Recv() (*Empty, error) {
 }
 
 func _GrpcDemo_FetchData_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Empty)
+	m := new(FetchDataReq)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -307,7 +307,7 @@ func _GrpcDemo_FetchData_Handler(srv interface{}, stream grpc.ServerStream) erro
 }
 
 type GrpcDemo_FetchDataServer interface {
-	Send(*Data) error
+	Send(*FetchDataResp) error
 	grpc.ServerStream
 }
 
@@ -315,7 +315,7 @@ type grpcDemoFetchDataServer struct {
 	grpc.ServerStream
 }
 
-func (x *grpcDemoFetchDataServer) Send(m *Data) error {
+func (x *grpcDemoFetchDataServer) Send(m *FetchDataResp) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -324,8 +324,8 @@ func _GrpcDemo_Exchange_Handler(srv interface{}, stream grpc.ServerStream) error
 }
 
 type GrpcDemo_ExchangeServer interface {
-	Send(*Resp) error
-	Recv() (*Req, error)
+	Send(*ExchangeResp) error
+	Recv() (*ExchangeReq, error)
 	grpc.ServerStream
 }
 
@@ -333,12 +333,12 @@ type grpcDemoExchangeServer struct {
 	grpc.ServerStream
 }
 
-func (x *grpcDemoExchangeServer) Send(m *Resp) error {
+func (x *grpcDemoExchangeServer) Send(m *ExchangeResp) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *grpcDemoExchangeServer) Recv() (*Req, error) {
-	m := new(Req)
+func (x *grpcDemoExchangeServer) Recv() (*ExchangeReq, error) {
+	m := new(ExchangeReq)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -346,7 +346,7 @@ func (x *grpcDemoExchangeServer) Recv() (*Req, error) {
 }
 
 func _GrpcDemo_CallGrpcGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NoticeReaderReq)
+	in := new(CallGrpcGatewayReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -358,7 +358,7 @@ func _GrpcDemo_CallGrpcGateway_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: GrpcDemo_CallGrpcGateway_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GrpcDemoServer).CallGrpcGateway(ctx, req.(*NoticeReaderReq))
+		return srv.(GrpcDemoServer).CallGrpcGateway(ctx, req.(*CallGrpcGatewayReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -412,7 +412,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GrpcGatewayDemoClient interface {
-	CallGrpcGatewayDemo(ctx context.Context, in *NoticeReaderReq, opts ...grpc.CallOption) (*NoticeReaderResp, error)
+	CallGrpcGatewayDemo(ctx context.Context, in *CallGrpcGatewayDemoReq, opts ...grpc.CallOption) (*CallGrpcGatewayDemoResp, error)
 }
 
 type grpcGatewayDemoClient struct {
@@ -423,8 +423,8 @@ func NewGrpcGatewayDemoClient(cc grpc.ClientConnInterface) GrpcGatewayDemoClient
 	return &grpcGatewayDemoClient{cc}
 }
 
-func (c *grpcGatewayDemoClient) CallGrpcGatewayDemo(ctx context.Context, in *NoticeReaderReq, opts ...grpc.CallOption) (*NoticeReaderResp, error) {
-	out := new(NoticeReaderResp)
+func (c *grpcGatewayDemoClient) CallGrpcGatewayDemo(ctx context.Context, in *CallGrpcGatewayDemoReq, opts ...grpc.CallOption) (*CallGrpcGatewayDemoResp, error) {
+	out := new(CallGrpcGatewayDemoResp)
 	err := c.cc.Invoke(ctx, GrpcGatewayDemo_CallGrpcGatewayDemo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -436,7 +436,7 @@ func (c *grpcGatewayDemoClient) CallGrpcGatewayDemo(ctx context.Context, in *Not
 // All implementations must embed UnimplementedGrpcGatewayDemoServer
 // for forward compatibility
 type GrpcGatewayDemoServer interface {
-	CallGrpcGatewayDemo(context.Context, *NoticeReaderReq) (*NoticeReaderResp, error)
+	CallGrpcGatewayDemo(context.Context, *CallGrpcGatewayDemoReq) (*CallGrpcGatewayDemoResp, error)
 	mustEmbedUnimplementedGrpcGatewayDemoServer()
 }
 
@@ -444,7 +444,7 @@ type GrpcGatewayDemoServer interface {
 type UnimplementedGrpcGatewayDemoServer struct {
 }
 
-func (UnimplementedGrpcGatewayDemoServer) CallGrpcGatewayDemo(context.Context, *NoticeReaderReq) (*NoticeReaderResp, error) {
+func (UnimplementedGrpcGatewayDemoServer) CallGrpcGatewayDemo(context.Context, *CallGrpcGatewayDemoReq) (*CallGrpcGatewayDemoResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CallGrpcGatewayDemo not implemented")
 }
 func (UnimplementedGrpcGatewayDemoServer) mustEmbedUnimplementedGrpcGatewayDemoServer() {}
@@ -461,7 +461,7 @@ func RegisterGrpcGatewayDemoServer(s grpc.ServiceRegistrar, srv GrpcGatewayDemoS
 }
 
 func _GrpcGatewayDemo_CallGrpcGatewayDemo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NoticeReaderReq)
+	in := new(CallGrpcGatewayDemoReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -473,7 +473,7 @@ func _GrpcGatewayDemo_CallGrpcGatewayDemo_Handler(srv interface{}, ctx context.C
 		FullMethod: GrpcGatewayDemo_CallGrpcGatewayDemo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GrpcGatewayDemoServer).CallGrpcGatewayDemo(ctx, req.(*NoticeReaderReq))
+		return srv.(GrpcGatewayDemoServer).CallGrpcGatewayDemo(ctx, req.(*CallGrpcGatewayDemoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

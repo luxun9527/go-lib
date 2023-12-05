@@ -22,64 +22,92 @@ service GrpcDemo {
     //grpc 4种调用类型
 
     //Unary RPC （一元RPC）
-    rpc UnaryCall(NoticeReaderReq)returns(google.protobuf.Empty);
+    rpc UnaryCall(google.protobuf.Empty)returns(UnaryCallResp);
 
-    //Unary RPC （一元RPC）
+    //Unary RPC 当导入其他protobuf怎么使用
     rpc DemoImport(grpcdemo.folder.ImportedMessage)returns(CustomMessage);
 
     //Client Streaming RPC （ 客户端流式RPC）
-    rpc PushData(stream Empty) returns(Data);
+    rpc PushData(stream PushDataReq) returns(PushDataResp);
 
     //Server Streaming RPC （ 服务器流式RPC）
-    rpc FetchData(Empty) returns(stream Data);
+    rpc FetchData(FetchDataReq) returns(stream FetchDataResp);
 
     //Bidirectional Streaming RPC （双向流式RPC）
-    rpc Exchange(stream Req) returns(stream Resp);
+    rpc Exchange(stream ExchangeReq) returns(stream ExchangeResp);
     //grpc-gateway调用
-    rpc CallGrpcGateway(NoticeReaderReq)returns(NoticeReaderResp){
+    rpc CallGrpcGateway(CallGrpcGatewayReq)returns(CallGrpcGatewayResp){
         option (google.api.http) = {
             post: "/v1/call"
             body:"*"
         };
     }
 }
-message Req{
-    string firstName =1;
+message UnaryCallResp{
+    string username=1;
+}
+
+message PushDataReq{
+    string foo=1;
+}
+message PushDataResp{
+    string foo=1;
+}
+
+message ExchangeReq{
+    string first_name =1;
     optional string age=2;
 }
-message Resp{
-    string lastName=1;
+message ExchangeResp{
+    string last_name=1;
+    Gender gender=2;
 }
-
-message Empty{}
-
-message Data{
-    string uid =1;
-    string topic=2;
-    bytes data=3;
+//枚举类
+enum Gender{
+    Unknown =0;
+    Male=1;
+    Female=2;
 }
-message NoticeReaderResp{
-    string fav_book=4;//最爱的书
+//map类型
+message CallGrpcGatewayReq{
+    map<string,string> config=1;
+}
+message CallGrpcGatewayResp{
+
+    map<string,string> config=1;
 }
 
 // protobuf oneof的用法。
-message NoticeReaderReq{
+message FetchDataReq{
     string msg = 1;
-
     oneof notice_way{
         string email = 2;
         string phone = 3;
     }
 }
 
+message FetchDataResp{
+    string fav_book=4;//最爱的书
+}
+
+
+
 /*
  一个pb文件可以定义多个service
 */
 service GrpcGatewayDemo {
-    rpc CallGrpcGatewayDemo(NoticeReaderReq)returns(NoticeReaderResp){
+    rpc CallGrpcGatewayDemo(CallGrpcGatewayDemoReq)returns(CallGrpcGatewayDemoResp){
         option (google.api.http) = {
             post: "/v1/gateway"
             body:"*"
         };
     }
+}
+message CallGrpcGatewayDemoReq{
+    string username=1;
+    string password=2;
+}
+message CallGrpcGatewayDemoResp{
+    string username=1;
+    string password=2;
 }

@@ -22,6 +22,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -33,7 +34,7 @@ var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
 func request_GrpcDemo_UnaryCall_0(ctx context.Context, marshaler runtime.Marshaler, client GrpcDemoClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq NoticeReaderReq
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -50,7 +51,7 @@ func request_GrpcDemo_UnaryCall_0(ctx context.Context, marshaler runtime.Marshal
 }
 
 func local_request_GrpcDemo_UnaryCall_0(ctx context.Context, marshaler runtime.Marshaler, server GrpcDemoServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq NoticeReaderReq
+	var protoReq emptypb.Empty
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -109,7 +110,7 @@ func request_GrpcDemo_PushData_0(ctx context.Context, marshaler runtime.Marshale
 	}
 	dec := marshaler.NewDecoder(req.Body)
 	for {
-		var protoReq Empty
+		var protoReq PushDataReq
 		err = dec.Decode(&protoReq)
 		if err == io.EOF {
 			break
@@ -145,7 +146,7 @@ func request_GrpcDemo_PushData_0(ctx context.Context, marshaler runtime.Marshale
 }
 
 func request_GrpcDemo_FetchData_0(ctx context.Context, marshaler runtime.Marshaler, client GrpcDemoClient, req *http.Request, pathParams map[string]string) (GrpcDemo_FetchDataClient, runtime.ServerMetadata, error) {
-	var protoReq Empty
+	var protoReq FetchDataReq
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -178,7 +179,7 @@ func request_GrpcDemo_Exchange_0(ctx context.Context, marshaler runtime.Marshale
 	}
 	dec := marshaler.NewDecoder(req.Body)
 	handleSend := func() error {
-		var protoReq Req
+		var protoReq ExchangeReq
 		err := dec.Decode(&protoReq)
 		if err == io.EOF {
 			return err
@@ -213,7 +214,7 @@ func request_GrpcDemo_Exchange_0(ctx context.Context, marshaler runtime.Marshale
 }
 
 func request_GrpcDemo_CallGrpcGateway_0(ctx context.Context, marshaler runtime.Marshaler, client GrpcDemoClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq NoticeReaderReq
+	var protoReq CallGrpcGatewayReq
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -230,7 +231,7 @@ func request_GrpcDemo_CallGrpcGateway_0(ctx context.Context, marshaler runtime.M
 }
 
 func local_request_GrpcDemo_CallGrpcGateway_0(ctx context.Context, marshaler runtime.Marshaler, server GrpcDemoServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq NoticeReaderReq
+	var protoReq CallGrpcGatewayReq
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -247,7 +248,7 @@ func local_request_GrpcDemo_CallGrpcGateway_0(ctx context.Context, marshaler run
 }
 
 func request_GrpcGatewayDemo_CallGrpcGatewayDemo_0(ctx context.Context, marshaler runtime.Marshaler, client GrpcGatewayDemoClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq NoticeReaderReq
+	var protoReq CallGrpcGatewayDemoReq
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -264,7 +265,7 @@ func request_GrpcGatewayDemo_CallGrpcGatewayDemo_0(ctx context.Context, marshale
 }
 
 func local_request_GrpcGatewayDemo_CallGrpcGatewayDemo_0(ctx context.Context, marshaler runtime.Marshaler, server GrpcGatewayDemoServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq NoticeReaderReq
+	var protoReq CallGrpcGatewayDemoReq
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
