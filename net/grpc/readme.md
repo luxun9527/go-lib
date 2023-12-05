@@ -14,7 +14,7 @@ https://www.liwenzhou.com/posts/Go/name-resolving-and-load-balancing-in-grpc/
 
 介绍grpc常用用法。
 
-本文代码地址https://github.com/luxun9527/go-lib/tree/master/net/grpc ，您的star就是我更新的动力。
+本文代码地址https://github.com/luxun9527/go-lib/tree/master/net/grpc ，如果对您有帮助帮我点下star就是我更新的动力。
 
 ## 基本概念
 
@@ -71,7 +71,7 @@ import "google/protobuf/empty.proto";
 //导入我们自定义的protobuf 需要和  protoc -I参数组成完整的导入路径。
 import "grpcdemo/folder/imported.proto";
 
-//特殊情况当被导入的proto和我们是同一级的时候。可以不使用package.Message的形式 直接使用即可，CustomMessage
+//特殊情况当被导入的proto和我们是同一级的时候。可以不使用package.Message的形式 直接使用message即可，CustomMessage
 import "grpcdemo/custom.proto";
 
 import "google/api/annotations.proto";
@@ -731,7 +731,7 @@ func TestResolverServer(t *testing.T) {
 
 ## grpc自定义负载均衡
 
-grpc 的客户端的负载均衡可以通过自定义客户端balance来实现。
+grpc 的客户端的负载均衡可以通过自定义客户端balancer来实现。
 
 自定义负载均衡日常使用基本用不到，如果有兴趣可以参考go-zero的实现。
 
