@@ -1,18 +1,62 @@
 package main
 
+import (
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"log"
+	"path/filepath"
+)
+
+const (
+	inputPath = "E:\\demoproject\\go-lib\\utils\\convert\\card.gen.go"
+	src       = "E:\\demoproject\\go-lib\\utils\\convert\\card.proto"
+)
+
 func main() {
 
-}
+	fset := token.NewFileSet()
+	path, _ := filepath.Abs("./utils/convert/card.gen.go")
+	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
+	if err != nil {
+		log.Printf("init parse file failed %v", err)
+		return
+	}
+	for _, decl := range f.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok {
+			continue
+		}
+		var ts *ast.TypeSpec
+		for _, spec := range genDecl.Specs {
+			if t, ok := spec.(*ast.TypeSpec); ok {
+				ts = t
+				break
+			}
 
-const TableNameCard = "card"
+		}
 
-// Card mapped from table <card>
-type Card struct {
-	ID        int32  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	No        int32  `gorm:"column:no;not null;comment:卡号" json:"no"`                   // 卡号
-	UserID    int32  `gorm:"column:user_id;not null;comment:用户id" json:"user_id"`       // 用户id
-	Amount    string `gorm:"column:amount;not null;comment:金额" json:"amount"`           // 金额
-	CreatedAt int64  `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"` // 创建时间
-	UpdatedAt int64  `gorm:"column:updated_at;not null;comment:修改时间" json:"updated_at"` // 修改时间
-	DeletedAt int64  `gorm:"column:deleted_at;not null;comment:删除时间" json:"deleted_at"` // 删除时间
+		if ts == nil {
+			continue
+		}
+		structDecl, ok := ts.Type.(*ast.StructType)
+		if !ok {
+			continue
+		}
+		for _, field := range structDecl.Fields.List {
+			if field.Doc != nil {
+				log.Printf("doc start")
+				for _, comment := range field.Comment.List {
+					log.Printf("field doc %v", comment.Text)
+				}
+			}
+			if field.Comment != nil {
+				log.Printf("comment start")
+				for _, comment := range field.Comment.List {
+					log.Printf("field Comment %v", comment.Text)
+				}
+			}
+		}
+	}
+
 }
