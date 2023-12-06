@@ -12,7 +12,7 @@ https://cloud.tencent.com/developer/article/2136435
 
 https://www.liwenzhou.com/posts/Go/name-resolving-and-load-balancing-in-grpc/
 
-介绍grpc常用用法。
+介绍grpc常用用法，包括protobuf文件的定义，grpc四种模式，grpc-gateway，自定义resolve target，grpc负载均衡
 
 本文代码地址https://github.com/luxun9527/go-lib/tree/master/net/grpc ，如果对您有帮助帮我点下star就是我更新的动力。
 
@@ -58,20 +58,20 @@ https://github.com/luxun9527/go-lib/tree/master/net/grpc/pb/googleapis/google/ap
 ```go
 syntax = "proto3";
 //当别人导入这个protobuf文件，使用的包名 如 google/protobuf/empty.proto 定义的就是 package google.protobuf,我们要使用这个文件中message 使用方法为 package.Message
-//如google.protobuf(包名).Empty(message)
+//如google.protobuf.Empty
 package grpcdemo;
 
-//go_package = "./grpcdemo;grpcdemo"; ./grpcdemo表示生成的文件的位置和生成命令指定的生成位置,一起决定最后生成文件的位置 grpcdemo表示生成pb文件的包名
+//go_package = "./grpcdemo;grpcdemo"; ./grpcdemo表示生成的文件的位置和生成命令指定的生成位置,一起决定最后生成文件的位置。       grpcdemo表示生成的包名
 option go_package = "./grpcdemo;grpcdemo";
 
 
 //导入其他protobuf 导入我们自定义的protobuf 需要和protoc 命令 -I参数组成完整的导入路径。例如，导入google/protobuf/empty.proto需要指定 -I./pb/googleapis
 import "google/protobuf/empty.proto";
 
-//导入我们自定义的protobuf 需要和  protoc -I参数组成完整的导入路径。
+//导入我们自定义的protobuf 需要和	protoc -I参数组成完整的导入路径。
 import "grpcdemo/folder/imported.proto";
 
-//特殊情况当被导入的proto和我们是同一级的时候。可以不使用package.Message的形式 直接使用message即可，CustomMessage
+//特殊情况当被导入的proto和我们是同一级的时候。可以不使用package.Message的形式 直接使用即可，CustomMessage
 import "grpcdemo/custom.proto";
 
 import "google/api/annotations.proto";
@@ -80,33 +80,44 @@ service GrpcDemo {
     //grpc 4种调用类型
 
     //Unary RPC （一元RPC）
-    rpc UnaryCall(NoticeReaderReq)returns(google.protobuf.Empty);
+    rpc UnaryCall(google.protobuf.Empty)returns(UnaryCallResp);
 
-    //Unary RPC （一元RPC）
+    //Unary RPC 当导入其他protobuf怎么使用
     rpc DemoImport(grpcdemo.folder.ImportedMessage)returns(CustomMessage);
 
     //Client Streaming RPC （ 客户端流式RPC）
-    rpc PushData(stream Empty) returns(Data);
+    rpc PushData(stream PushDataReq) returns(PushDataResp);
 
     //Server Streaming RPC （ 服务器流式RPC）
-    rpc FetchData(Empty) returns(stream Data);
+    rpc FetchData(FetchDataReq) returns(stream FetchDataResp);
 
     //Bidirectional Streaming RPC （双向流式RPC）
-    rpc Exchange(stream Req) returns(stream Resp);
+    rpc Exchange(stream ExchangeReq) returns(stream ExchangeResp);
     //grpc-gateway调用
-    rpc CallGrpcGateway(NoticeReaderReq)returns(NoticeReaderResp){
+    rpc CallGrpcGateway(CallGrpcGatewayReq)returns(CallGrpcGatewayResp){
         option (google.api.http) = {
             post: "/v1/call"
             body:"*"
         };
     }
 }
-message Req{
-    string firstName =1;
+message UnaryCallResp{
+    string username=1;
+}
+
+message PushDataReq{
+    string foo=1;
+}
+message PushDataResp{
+    string foo=1;
+}
+
+message ExchangeReq{
+    string first_name =1;
     optional string age=2;
 }
-message Resp{
-    string lastName=1;
+message ExchangeResp{
+    string last_name=1;
     Gender gender=2;
 }
 //枚举类
@@ -115,38 +126,47 @@ enum Gender{
     Male=1;
     Female=2;
 }
-
-message Empty{}
-
-message Data{
-    string uid =1;
-    string topic=2;
-    bytes data=3;
+//map类型
+message CallGrpcGatewayReq{
+    map<string,string> config=1;
 }
-message NoticeReaderResp{
-    string fav_book=4;//最爱的书
+message CallGrpcGatewayResp{
+
+    map<string,string> config=1;
 }
 
 // protobuf oneof的用法。
-message NoticeReaderReq{
+message FetchDataReq{
     string msg = 1;
-
     oneof notice_way{
         string email = 2;
         string phone = 3;
     }
 }
 
+message FetchDataResp{
+    string fav_book=4;//最爱的书
+}
+
+
 /*
  一个pb文件可以定义多个service
 */
 service GrpcGatewayDemo {
-    rpc CallGrpcGatewayDemo(NoticeReaderReq)returns(NoticeReaderResp){
+    rpc CallGrpcGatewayDemo(CallGrpcGatewayDemoReq)returns(CallGrpcGatewayDemoResp){
         option (google.api.http) = {
             post: "/v1/gateway"
             body:"*"
         };
     }
+}
+message CallGrpcGatewayDemoReq{
+    string username=1;
+    string password=2;
+}
+message CallGrpcGatewayDemoResp{
+    string username=1;
+    string password=2;
 }
 ```
 
@@ -356,7 +376,6 @@ func TestGrpcGateWayServer(t *testing.T) {
 
 }
 
-
 ```
 
 客户端
@@ -495,6 +514,89 @@ func TestExchangeData(t *testing.T) {
 }
 
 ```
+
+## grpc-gateway
+
+使用grpc直接提供http接口。github地址https://github.com/grpc-ecosystem/grpc-gateway
+
+1、protobuf文件定义
+
+```protobuf
+/*
+ 一个pb文件可以定义多个service
+*/
+service GrpcGatewayDemo {
+    rpc CallGrpcGatewayDemo(CallGrpcGatewayDemoReq)returns(CallGrpcGatewayDemoResp){
+        option (google.api.http) = {
+            post: "/v1/gateway"
+            body:"*" //get 不用定义这个body
+        };
+    }
+}
+message CallGrpcGatewayDemoReq{
+    string username=1;
+    string password=2;
+}
+message CallGrpcGatewayDemoResp{
+    string username=1;
+    string password=2;
+}
+```
+
+2、 生成go文件的时候使用 --grpc-gateway_out 这个插件，--openapiv2_out这个插件生成swagger文档，具体的命令参数makefile
+
+其他的flag参考 https://github.com/grpc-ecosystem/grpc-gateway/blob/main/protoc-gen-grpc-gateway/main.go
+
+3、启动grpc-gateway服务
+
+```go
+
+func TestGrpcGateWayServer(t *testing.T) {
+	go func() {
+		listener, err := net.Listen("tcp", "0.0.0.0:8899")
+		if err != nil {
+			log.Println("net listen err ", err)
+			return
+		}
+		s := grpc.NewServer()
+		grpcdemo.RegisterGrpcDemoServer(s, new(GrpcDemoServer))
+		grpcdemo.RegisterGrpcGatewayDemoServer(s, new(GrpcGatewayDemo))
+		if err := s.Serve(listener); err != nil {
+			log.Println("failed to serve...", err)
+			return
+		}
+	}()
+	conn, err := grpc.Dial(
+		"127.0.0.1:8899",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Panic("dail proxy grpc serve failed ", zap.Error(err))
+	}
+	//创建handler对象
+	gwmux := runtime.NewServeMux()
+	//注册handler
+	if err = grpcdemo.RegisterGrpcDemoHandler(context.Background(), gwmux, conn); err != nil {
+		log.Panicf("Failed to register gateway %v", err)
+	}
+	if err = grpcdemo.RegisterGrpcGatewayDemoHandler(context.Background(), gwmux, conn); err != nil {
+		log.Panicf("Failed to register gateway %v", err)
+	}
+	
+	gwServer := &http.Server{
+		Addr:    ":10080",
+		Handler: gwmux,
+	}
+	//启动http服务
+    if err := gwServer.ListenAndServe(); err != nil {
+		log.Panic("init proxy http serve failed err", zap.Error(err))
+	}
+
+}
+
+```
+
+
 
 ## grpc自定义target解析
 
