@@ -13,6 +13,23 @@ const (
 	src       = "E:\\demoproject\\go-lib\\utils\\convert\\card.proto"
 )
 
+// type goType int32
+var (
+	typeMap = map[string]string{
+		"int8":   "int32",
+		"uint8":  "int32",
+		"int16":  "int32",
+		"uint16": "uint32",
+		"int32":  "int32",
+		"uint32": "uint32",
+		"int64":  "int64",
+		"uint64": "uint64",
+		"string": "string",
+		"[]byte": "bytes",
+		"bool":   "bool",
+	}
+)
+
 func main() {
 
 	fset := token.NewFileSet()
@@ -22,6 +39,7 @@ func main() {
 		log.Printf("init parse file failed %v", err)
 		return
 	}
+
 	for _, decl := range f.Decls {
 		genDecl, ok := decl.(*ast.GenDecl)
 		if !ok {
@@ -44,6 +62,7 @@ func main() {
 			continue
 		}
 		for _, field := range structDecl.Fields.List {
+			//	fieldName := field.Type.(*ast.Ident).MessageName
 			if field.Doc != nil {
 				log.Printf("doc start")
 				for _, comment := range field.Comment.List {
@@ -58,5 +77,6 @@ func main() {
 			}
 		}
 	}
+	//ast.ObjKind()
 
 }
