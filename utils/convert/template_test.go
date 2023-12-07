@@ -1,16 +1,19 @@
 package main
 
 import (
-	"github.com/spf13/cast"
 	"os"
 	"testing"
 	"text/template"
 )
 
 func TestTemplate(t *testing.T) {
-	p, err := template.New("").Funcs(template.FuncMap{"add": func(x, y int64) string {
-		return cast.ToString(x + y)
-	}}).Parse(tpl)
+	p, err := template.New("").
+		Funcs(template.FuncMap{
+			"add": func(x, y int) int {
+
+				return x + y
+			},
+		}).Parse(tpl)
 
 	if err != nil {
 		t.Fatal("parse failed", err)
@@ -26,7 +29,10 @@ func TestTemplate(t *testing.T) {
 		}},
 	}
 
-	p.Execute(os.Stdout, d)
+	if err := p.Execute(os.Stdout, d); err != nil {
+		t.Errorf("%v", err)
+		return
+	}
 }
 
 type Data struct {
