@@ -41,7 +41,7 @@ service GrpcDemo {
             post: "/v1/call"
             body:"*"
         };
-    }
+    };
 }
 message UnaryCallResp{
     string username=1;
