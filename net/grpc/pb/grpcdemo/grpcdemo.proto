@@ -42,7 +42,7 @@ service GrpcDemo {
             post: "/v1/call"
             body:"*"
         };
-    }
+    };
 }
 message UnaryCallResp{
     string username=1;
@@ -58,6 +58,7 @@ message PushDataResp{
 message ExchangeReq{
     string first_name =1;
     optional string age=2;
+
 }
 message ExchangeResp{
     string last_name=1;
