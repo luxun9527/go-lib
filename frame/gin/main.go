@@ -16,6 +16,7 @@ func main() {
 	route := gin.New()
 	//绑定get参数
 	route.GET("/api/omcenter/", func(c *gin.Context) {
+		//c.ShouldBindUri()
 		hs := make([]gin.H, 0, 10)
 	//	l := []gin.H{{"name":"test1"},{"name":"test2"}}
 		//data, _ := json.Marshal(l)

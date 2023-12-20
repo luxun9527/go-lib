@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net"
@@ -111,6 +112,10 @@ func (GrpcGatewayDemo) CallGrpcGatewayDemo(ctx context.Context, req *grpcdemo.Ca
 	return &grpcdemo.CallGrpcGatewayDemoResp{
 		Username: req.Username,
 		Password: req.Password,
+		Data: &anypb.Any{
+			TypeUrl: "",
+			Value:   nil,
+		},
 	}, nil
 }
 

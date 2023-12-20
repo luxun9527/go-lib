@@ -2,7 +2,6 @@ package standard
 
 import (
 	"log"
-	"testing"
 )
 
 type MyInt int32
@@ -16,28 +15,24 @@ func (MyInt) New() {
 //func (IntAlsa) New() { 错误
 //
 //}
-func TestAlisa(t *testing.T) {
-	findThirdValue()
-}
-func findThirdValue() {
-	m, index, third := []int32{1, 3, 5, 90, 2, 9}, 0, int32(0)
-	log.Printf("%p", m)
-	for i := 0; i < 3; i++ {
-		max := int32(0)
-		for k, v := range m {
-			if v > max {
-				max = v
-				index = k
-			}
-		}
-		if index != len(m)-1 {
 
-			m = append(m[:index], m[index+1:]...)
-			log.Printf("%p", m)
-		} else {
-			m = append(m[:index])
-		}
-		third = max
-	}
-	log.Println(third)
+type P interface {
+	Print1()
+	Print2()
+}
+
+
+type P1 struct {
+	Name string
+}
+func(p P1) Print1(){
+	log.Println("p1",p.Name)
+}
+func(p P1) Print2(){
+	log.Println("p1",p.Name)
+}
+type P2 P1
+
+func (p P2)Print1(){
+	log.Println("p2",p.Name)
 }

@@ -17,6 +17,7 @@ import "grpcdemo/folder/imported.proto";
 import "grpcdemo/custom.proto";
 
 import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
 
 service GrpcDemo {
     //grpc 4种调用类型
@@ -71,6 +72,7 @@ enum Gender{
 //map类型
 message CallGrpcGatewayReq{
     map<string,string> config=1;
+
 }
 message CallGrpcGatewayResp{
 
@@ -106,8 +108,10 @@ service GrpcGatewayDemo {
 message CallGrpcGatewayDemoReq{
     string username=1;
     string password=2;
+    google.protobuf.Any data=3;
 }
 message CallGrpcGatewayDemoResp{
     string username=1;
     string password=2;
+    google.protobuf.Any data=3;
 }

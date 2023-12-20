@@ -14,7 +14,7 @@ https://www.liwenzhou.com/posts/Go/name-resolving-and-load-balancing-in-grpc/
 
 介绍grpc常用用法，包括protobuf文件的定义，grpc四种模式，grpc-gateway，自定义resolve target，grpc负载均衡
 
-本文代码地址https://github.com/luxun9527/go-lib/tree/master/net/grpc ，如果对您有帮助帮我点下star就是我更新的动力。
+本文代码地址https://github.com/luxun9527/go-lib/tree/master/net/grpc ，我希望得到您的反馈，您的star就是我更新的动力。
 
 ## 基本概念
 

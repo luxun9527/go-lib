@@ -57,6 +57,7 @@ func TestClient1(t *testing.T) {
 		t.Error(err)
 		return
 	}
+	conn.(net.TCPConn).SetWriteBuffer()
 	for {
 		time.Sleep(time.Second * 5)
 		conn.Write([]byte("abc"))
