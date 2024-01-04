@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/fatih/color"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -64,6 +65,9 @@ type Field struct {
 }
 
 func main() {
+	c := color.New(color.FgCyan).Add(color.Underline)
+	c.Println("Prints cyan text with an underline.")
+
 	fset := token.NewFileSet()
 	path, _ := filepath.Abs("./utils/convert/card.gen.go")
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
