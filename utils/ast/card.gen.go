@@ -2,7 +2,7 @@ package main
 
 import "log"
 
-// 读取者
+// 读取者接口
 type Reader interface {
 	Read([]byte) error
 }
@@ -29,12 +29,13 @@ type Card struct {
 func (*Card) TableName() string {
 	return TableNameCard
 }
+
 /*
-这是一个注释group
+这是一个注释
 */
 func DemoSwitch() {
 	switch {
 	case true:
-		log.Println("rr")
+		log.Println("true")
 	}
 }
