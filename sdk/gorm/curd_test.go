@@ -187,7 +187,6 @@ func TestSelect(t *testing.T) {
 		log.Println(err)
 		return
 	}
-
 	//SELECT * FROM `card` WHERE `card`.`user_id` = 6
 	//SELECT * FROM `user` WHERE id = 6
 	//SELECT * FROM `profile` WHERE `profile`.`user_id` = 6

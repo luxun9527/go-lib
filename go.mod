@@ -38,6 +38,7 @@ require (
 	github.com/juju/ratelimit v1.0.2
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/lithammer/shortuuid/v3 v3.0.7
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/panjf2000/ants/v2 v2.7.5
 	github.com/pkg/errors v0.9.1

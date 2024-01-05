@@ -4,9 +4,17 @@ refer
 
 https://juejin.cn/post/6844903982683389960#heading-2
 
+
+
+本文的代码地址
+
+https://github.com/luxun9527/go-lib/tree/master/utils/ast  您的star就是我更新的动力
+
 ## 核心概念
 
-go文件，可以视为一颗由方法，包，字段，变量，注释组成的语法树，可以使用go提供的api，可以获取go文件中的方法，包，字段，变量，注释等信息。
+go文件，可以视为一颗由方法，包，字段，变量，注释组成的语法树，可以使用go提供的api，可以获取go文件中的方法，包，字段，变量，注释等信息，
+
+一些代码生成工具，mock，注入都是使用的类似方法。 [protoc-go-inject-tag](https://github.com/favadi/protoc-go-inject-tag) 
 
 在go提供的api中所有的，包，字段，变量，注释等元素视为node，主要是三种，Expressions and type nodes, statement nodes, and declaration nodes. 
 
@@ -307,7 +315,9 @@ type (
 
 Spec节点表示单个（非括号括起的）导入、常量、类型或变量声明。
 
+Spec node只有3种，分别是`ImportSpec`，`ValueSpec`和`TypeSpec`：
 
+ImportSpec表示一个单独的import，ValueSpec一个常量或变量的声明，TypeSpec 则表示一个type声明。
 
 ```go
 / ----------------------------------------------------------------------------
@@ -355,9 +365,7 @@ type (
 
 ```
 
-Spec node只有3种，分别是`ImportSpec`，`ValueSpec`和`TypeSpec`：
 
-ImportSpec表示一个单独的import，ValueSpec一个常量或变量的声明，TypeSpec 则表示一个type声明。
 
 ### 4 others
 
@@ -398,9 +406,7 @@ type Package struct {
 
 ### 类型定义
 
-一般来说，node是相互嵌套。比如type node 类型下 会有 doc 和filed 字段。valueSpec也 有doc字段等。 
-
-我们比较常用的有，**ast.ValueSpec:**  ， **ast.TypeSpec** ，**ast.Field** 类型， 具体使用还是要debug 去看 分析这个node下有什么字段。
+我们常用的node,一般是有一些比较基础的类型组成的，，**ast.ValueSpec:**  ， **ast.TypeSpec** ，**ast.Field** 类型，比如TypeSpec 类型下 会doc(CommentGroup) 和filed(FieldList) 字段。ValueSpec 类型下有 ident，doc类型的字段， 具体使用还是要debug 去看 分析这个node下有什么字段。
 
 ```go
 	// A TypeSpec node represents a type declaration (TypeSpec production).
@@ -426,9 +432,11 @@ type Package struct {
 
 
 
-![image-20240104164144046](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20240104164144046.png)
+![](https://cdn.learnku.com/uploads/images/202401/05/51993/e5EqOvzYTY.png!large)
 
-![image-20240104164502529](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20240104164502529.png)
+
+
+![](https://cdn.learnku.com/uploads/images/202401/05/51993/Rhx6mwZQWq.png!large)
 
 ### 遍历语法树
 
@@ -502,9 +510,11 @@ func main() {
 
 ```
 
+### 修改语法树
+
 ## 例子一枚
 
-根据我们定义的常量错误码，生成具体的错误
+根据我们定义的常量错误码，生成具体的错误。
 
 ```go
 package main
