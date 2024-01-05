@@ -21,7 +21,7 @@ func TestReadDir(t *testing.T) {
 	//}
 	//
 	//for _, file := range files {
-	//	fmt.Println(file.Name())
+	//	fmt.Println(file.varName())
 	//}
 	for i := 0; i < 0; i++ {
 		log.Println("test")

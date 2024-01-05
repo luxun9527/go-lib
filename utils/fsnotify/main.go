@@ -49,10 +49,10 @@ func (this *NotifyFile) WatchEvent() {
 				if ev.Op&fsnotify.Create == fsnotify.Create {
 					fmt.Println("创建文件 : ", ev.Name)
 					//获取新创建文件的信息，如果是目录，则加入监控中
-					//file, err := os.Stat(ev.Name)
+					//file, err := os.Stat(ev.varName)
 					//if err == nil && file.IsDir() {
-					//	this.watch.Add(ev.Name)
-					//	fmt.Println("添加监控 : ", ev.Name)
+					//	this.watch.Add(ev.varName)
+					//	fmt.Println("添加监控 : ", ev.varName)
 					//}
 				}
 
@@ -120,7 +120,7 @@ func watchFolder() {
 
 				log.Println("event:", event)
 				if event.Has(fsnotify.Write) {
-					//log.Println("modified file:", event.Name)
+					//log.Println("modified file:", event.varName)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -173,7 +173,7 @@ func watchFile() {
 				}
 				log.Printf("event %+v", event.Name)
 				if event.Has(fsnotify.Write) {
-					//log.Println("modified file:", event.Name)
+					//log.Println("modified file:", event.varName)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {

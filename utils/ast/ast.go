@@ -2,15 +2,21 @@ package main
 
 import (
 	"github.com/fatih/color"
+	"github.com/pkg/errors"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"path/filepath"
 )
 
 // 遍历节点
 func main() {
+	fileFullPath, err := filepath.Abs("utils\\ast\\card.gen.go")
+	if err!=nil{
+		panic(errors.WithMessage(err,"获取文件路径失败"))
+	}
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "D:\\project\\go-lib\\utils\\ast\\card.gen.go", nil, parser.ParseComments)
+	f, err := parser.ParseFile(fset, fileFullPath, nil, parser.ParseComments)
 	if err != nil {
 		panic(err)
 	}
@@ -19,11 +25,11 @@ func main() {
 		switch node := n.(type) {
 		case *ast.GenDecl:
 			color.Red("GenDecl node %+v",node)
-		case  *ast.TypeSpec: //类型定义 ((重点))
+		case  *ast.TypeSpec: //类型定义 ((重点)) 当我们要解析一个结构体用到 
 			color.Yellow("TypeSpec node %+v",node)
 		case *ast.StructType:
 			color.Yellow("StructType node %+v", node)
-		case *ast.Field: //字段定义 ((重点))
+		case *ast.Field:
 			/*
 			// Expressions and types
 
@@ -46,11 +52,14 @@ func main() {
 		case *ast.SwitchStmt:
 			color.Magenta("SwitchStmt node %+v",node)
 		case *ast.Comment:
-			color.Black("comment node %+v",node)
+			color.Black("Comment node %+v",node)
 		case *ast.CommentGroup:
 			color.Magenta("commentGroup node %+v",node)
 		case *ast.InterfaceType:
 			color.Magenta("interfaceType node %+v",node)
+		case *ast.ValueSpec: //((重点))当我们要解析全局变量，常量的时候用到
+			color.Magenta("ValueSpec node %+v",node)
+
 		}
 		return true
 	})

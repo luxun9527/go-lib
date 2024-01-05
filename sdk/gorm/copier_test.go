@@ -45,7 +45,7 @@ func TestCopier(t *testing.T) {
 
 	fmt.Printf("%#v \n", employee)
 	// Employee{
-	//    Name: "Jinzhu",           // Copy from field
+	//    varName: "Jinzhu",           // Copy from field
 	//    Age: 18,                  // Copy from field
 	//    Salary:150000,            // Copying explicitly ignored
 	//    DoubleAge: 36,            // Copy from method
@@ -58,7 +58,7 @@ func TestCopier(t *testing.T) {
 
 	fmt.Printf("%#v \n", employees)
 	// []Employee{
-	//   {Name: "Jinzhu", Age: 18, Salary:0, DoubleAge: 36, EmployeeId: 0, SuperRole: "Super Admin"}
+	//   {varName: "Jinzhu", Age: 18, Salary:0, DoubleAge: 36, EmployeeId: 0, SuperRole: "Super Admin"}
 	// }
 
 	// Copy slice to slice
