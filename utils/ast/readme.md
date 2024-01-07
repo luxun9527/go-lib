@@ -14,7 +14,7 @@ https://github.com/luxun9527/go-lib/tree/master/utils/ast  您的star就是我�
 
 go文件，可以视为一颗由方法，包，字段，变量，注释组成的语法树，可以使用go提供的api，可以获取go文件中的方法，包，字段，变量，注释等信息，
 
-一些代码生成工具，mock，注入都是使用的类似方法。 [protoc-go-inject-tag](https://github.com/favadi/protoc-go-inject-tag) 
+一些代码生成工具，mock，注入都是使用的类似方法如 [protoc-go-inject-tag](https://github.com/favadi/protoc-go-inject-tag) 
 
 在go提供的api中所有的，包，字段，变量，注释等元素视为node，主要是三种，Expressions and type nodes, statement nodes, and declaration nodes. 
 
@@ -406,7 +406,7 @@ type Package struct {
 
 ### 类型定义
 
-我们常用的node,一般是有一些比较基础的类型组成的，，**ast.ValueSpec:**  ， **ast.TypeSpec** ，**ast.Field** 类型，比如TypeSpec 类型下 会doc(CommentGroup) 和filed(FieldList) 字段。ValueSpec 类型下有 ident，doc类型的字段， 具体使用还是要debug 去看 分析这个node下有什么字段。
+我们常用的node,一般是有一些比较基础的类型组成的，**ast.File**，**ast.ValueSpec:**  ， **ast.TypeSpec** ，**ast.Field** 类型，比如TypeSpec 类型下 会doc(CommentGroup) 和filed(FieldList) 字段。ValueSpec 类型下有 ident，doc类型的字段， 具体使用还是要debug 去看 分析这个node下有什么字段。
 
 ```go
 	// A TypeSpec node represents a type declaration (TypeSpec production).
@@ -511,6 +511,141 @@ func main() {
 ```
 
 ### 修改语法树
+
+ 给gorm gen 生成的代码增加一些我们自己的方法。直接在ast.FIle node下增加即可
+
+```go
+	ast.Inspect(f, func(n ast.Node) bool {
+		switch node := n.(type) {
+		case *ast.File:
+			for _, v := range s.Fields {
+
+				eqFunc := &ast.SelectorExpr{
+					X: &ast.SelectorExpr{
+						X:   callerIdent,
+						Sel: ast.NewIdent(v.FieldName),
+					},
+					Sel: eqIdent,
+				}
+
+				funcName := fmt.Sprintf("Find%sBy%s", firstUpper(s.Name), v.FieldName)
+				funcNameCtx := fmt.Sprintf("Find%sBy%sCtx", firstUpper(s.Name), v.FieldName)
+				paramIdent = ast.NewIdent(v.FieldName)
+				paramIdent.Obj = &ast.Object{
+					Kind: ast.Var,
+					Name: v.FieldName,
+					Decl: &ast.Field{
+						Doc:     nil,
+						Names:   []*ast.Ident{ast.NewIdent(v.FieldName)},
+						Type:    ast.NewIdent(_typeMap[v.FieldType]),
+						Tag:     nil,
+						Comment: nil,
+					},
+					Data: nil,
+					Type: nil,
+				}
+				//新增func节点
+				newSpec := &ast.FuncDecl{
+					Doc:  nil,
+					Recv: recv,
+					Name: ast.NewIdent(funcName),
+					Type: &ast.FuncType{
+						Func:       0,
+						TypeParams: nil,
+						//参数
+						Params: &ast.FieldList{
+							Opening: 0,
+							List: []*ast.Field{{
+								Doc:     nil,
+								Names:   []*ast.Ident{paramIdent},
+								Type:    ast.NewIdent(_typeMap[v.FieldType]),
+								Tag:     nil,
+								Comment: nil,
+							}},
+							Closing: 0,
+						},
+						Results: &ast.FieldList{
+							Opening: 0,
+							List: []*ast.Field{
+								{
+									Doc:     nil,
+									Names:   []*ast.Ident{ast.NewIdent("result")},
+									Type:    ast.NewIdent("*model." + firstUpper(s.Name)),
+									Tag:     nil,
+									Comment: nil,
+								}, {
+									Doc:     nil,
+									Names:   []*ast.Ident{ast.NewIdent("err")},
+									Type:    ast.NewIdent("error"),
+									Tag:     nil,
+									Comment: nil,
+								}},
+							Closing: 0,
+						},
+					},
+					Body: &ast.BlockStmt{
+						Lbrace: 0,
+						List: []ast.Stmt{
+							&ast.ReturnStmt{
+								Return: 0,
+								Results: []ast.Expr{&ast.CallExpr{
+									Fun: &ast.SelectorExpr{
+										X: &ast.CallExpr{
+											Fun:    whereFunc,
+											Lparen: 0,
+											Args: []ast.Expr{&ast.CallExpr{
+												Fun:      eqFunc,
+												Lparen:   0,
+												Args:     []ast.Expr{paramIdent},
+												Ellipsis: 0,
+												Rparen:   0,
+											}},
+											Ellipsis: 0,
+											Rparen:   0,
+										},
+										Sel: takeIdent,
+									},
+									Lparen:   0,
+									Args:     nil,
+									Ellipsis: 0,
+									Rparen:   0,
+								}},
+							},
+						},
+						Rbrace: 0,
+					},
+				}
+			
+
+				}
+				node.Decls = append(node.Decls, newSpec, newSpecCtx)
+			}
+
+			return false
+
+		}
+		return true
+	})
+```
+
+```go
+func (c cardDo) Scan(result interface{}) (err error) {
+    return c.DO.Scan(result)
+}
+
+func (c cardDo) Delete(models ...*model.Card) (result gen.ResultInfo, err error) {
+    return c.DO.Delete(models)
+}
+
+func (c *cardDo) withDO(do gen.Dao) *cardDo {
+    c.DO = *do.(*gen.DO)
+    return c
+}
+//新增的方法
+func (c card) FindCardById(id int32) (*model.Card, error) {
+    return c.cardDo.Where(c.ID.Eq(id)).Take()
+}
+```
 
 ## 例子一枚
 

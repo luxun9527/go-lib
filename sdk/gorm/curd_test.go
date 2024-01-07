@@ -172,7 +172,6 @@ func TestUpdate(t *testing.T) {
 		CreatedAt: 0,
 		UpdatedAt: 0,
 	})
-
 }
 
 func TestDelete(t *testing.T) {
