@@ -35,7 +35,7 @@ func (lc *Config) parseLevel() zap.AtomicLevel {
 type Config struct {
 	//日志级别 debug info warn panic
 	Level string
-	//panic，是否显示堆栈 panic级别的日志输出堆栈信息。
+	//panic时候 是否显示堆栈 panic级别的日志输出堆栈信息。
 	Stacktrace bool
 	//添加调用者信息
 	AddCaller bool
@@ -56,7 +56,7 @@ type Config struct {
 	//异步日志 日志将先输入到内存到，定时批量落盘。如果设置这个值，要保证在程序退出的时候调用Sync(),在开发阶段不用设置为true。
 	Async bool
 	//是否 输出json格式的数据，JSON格式相对于console格式，不方便阅读，但是对机器更加友好
-	//最佳实践，在开发的时候json为false,mode为console,测试部署阶段，EnableWarnRedirect为true,mode为file,json为TRUE
+	//最佳实践，在开发的时候json为false,mode为console
 	Json bool
 	//是否日志压缩
 	Compress    bool
@@ -64,12 +64,14 @@ type Config struct {
 	atomicLevel zap.AtomicLevel
 }
 
-func (lc *Config) ChangeLevel(level zapcore.Level) {
+func (lc *Config) UpdateLevel(level zapcore.Level) {
 	lc.atomicLevel.SetLevel(level)
 }
 
 func (lc *Config) Build() *zap.Logger {
-
+	if lc.Mode == "file" && lc.FileName == "" {
+		log.Printf("file mode, but file name is empty")
+	}
 	var (
 		ws      zapcore.WriteSyncer
 		errorWs zapcore.WriteSyncer
@@ -106,16 +108,19 @@ func (lc *Config) Build() *zap.Logger {
 			LocalTime:  true,
 			Compress:   lc.Compress,
 		}
-		warnConfig := &lumberjack.Logger{
-			Filename:   lc.ErrorFileName,
-			MaxSize:    lc.MaxSize,
-			MaxAge:     lc.MaxAge,
-			MaxBackups: lc.MaxBackup,
-			LocalTime:  true,
-			Compress:   lc.Compress,
+		if lc.ErrorFileName != "" {
+			errorConfig := &lumberjack.Logger{
+				Filename:   lc.ErrorFileName,
+				MaxSize:    lc.MaxSize,
+				MaxAge:     lc.MaxAge,
+				MaxBackups: lc.MaxBackup,
+				LocalTime:  true,
+				Compress:   lc.Compress,
+			}
+			errorWs = zapcore.Lock(zapcore.AddSync(errorConfig))
 		}
+
 		ws = zapcore.Lock(zapcore.AddSync(normalConfig))
-		errorWs = zapcore.Lock(zapcore.AddSync(warnConfig))
 
 	}
 	if lc.Async {
@@ -124,11 +129,14 @@ func (lc *Config) Build() *zap.Logger {
 			Size:          _defaultBufferSize,
 			FlushInterval: _defaultFlushInterval,
 		}
-		errorWs = &zapcore.BufferedWriteSyncer{
-			WS:            errorWs,
-			Size:          _defaultBufferSize,
-			FlushInterval: _defaultFlushInterval,
+		if errorWs != nil {
+			errorWs = &zapcore.BufferedWriteSyncer{
+				WS:            errorWs,
+				Size:          _defaultBufferSize,
+				FlushInterval: _defaultFlushInterval,
+			}
 		}
+
 	}
 	if lc.Json {
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
@@ -140,9 +148,13 @@ func (lc *Config) Build() *zap.Logger {
 	)
 	atomicLevel := lc.parseLevel()
 	if lc.ErrorFileName != "" && lc.Mode == "file" {
-		highCore := zapcore.NewCore(encoder, errorWs, zapcore.ErrorLevel)
 		lowCore := zapcore.NewCore(encoder, ws, atomicLevel)
-		core = zapcore.NewTee(highCore, lowCore)
+		c := []zapcore.Core{lowCore}
+		if errorWs != nil {
+			highCore := zapcore.NewCore(encoder, errorWs, zapcore.ErrorLevel)
+			c = append(c, highCore)
+		}
+		core = zapcore.NewTee(c...)
 	} else {
 		core = zapcore.NewCore(encoder, ws, atomicLevel)
 	}
