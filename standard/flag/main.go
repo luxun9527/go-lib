@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	baseUsage()
+	parseEnv()
 }
 
 func baseUsage() {
@@ -22,6 +22,11 @@ func baseUsage() {
 	log.Println(*s)
 	log.Println(f)
 	log.Println(b)
+}
+func parseEnv(){
+	s := flag.String("OS", "", "用户名")
+	flag.Parse()
+	log.Println(*s)
 }
 func flagSet() {
 	f := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
