@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"go.opentelemetry.io/otel/trace"
 	"log"
 	"testing"
 	"time"
@@ -43,14 +44,15 @@ func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
 	return tp, nil
 }
 
-func TestJaeperSingle1(t *testing.T) {
-	tp, err := tracerProvider("http://192.168.11.185:14268/api/traces")
+const _globalTrace = "global-trace-id"
+
+func TestJaegerBaseUseage(t *testing.T) {
+
+	tp, err := tracerProvider("http://192.168.2.159:14268/api/traces")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Register our TracerProvider as the global so any imported
-	// instrumentation in the future will default to using it.
 	// 设置全局的TracerProvider，方便后面使用
 	otel.SetTracerProvider(tp)
 
@@ -67,38 +69,32 @@ func TestJaeperSingle1(t *testing.T) {
 			log.Fatal(err)
 		}
 	}(ctx)
-	// trace 上报
-	tr := otel.Tracer("component-main")
-
-	ctx, span := tr.Start(ctx, "root")
-	defer span.End()
-
-
-	//ctx, f1 := tr.Start(ctx, "f1")
-	//defer f1.End()
-	//ctx, f2 := tr.Start(ctx, "f2")
-	//defer f2.End()
-	// Context 向下传递
-	func1(ctx)
-
-
-
-}
-func func1(ctx context.Context) {
-	// Use the global TracerProvider.
-	// 使用 全局 TracerProvider
-	tr := otel.Tracer("root")
-	_, span := tr.Start(ctx, "fun1")
-	span.SetAttributes(attribute.Key("testset").String("value"))
+	// 新建一个tracer
+	tr := otel.Tracer(_globalTrace)
+	//开启一个span
+	ctx, span := tr.Start(ctx, "func1")
+	// trace.SpanFromContext(ctx) 可以通过这个函数，获取span
 	defer span.End()
 	func2(ctx)
 
 }
+
 func func2(ctx context.Context) {
-	// Use the global TracerProvider.
-	// 使用 全局 TracerProvider
-	tr := otel.Tracer("root")
+	spanCtx := trace.SpanContextFromContext(ctx)
+	log.Println(spanCtx.TraceID().String())
+	tr := otel.Tracer(_globalTrace)
+	// 调用一个方法开启一个span
 	_, span := tr.Start(ctx, "fun2")
-	span.SetAttributes(attribute.Key("testasetsaetast").String("testasetsaetast"))
+	span.SetAttributes(attribute.Key("func2_key").String("func2_value"))
+	defer span.End()
+	time.Sleep(time.Millisecond * 300)
+	func3(ctx)
+}
+func func3(ctx context.Context) {
+	spanCtx := trace.SpanContextFromContext(ctx)
+	log.Println(spanCtx.TraceID().String())
+	tr := otel.Tracer(_globalTrace)
+	_, span := tr.Start(ctx, "fun3")
+	span.SetAttributes(attribute.Key("func3_key").String("func3_value"))
 	defer span.End()
 }
