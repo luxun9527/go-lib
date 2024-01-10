@@ -24,7 +24,7 @@ go文件，可以视为一颗由方法，包，字段，变量，注释组成的
 
 根据错误码生成对应的错误定定义
 
-![](https://cdn.learnku.com/uploads/images/202401/08/51993/MzzUEgEfyw.png!large)#  
+![](https://cdn.learnku.com/uploads/images/202401/08/51993/MzzUEgEfyw.png!large)
 
 #### 例子2 
 

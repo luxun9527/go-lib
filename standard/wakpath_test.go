@@ -1,6 +1,7 @@
 package standard
 
 import (
+	"flag"
 	"io/fs"
 	"log"
 	"path/filepath"
@@ -15,15 +16,8 @@ func TestWalk(t *testing.T) {
 	})
 }
 func TestReadDir(t *testing.T) {
-	//files, err := ioutil.ReadDir("S:\\go-lib\\standard")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//for _, file := range files {
-	//	fmt.Println(file.varName())
-	//}
-	for i := 0; i < 0; i++ {
-		log.Println("test")
-	}
+
+	s := flag.String("GOPATH","","")
+	flag.Parse()
+	log.Println(*s)
 }
