@@ -304,6 +304,16 @@ func (c cardDo) FirstOrInit() (*model.Card, error) {
 	}
 }
 
+func (c cardDo) RawWhere(query interface{}, args ...interface{}) *cardDo {
+	c.DO.UnderlyingDB().Where(query,args)
+	return &c
+}
+
+func (c cardDo) RawSelect(conds ...field.Expr) *cardDo {
+	return c.withDO(c.DO.Select(conds...))
+}
+
+
 func (c cardDo) FirstOrCreate() (*model.Card, error) {
 	if result, err := c.DO.FirstOrCreate(); err != nil {
 		return nil, err

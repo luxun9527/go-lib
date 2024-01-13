@@ -377,6 +377,8 @@ docker run -p 33606:3306 --name mysql \
 -d mysql:8.0.23
 ```
 
+
+
 ### curd
 
 ```go
@@ -1119,6 +1121,18 @@ binlog-ignore-db=performance_schema
 
 ### 分库分表
 
-### others
+### 其他
 
 1、gorm是否并发安全
+
+https://juejin.cn/post/7134002645651439630
+
+我们实际使用gorm的api
+
+主要是三类
+
+1、Chain Method    对应 chainable_api.go 的方法，即非完结的方法 如 where ,join ,or等方法。db.clone=0 不会新建一个gorm.DB，还是用原来的 
+
+2、Finisher Method，对应finisher_api.go中的方法，即完结类的操作 create ,update db.clone=1会新建一个grom.DB  Find,take db.clone=0等查询不会新建一个。
+
+3、model,debug 相对独立的方法。  db.clone=1 会新建一个 gorm.DB

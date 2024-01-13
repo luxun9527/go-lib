@@ -59,6 +59,7 @@ func TestZapFile(t *testing.T) {
 	l.Warn("this a warn level log", zap.Any("test", "t"))
 	l.Error("this a error level log", zap.Any("test", "t"))
 	l.Panic("this a panic level log", zap.Any("test", "t"))
+
 	/*
 		2024-01-08-22:33:31	DEBUG	E:/demoproject/go-lib/utils/zap/zap_test.go:33	this a debug level log	{"test": "debug"}
 
@@ -102,7 +103,7 @@ func TestFileLog(t *testing.T) {
 		CallerShip:    0,
 		Mode:          "file",
 		FileName:      "stdout.log",
-		ErrorFileName: "stderr.log",
+		//ErrorFileName: "stderr.log",
 		MaxSize:       1,
 		MaxAge:        1,
 		MaxBackup:     10,

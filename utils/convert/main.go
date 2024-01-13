@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"github.com/fatih/color"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -65,101 +64,107 @@ type Field struct {
 }
 
 func main() {
-	c := color.New(color.FgCyan).Add(color.Underline)
-	c.Println("Prints cyan text with an underline.")
-
-	fset := token.NewFileSet()
-	path, _ := filepath.Abs("./utils/convert/card.gen.go")
-	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
-	if err != nil {
-		log.Printf("init parse file failed %v", err)
-		return
+	codePath := flag.String("p", "", "path")
+	flag.Parse()
+	pathList, err := filepath.Glob(*codePath)
+	if err!=nil{
+		log.Panicf("err %v", err)
 	}
-	var d = Data{
-		Msg:     nil,
-		AddHttp: *addHttp,
-	}
-	messages := make([]*Message, 0, 10)
-	for _, decl := range f.Decls {
-		genDecl, ok := decl.(*ast.GenDecl)
-		if !ok {
-			continue
+	for _,v := range pathList {
+		fset := token.NewFileSet()
+		path, _ := filepath.Abs(v)
+		f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
+		if err != nil {
+			log.Printf("init parse file failed %v", err)
+			return
 		}
-		var ts *ast.TypeSpec
-		for _, spec := range genDecl.Specs {
-			if t, ok := spec.(*ast.TypeSpec); ok {
-				ts = t
-				break
+		var d = Data{
+			Msg:     nil,
+			AddHttp: *addHttp,
+		}
+		messages := make([]*Message, 0, 10)
+		for _, decl := range f.Decls {
+			genDecl, ok := decl.(*ast.GenDecl)
+			if !ok {
+				continue
 			}
-		}
-
-		if ts == nil {
-			continue
-		}
-
-		structDecl, ok := ts.Type.(*ast.StructType)
-		if !ok {
-			continue
-		}
-		msg := &Message{
-			MessageName: ts.Name.Name,
-			Comment:     "",
-			Fields:      nil,
-		}
-		fields := make([]*Field, 0, 10)
-		for _, field := range structDecl.Fields.List {
-			fieldName := field.Names[0].Name
-			switch fieldNameMode(*fn) {
-			case upperCamelCase:
-
-			case lowerCamelCase:
-				fieldName = toLowerCase(fieldName)
-			case snakeCase:
-				fieldName = camelToSnake(fieldName)
-			}
-
-			fieldType := field.Type.(*ast.Ident).Name
-			fieldType = _typeMap[fieldType]
-			var comment string
-			//字段右方的注释
-			if field.Comment != nil {
-				for _, c := range field.Comment.List {
-					comment += c.Text
+			var ts *ast.TypeSpec
+			for _, spec := range genDecl.Specs {
+				if t, ok := spec.(*ast.TypeSpec); ok {
+					ts = t
+					break
 				}
 			}
-			f := &Field{
-				FieldName: fieldName,
-				FieldType: fieldType,
-				Comment:   comment,
+
+			if ts == nil {
+				continue
 			}
-			fields = append(fields, f)
-		}
-		msg.Fields = fields
-		messages = append(messages, msg)
-	}
-	d.Msg = messages
-	for _, v := range d.Msg {
-		log.Printf("message %v", v.MessageName)
-		for _, v := range v.Fields {
-			log.Printf("fieldname=%v,fieldtype=%v,comment=%v", v.FieldName, v.FieldType, v.Comment)
-		}
-	}
-	p, err := template.New("proto.tpl").
-		Funcs(template.FuncMap{
-			"add": func(x, y int) int {
-				return x + y
-			},
-		}).ParseFiles("E:\\demoproject\\go-lib\\utils\\convert\\proto.tpl")
 
-	if err != nil {
-		log.Panicf("parse failed %v", err)
-	}
-	fs, err := os.OpenFile("test.proto", os.O_CREATE|os.O_RDWR, 0644)
+			structDecl, ok := ts.Type.(*ast.StructType)
+			if !ok {
+				continue
+			}
+			msg := &Message{
+				MessageName: ts.Name.Name,
+				Comment:     "",
+				Fields:      nil,
+			}
+			fields := make([]*Field, 0, 10)
+			for _, field := range structDecl.Fields.List {
+				fieldName := field.Names[0].Name
+				switch fieldNameMode(*fn) {
+				case upperCamelCase:
 
-	if err := p.Execute(fs, d); err != nil {
-		log.Panicf("Execute failed %v", err)
-		return
+				case lowerCamelCase:
+					fieldName = toLowerCase(fieldName)
+				case snakeCase:
+					fieldName = camelToSnake(fieldName)
+				}
+
+				fieldType := field.Type.(*ast.Ident).Name
+				fieldType = _typeMap[fieldType]
+				var comment string
+				//字段右方的注释
+				if field.Comment != nil {
+					for _, c := range field.Comment.List {
+						comment += c.Text
+					}
+				}
+				f := &Field{
+					FieldName: fieldName,
+					FieldType: fieldType,
+					Comment:   comment,
+				}
+				fields = append(fields, f)
+			}
+			msg.Fields = fields
+			messages = append(messages, msg)
+		}
+		d.Msg = messages
+		for _, v := range d.Msg {
+			log.Printf("message %v", v.MessageName)
+			for _, v := range v.Fields {
+				log.Printf("fieldname=%v,fieldtype=%v,comment=%v", v.FieldName, v.FieldType, v.Comment)
+			}
+		}
+		p, err := template.New("proto.tpl").
+			Funcs(template.FuncMap{
+				"add": func(x, y int) int {
+					return x + y
+				},
+			}).ParseFiles("E:\\demoproject\\go-lib\\utils\\convert\\proto.tpl")
+
+		if err != nil {
+			log.Panicf("parse failed %v", err)
+		}
+		fs, err := os.OpenFile("test.proto", os.O_CREATE|os.O_RDWR, 0644)
+
+		if err := p.Execute(fs, d); err != nil {
+			log.Panicf("Execute failed %v", err)
+			return
+		}
 	}
+
 }
 
 func parseTag(tag string, target string) string {

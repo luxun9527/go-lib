@@ -60,6 +60,8 @@ type Config struct {
 	Json bool
 	//是否日志压缩
 	Compress    bool
+	//是否report
+	IsReport    bool
 	options     []zap.Option
 	atomicLevel zap.AtomicLevel
 }
@@ -147,16 +149,20 @@ func (lc *Config) Build() *zap.Logger {
 		core zapcore.Core
 	)
 	atomicLevel := lc.parseLevel()
-	if lc.ErrorFileName != "" && lc.Mode == "file" {
-		lowCore := zapcore.NewCore(encoder, ws, atomicLevel)
-		c := []zapcore.Core{lowCore}
-		if errorWs != nil {
-			highCore := zapcore.NewCore(encoder, errorWs, zapcore.ErrorLevel)
-			c = append(c, highCore)
-		}
-		core = zapcore.NewTee(c...)
-	} else {
-		core = zapcore.NewCore(encoder, ws, atomicLevel)
+
+	var c = []zapcore.Core{zapcore.NewCore(encoder, ws, atomicLevel)}
+	if errorWs != nil {
+		highCore := zapcore.NewCore(encoder, errorWs, zapcore.ErrorLevel)
+		c = append(c, highCore)
+	}
+	if lc.IsReport {
+		highCore := zapcore.NewCore(encoder, NewLarkWriterBuffer(), zapcore.ErrorLevel)
+		c = append(c, highCore)
+	}
+
+	core = zapcore.NewTee(c...)
+	if lc.IsReport {
+
 	}
 	logger := zap.New(core)
 	//是否新增调用者信息

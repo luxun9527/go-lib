@@ -190,7 +190,7 @@ func TestSelect(t *testing.T) {
 	//SELECT * FROM `user` WHERE id = 6
 	//SELECT * FROM `profile` WHERE `profile`.`user_id` = 6
 	var users2 []*User
-	if err := db.Model(&User{}).Where("id = ?", 6).Preload("Cards").Preload("Profile").Find(&users2).Error; err != nil {
+	if err := db.Debug().Model(&User{}).Where("id = ?", 6).Preload("Cards").Preload("Profile").Find(&users2).Error; err != nil {
 		log.Println(err)
 		return
 	}

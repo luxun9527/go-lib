@@ -19,6 +19,7 @@ func TestClientNormal(t *testing.T) {
 		fmt.Println("请求对象创建失败：", err)
 		return
 	}
+	
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36")
 	if _, err := client.Do(req); err != nil {
 		log.Println("err",err)
