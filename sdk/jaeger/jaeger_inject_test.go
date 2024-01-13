@@ -34,6 +34,7 @@ func TestGrpcInject(t *testing.T) {
 	otel.SetTracerProvider(tp)
 
 	ctx, cancel := context.WithCancel(context.Background())
+
 	defer cancel()
 
 	// Cleanly shutdown and flush telemetry when the application exits.

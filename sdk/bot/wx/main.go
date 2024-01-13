@@ -5,15 +5,15 @@ import (
 	"log"
 )
 
-func main(){
-	const webhookAddr= "cd29951d-d5ba-4784-b844-67ffe9fca84e"
+func main() {
+	const webhookAddr = "xxx"
 	bot := wxworkbot.New(webhookAddr)
 	// or Markdown, Image, News
 
 	// 文本消息
 	text := wxworkbot.Text{
-		Content: "Hello World",
-		MentionedList: []string{"foo", "bar"},
+		Content:             "Hello World",
+		MentionedList:       []string{"foo", "bar"},
 		MentionedMobileList: []string{"@all"},
 	}
 	err := bot.Send(text)

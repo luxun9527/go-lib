@@ -1,4 +1,4 @@
-package  main
+package main
 
 import (
 	"log"
@@ -7,9 +7,8 @@ import (
 	"time"
 )
 
-
 import (
-tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func main() {
@@ -22,7 +21,7 @@ func main() {
 		IdleConnTimeout:     30 * time.Second,
 		Proxy:               http.ProxyURL(proxyURL),
 	}
-	bot, err := tgbotapi.NewBotAPIWithClient("6499740288:AAEGZhWULZWto9gjlgxnqwQg1KxVKeJc0Ao", tgbotapi.APIEndpoint, &http.Client{
+	bot, err := tgbotapi.NewBotAPIWithClient("xxxx", tgbotapi.APIEndpoint, &http.Client{
 		Transport:     transport,
 		CheckRedirect: nil,
 		Jar:           nil,
@@ -45,15 +44,10 @@ func main() {
 		if update.Message != nil { // If we got a message
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "update.Message.Text")
-		//	msg.ReplyToMessageID = update.Message.MessageID
+			//	msg.ReplyToMessageID = update.Message.MessageID
 
 			bot.Send(msg)
 		}
 	}
 }
-
-
-
-
