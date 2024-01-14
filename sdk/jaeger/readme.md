@@ -2,13 +2,9 @@
 
 ## 核心概念
 
-程序可观测：在多服务，服务多实例的情况下，查看程序的运行情况。主要是三个部分
+程序可观测：在多服务，服务多实例的情况下，查看程序的运行情况。主要是三个部分**日志，链路追踪，指标采集。**
 
-**日志，链路追踪，指标采集。**
-
-
-
-refer
+本文地址 https://github.com/luxun9527/go-lib/tree/master/sdk/jaeger   如果您觉得这篇文章对您有帮助或启发，请帮我点个star呗，您的star就是我更新的动力。
 
 https://studygolang.com/articles/35630
 
@@ -28,6 +24,8 @@ opentelemerty 定义 logs(日志) traces(链路追踪)Metrics(服务运行指标
 
 ## 链路追踪 jaeger
 
+
+
 https://www.jaegertracing.io/docs/1.6/getting-started/
 
 https://www.cnblogs.com/whuanle/p/14598049.html
@@ -44,9 +42,11 @@ https://www.jaegertracing.io/docs/1.53/client-libraries/#deprecating-jaeger-clie
 
 https://opentelemetry.io/docs/demo/services/checkout/#traces
 
+由于这个我使用的不算深入，暂时只分享jaeger go sdk的一些用法。如果您有需求想深入了解可以参考go-zero对于trace相关中间件的实现。
+
 #### 基本概念
 
-链路追踪：在分布式系统中，追踪一次请求或一次操作的调用链，主要是通过context传播来实现。
+链路追踪：在分布式系统中，追踪一次请求或一次操作的调用链，主要是通过context的传播来实现。
 
 jaeper是什么 是opentelmerty 关于 traces链路追踪的实现。
 
@@ -92,7 +92,9 @@ jaeper是什么 是opentelmerty 关于 traces链路追踪的实现。
 
 使用docker 安装jaeger
 
-```plain
+可视化ui端口为16686
+
+```shell
 docker run -d --name jaeger   -e COLLECTOR_ZIPKIN_HTTP_PORT=9411   -p 5775:5775/udp   -p 6831:6831/udp   -p 6832:6832/udp   -p 5778:5778   -p 16686:16686   -p 14268:14268   -p 9411:9411   jaegertracing/all-in-one:1.6
 ```
 
