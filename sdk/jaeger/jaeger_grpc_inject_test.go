@@ -18,7 +18,7 @@ import (
 )
 
 /*
-演示如何在网络传输中使用OpenTelemetry。
+演示如何在grcp中使用jaeger。
 
 */
 
@@ -33,25 +33,12 @@ func TestGrpcInject(t *testing.T) {
 	// 设置全局的TracerProvider，方便后面使用
 	otel.SetTracerProvider(tp)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	defer tp.Shutdown(context.Background())
 
-	defer cancel()
-
-	// Cleanly shutdown and flush telemetry when the application exits.
-	// 优雅退出
-	defer func(ctx context.Context) {
-
-		// Do not make the application hang when it is shutdown.
-		ctx, cancel = context.WithTimeout(ctx, time.Second*5)
-		defer cancel()
-		if err := tp.Shutdown(ctx); err != nil {
-			log.Fatal(err)
-		}
-	}(ctx)
 	// 新建一个tracer
 	tr := otel.Tracer(_globalTrace)
 	//开启一个span
-	ctx, span := tr.Start(ctx, "func1")
+	ctx, span := tr.Start(context.Background(), "func1")
 	// trace.SpanFromContext(ctx) 可以通过这个函数，获取span
 	startGrpcClient(ctx)
 	span.End()

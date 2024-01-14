@@ -22,9 +22,6 @@ const (
 )
 
 func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
-	// Create the Jaeger exporter
-	// 创建 Jaeger exporter
-	//trace.TracerProvider()
 
 	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
 	if err != nil {
@@ -39,7 +36,9 @@ func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
 			semconv.ServiceNameKey.String(service),
 			attribute.String("environment", environment),
 			attribute.Int64("ID", id),
-		)),
+		),
+		),
+		tracesdk.WithSampler(tracesdk.AlwaysSample()),
 	)
 	return tp, nil
 }
@@ -52,23 +51,13 @@ func TestJaegerBaseUseage(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	defer tp.Shutdown(context.Background())
 	// 设置全局的TracerProvider，方便后面使用
 	otel.SetTracerProvider(tp)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Cleanly shutdown and flush telemetry when the application exits.
-	// 优雅退出
-	defer func(ctx context.Context) {
-		// Do not make the application hang when it is shutdown.
-		ctx, cancel = context.WithTimeout(ctx, time.Second*5)
-		defer cancel()
-		if err := tp.Shutdown(ctx); err != nil {
-			log.Fatal(err)
-		}
-	}(ctx)
 	// 新建一个tracer
 	tr := otel.Tracer(_globalTrace)
 	//开启一个span
