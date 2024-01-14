@@ -22,7 +22,7 @@ func (l *LarkWriter) Sync() error {
 }
 
 func newLarkWrite() *LarkWriter {
-	bot := lark.NewNotificationBot("https://open.larksuite.com/open-apis/bot/v2/hook/4d969fd8-c2ab-494a-a698-49acb7fcbb98")
+	bot := lark.NewNotificationBot("xxxxx")
 	return &LarkWriter{bot: bot}
 }
 

@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/golang-jwt/jwt/v4/test"
-	"jwt/model"
+	"go-lib/utils/jwt/model"
+
 	"testing"
 
 	"time"
