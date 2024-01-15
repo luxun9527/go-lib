@@ -306,13 +306,13 @@ func (c cardDo) FirstOrInit() (*model.Card, error) {
 
 func (c cardDo) RawWhere(query interface{}, args ...interface{}) *cardDo {
 	c.DO.UnderlyingDB().Where(query,args)
+	c.DO.ReplaceDB(c.DO.UnderlyingDB().Where(query,args))
 	return &c
 }
-
-func (c cardDo) RawSelect(conds ...field.Expr) *cardDo {
-	return c.withDO(c.DO.Select(conds...))
+func (c cardDo) RawSelect(query interface{}, args ...interface{}) *cardDo {
+	c.DO.UnderlyingDB().Select(query,args)
+	return &c
 }
-
 
 func (c cardDo) FirstOrCreate() (*model.Card, error) {
 	if result, err := c.DO.FirstOrCreate(); err != nil {
@@ -350,6 +350,9 @@ func (c cardDo) ScanByPage(result interface{}, offset int, limit int) (count int
 func (c cardDo) Scan(result interface{}) (err error) {
 	return c.DO.Scan(result)
 }
+
+
+
 
 func (c cardDo) Delete(models ...*model.Card) (result gen.ResultInfo, err error) {
 	return c.DO.Delete(models)

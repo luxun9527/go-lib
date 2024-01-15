@@ -94,26 +94,19 @@ func TestImp(t *testing.T) {
 
 }
 
-
-
-
-
-
-
-//演示内嵌继承，内嵌继承拥有被内嵌所有的属性。
+// 演示内嵌继承，内嵌继承拥有被内嵌所有的属性。
 type F struct {
 	Embed
 }
 
-func ( F )Print() {
+func (F) Print() {
 	fmt.Println("f")
 }
 
 type Embed struct {
-	
 }
 
-func (e Embed )Print(){
+func (e Embed) Print() {
 	fmt.Println("embed")
 }
 func TestEmbed(t *testing.T) {
@@ -123,5 +116,35 @@ func TestEmbed(t *testing.T) {
 	f.Print()
 }
 
+// 值接收和指针接收
 
+type Card struct {
+	User string
+}
 
+func (m Card) printValue() {
+	log.Printf("%p", &m)
+	m.User = "lisi"
+}
+func (m *Card) printPtr() {
+	log.Printf("%p", m)
+	m.User = "wangwu"
+}
+func TestReceiver(t *testing.T) {
+	m := &Card{
+		User: "zhangsan",
+	}
+	log.Printf("%p", m)
+	m.printPtr()
+	m.printValue()
+	log.Println(m)
+	m1 := Card{
+		"zhangsan",
+	}
+	log.Println("1111111111")
+	log.Printf("%p", &m1)
+	m1.printPtr()
+	m1.printValue()
+	log.Println(m1)
+
+}

@@ -55,7 +55,7 @@ type card struct {
 	fieldMap map[string]field.Expr
 }
 
-func (c *card) Table(newTableName string) *card {
+func (c card) Table(newTableName string) *card {
 	c.cardDo.UseTable(newTableName)
 	return c.updateTableName(newTableName)
 }
@@ -304,6 +304,8 @@ func (c cardDo) FirstOrInit() (*model.Card, error) {
 	}
 }
 
+
+
 func (c cardDo) FirstOrCreate() (*model.Card, error) {
 	if result, err := c.DO.FirstOrCreate(); err != nil {
 		return nil, err
@@ -341,6 +343,9 @@ func (c cardDo) Scan(result interface{}) (err error) {
 	return c.DO.Scan(result)
 }
 
+
+
+
 func (c cardDo) Delete(models ...*model.Card) (result gen.ResultInfo, err error) {
 	return c.DO.Delete(models)
 }
@@ -349,52 +354,11 @@ func (c *cardDo) withDO(do gen.Dao) *cardDo {
 	c.DO = *do.(*gen.DO)
 	return c
 }
-
-func (c card) FindCardById(id int32) (*model.Card, error) {
-	return c.cardDo.Where(c.ID.Eq(id)).Take()
+func (c cardDo) RawWhere(query interface{}, args ...interface{}) *cardDo {
+	c.DO.UnderlyingDB().Where(query,args)
+	return &c
 }
-func (c card) FindCardByIdCtx(ctx context.Context, id int32) (*model.Card, error) {
-	return c.WithContext(ctx).Where(c.ID.Eq(id)).Take()
-}
-func (c *card) FindCardByID(ID int32) (result *model.Card, err error) {
-	return c.cardDo.Where(c.ID.Eq(ID)).Take()
-}
-func (c *card) FindCardByIDCtx(ctx context.Context, ID int32) (result *model.Card, err error) {
-	return c.WithContext(ctx).Where(c.ID.Eq(ID)).Take()
-}
-func (c *card) FindCardByNo(No int32) (result *model.Card, err error) {
-	return c.cardDo.Where(c.No.Eq(No)).Take()
-}
-func (c *card) FindCardByNoCtx(ctx context.Context, No int32) (result *model.Card, err error) {
-	return c.WithContext(ctx).Where(c.No.Eq(No)).Take()
-}
-func (c *card) FindCardByUserID(UserID int32) (result *model.Card, err error) {
-	return c.cardDo.Where(c.UserID.Eq(UserID)).Take()
-}
-func (c *card) FindCardByUserIDCtx(ctx context.Context, UserID int32) (result *model.Card, err error) {
-	return c.WithContext(ctx).Where(c.UserID.Eq(UserID)).Take()
-}
-func (c *card) FindCardByAmount(Amount string) (result *model.Card, err error) {
-	return c.cardDo.Where(c.Amount.Eq(Amount)).Take()
-}
-func (c *card) FindCardByAmountCtx(ctx context.Context, Amount string) (result *model.Card, err error) {
-	return c.WithContext(ctx).Where(c.Amount.Eq(Amount)).Take()
-}
-func (c *card) FindCardByCreatedAt(CreatedAt int64) (result *model.Card, err error) {
-	return c.cardDo.Where(c.CreatedAt.Eq(CreatedAt)).Take()
-}
-func (c *card) FindCardByCreatedAtCtx(ctx context.Context, CreatedAt int64) (result *model.Card, err error) {
-	return c.WithContext(ctx).Where(c.CreatedAt.Eq(CreatedAt)).Take()
-}
-func (c *card) FindCardByUpdatedAt(UpdatedAt int64) (result *model.Card, err error) {
-	return c.cardDo.Where(c.UpdatedAt.Eq(UpdatedAt)).Take()
-}
-func (c *card) FindCardByUpdatedAtCtx(ctx context.Context, UpdatedAt int64) (result *model.Card, err error) {
-	return c.WithContext(ctx).Where(c.UpdatedAt.Eq(UpdatedAt)).Take()
-}
-func (c *card) FindCardByDeletedAt(DeletedAt int64) (result *model.Card, err error) {
-	return c.cardDo.Where(c.DeletedAt.Eq(DeletedAt)).Take()
-}
-func (c *card) FindCardByDeletedAtCtx(ctx context.Context, DeletedAt int64) (result *model.Card, err error) {
-	return c.WithContext(ctx).Where(c.DeletedAt.Eq(DeletedAt)).Take()
+func (c cardDo) RawSelect(query interface{}, args ...interface{}) *cardDo {
+	c.DO.UnderlyingDB().Select(query,args)
+	return &c
 }
