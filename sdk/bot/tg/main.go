@@ -39,7 +39,6 @@ func main() {
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u)
-
 	for update := range updates {
 		if update.Message != nil { // If we got a message
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)

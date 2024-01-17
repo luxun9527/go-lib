@@ -304,15 +304,7 @@ func (c cardDo) FirstOrInit() (*model.Card, error) {
 	}
 }
 
-func (c cardDo) RawWhere(query interface{}, args ...interface{}) *cardDo {
-	c.DO.UnderlyingDB().Where(query,args)
-	c.DO.ReplaceDB(c.DO.UnderlyingDB().Where(query,args))
-	return &c
-}
-func (c cardDo) RawSelect(query interface{}, args ...interface{}) *cardDo {
-	c.DO.UnderlyingDB().Select(query,args)
-	return &c
-}
+
 
 func (c cardDo) FirstOrCreate() (*model.Card, error) {
 	if result, err := c.DO.FirstOrCreate(); err != nil {
@@ -361,4 +353,13 @@ func (c cardDo) Delete(models ...*model.Card) (result gen.ResultInfo, err error)
 func (c *cardDo) withDO(do gen.Dao) *cardDo {
 	c.DO = *do.(*gen.DO)
 	return c
+}
+func (c cardDo) RawWhere(query interface{}, args ...interface{}) *cardDo {
+	c.Select()
+	c.DO.ReplaceDB(c.DO.UnderlyingDB().Where(query,args))
+	return &c
+}
+func (c cardDo) RawSelect(query interface{}, args ...interface{}) *cardDo {
+	c.DO.UnderlyingDB().Select(query,args)
+	return &c
 }

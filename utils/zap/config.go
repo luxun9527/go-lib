@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"go-lib/utils/zap/report"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -33,35 +34,38 @@ func (lc *Config) parseLevel() zap.AtomicLevel {
 }
 
 type Config struct {
+	Name string `json:",default=project_name"`
 	//日志级别 debug info warn panic
-	Level string
+	Level string `json:",default=debug"`
 	//panic时候 是否显示堆栈 panic级别的日志输出堆栈信息。
-	Stacktrace bool
+	Stacktrace bool `json:",default=true"`
 	//添加调用者信息
-	AddCaller bool
+	AddCaller bool `json:",default=true"`
 	//调用链，往上多少级 ，在一些中间件，对日志有包装，可以通过这个选项指定。
-	CallerShip int
+	CallerShip int `json:",default=3"`
 	//输出到哪里标准输出console,还是文件file
-	Mode string
+	Mode string `json:",default=console"`
 	//文件名称加路径
-	FileName string
+	FileName string `json:",default=console"`
 	//error级别的日志输入到不同的地方
-	ErrorFileName string
+	ErrorFileName string `json:",optional"`
 	// 日志文件大小 单位MB 默认500MB
-	MaxSize int
-	//日志保留天数
-	MaxAge int
+	MaxSize int `json:",optional"`
+	//日志保留天数 `json:",optional"`
+	MaxAge int `json:",optional"`
 	//日志最大保留的个数
-	MaxBackup int
+	MaxBackup int `json:",optional"`
 	//异步日志 日志将先输入到内存到，定时批量落盘。如果设置这个值，要保证在程序退出的时候调用Sync(),在开发阶段不用设置为true。
-	Async bool
-	//是否 输出json格式的数据，JSON格式相对于console格式，不方便阅读，但是对机器更加友好
-	//最佳实践，在开发的时候json为false,mode为console
-	Json bool
+	Async bool `json:",optional"`
+	//是否输出json格式
+	Json bool `json:",optional"`
 	//是否日志压缩
-	Compress    bool
+	Compress bool `json:",optional"`
 	//是否report
-	IsReport    bool
+	IsReport     bool             `json:",optional"`
+	ReportConfig *report.ImConfig `json:",optional"`
+	// 打印到控制台是否带颜色
+	Color       bool `json:",default=true"`
 	options     []zap.Option
 	atomicLevel zap.AtomicLevel
 }
@@ -71,8 +75,12 @@ func (lc *Config) UpdateLevel(level zapcore.Level) {
 }
 
 func (lc *Config) Build() *zap.Logger {
+	if lc.Mode != "file" && lc.Mode != "console" {
+		log.Panicln("mode must be console or file")
+	}
+
 	if lc.Mode == "file" && lc.FileName == "" {
-		log.Printf("file mode, but file name is empty")
+		log.Panicln("file mode, but file name is empty")
 	}
 	var (
 		ws      zapcore.WriteSyncer
@@ -98,7 +106,7 @@ func (lc *Config) Build() *zap.Logger {
 		ws = zapcore.Lock(os.Stdout)
 		errorWs = zapcore.Lock(os.Stderr)
 		//输出到控制台彩色。
-		if !lc.Json {
+		if lc.Color {
 			encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		}
 	} else {
@@ -140,7 +148,7 @@ func (lc *Config) Build() *zap.Logger {
 		}
 
 	}
-	if lc.Json {
+	if lc.Color {
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	} else {
 		encoder = zapcore.NewConsoleEncoder(encoderConfig)
@@ -156,14 +164,13 @@ func (lc *Config) Build() *zap.Logger {
 		c = append(c, highCore)
 	}
 	if lc.IsReport {
-		highCore := zapcore.NewCore(encoder, NewLarkWriterBuffer(), zapcore.ErrorLevel)
+
+		highCore := zapcore.NewCore(encoder, nil, zapcore.ErrorLevel)
 		c = append(c, highCore)
 	}
 
 	core = zapcore.NewTee(c...)
-	if lc.IsReport {
 
-	}
 	logger := zap.New(core)
 	//是否新增调用者信息
 	if lc.AddCaller {
@@ -174,7 +181,7 @@ func (lc *Config) Build() *zap.Logger {
 	}
 	//当错误时是否添加堆栈信息
 	if lc.Stacktrace {
-		lc.options = append(lc.options, zap.AddStacktrace(zap.PanicLevel))
+		lc.options = append(lc.options, zap.AddStacktrace(zap.ErrorLevel))
 	}
 
 	lc.atomicLevel = atomicLevel
