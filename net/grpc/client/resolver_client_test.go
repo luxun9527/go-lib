@@ -65,6 +65,7 @@ func (builder *customBuilder) Build(target resolver.Target, cc resolver.ClientCo
 	}()
 	return &customResolver{}, nil
 }
+func (*customBuilder) Scheme() string { return _customScheme }
 
 // 执行UpdateState更新连接
 func (builder *customBuilder) updateConn() {
@@ -91,7 +92,6 @@ func (builder *customBuilder) updateConn() {
 		log.Printf("update state failed %v", err)
 	}
 }
-func (*customBuilder) Scheme() string { return _customScheme }
 
 func TestResolverClientTest(t *testing.T) {
 	resolverBuilder := &customBuilder{}

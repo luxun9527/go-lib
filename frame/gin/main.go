@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	_ "net/http/pprof"
+	"time"
 )
-
 
 func main() {
 	go func() {
@@ -14,14 +15,12 @@ func main() {
 
 	gin.SetMode(gin.ReleaseMode)
 	route := gin.New()
+	route.Use(Cors())
 	//绑定get参数
-	route.GET("/api/omcenter/", func(c *gin.Context) {
-		//c.ShouldBindUri()
-		hs := make([]gin.H, 0, 10)
-	//	l := []gin.H{{"name":"test1"},{"name":"test2"}}
-		//data, _ := json.Marshal(l)
-		c.JSON(200,hs)
+	route.GET("/api/test/time", func(c *gin.Context) {
+		h := gin.H{"data": time.Now().Format(time.DateTime), "code": 200}
+		c.JSON(200, h)
 	})
-	route.Run(":8200")
+	fmt.Scan(1)
+	route.Run(":8080")
 }
-
