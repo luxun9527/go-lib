@@ -20,6 +20,10 @@
 
 [resty http客户端](https://github.com/luxun9527/go-lib/tree/master/utils/resty)
 
+### k8s
+
+[go程序-docker-k8s](https://github.com/luxun9527/go-lib/tree/master/utils/k8s)
+
 ## net(网络相关)
 
 [grpc](https://github.com/luxun9527/go-lib/tree/master/net/grpc)

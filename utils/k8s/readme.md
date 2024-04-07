@@ -14,7 +14,7 @@ https://znunwm.top/archives/k8s-xiang-xi-jiao-cheng
 
 简单实现go程序打包成docker镜像，推送到私有仓库，再到k8s部署，了解一下在k8s在我们的开发生产中的使用，主要是熟悉一下流程。
 
-如果遇到问题欢迎留言，您的star就是我更新的动力
+如果遇到问题欢迎留言，您的star就是我更新的动力 本文地址[go程序-docker-k8s](https://github.com/luxun9527/go-lib/tree/master/utils/k8s)
 
 ## 安装环境
 
