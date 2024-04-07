@@ -1,0 +1,15 @@
+name: hello-world1
+image: okteto/golang:1.21
+workdir: /app
+command: ["bash"]
+
+forward:
+  - 8089:8089
+
+interface: 0.0.0.0
+
+environment:
+  environment: development
+
+# 若没有在k8s上创建好{name}指定的pod，则需要设置为true（不存在pod会默认创建pod），默认值为false
+autocreate: true
