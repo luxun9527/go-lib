@@ -31,11 +31,22 @@ func final(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
 
-
+func TestHttpGoroutine(t *testing.T) {
+	go func() {
+		http.ListenAndServe("0.0.0.0:8899", nil)
+	}()
+	if err := http.ListenAndServe(":8888", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		select {
+		case <-request.Context().Done():
+			log.Println("request canceled")
+		}
+	})); err != nil {
+		log.Fatal(err)
+	}
+}
 
 func TestHttp(t *testing.T) {
 	mux := http.NewServeMux()
-
 	finalHandler := http.HandlerFunc(final)
 	mux.Handle("/", middlewareOne(middlewareTwo(finalHandler)))
 
@@ -43,4 +54,3 @@ func TestHttp(t *testing.T) {
 	err := http.ListenAndServe(":3000", mux)
 	log.Fatal(err)
 }
-

@@ -6,39 +6,14 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
 )
 
-func TestClient(t *testing.T)  {
+func TestClient(t *testing.T) {
 	//writeChunked()
 	readChunked()
 }
-func writeChunked() {
-	tr := http.DefaultTransport
-	client := &http.Client{
-		Transport: tr,
-	}
-	source :="test,test,test,"
-	r := io.NopCloser(strings.NewReader(source))
-	req := &http.Request{
-		Method: "POST",
-		URL: &url.URL{
-			Scheme: "http",
-			Host:   "127.0.0.1:9094",
-			Path:   "/",
-		},
-		ProtoMajor:    1,
-		ProtoMinor:    1,
-		ContentLength: -1,
-		Body:          r,
-	}
 
-	fmt.Printf("Doing request\n")
-	if _, err := client.Do(req);err!=nil{
-		log.Println(err)
-	}
-}
 func readChunked() {
 	tr := http.DefaultTransport
 
