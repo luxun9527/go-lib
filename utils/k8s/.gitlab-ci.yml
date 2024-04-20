@@ -1,0 +1,20 @@
+stages: # 在这里定义执行的stage，以及执行顺序
+  - build
+  - deploy
+
+build-job:  # job名称
+  stage: build  # stage名称，用来标记这个job是在哪个stage执行的
+  script:
+    -  echo "This job builds the project"
+    - make build
+    - make buildDocker
+    - make push
+    - echo $CI_COMMIT_BRANCH
+
+
+deploy-test:
+  stage: deploy
+  script:
+    - make apply
+    - kubectl rollout restart deployment hello-world -n default
+

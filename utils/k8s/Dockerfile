@@ -1,5 +1,5 @@
 FROM debian:stretch-slim
 WORKDIR /app
-COPY dockerdemo /app/dockerdemo
+COPY k8sdemo /app/k8sdemo
 
-ENTRYPOINT ["/app/dockerdemo"]
+ENTRYPOINT ["/app/k8sdemo"]
