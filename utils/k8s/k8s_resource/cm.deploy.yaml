@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cmdemo1
+spec:
+  selector:
+    matchLabels:
+      app: cmdemo1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cmdemo1
+    spec:
+      containers:
+        - name: cmdemo1
+          image: alpine
+          imagePullPolicy: IfNotPresent #永远拉最新的镜像。
+          command: ["/bin/sh","-c","env;sleep 3600"]
+          env:
+            - name: JAVA_VM_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: cmdemo1 #configmap的名称
+                  key: JAVA_OPTS #configmap中的key
+            - name: APP
+              valueFrom:
+                configMapKeyRef:
+                  name: cmdemo1
+                  key: APP_NAME
+      imagePullSecrets:
+        - name: regcred #拉取私有仓库的镜像用的凭证。

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /etc/nginx/nginx.conf #挂载到容器的目录。
+              name: nginx-conf #valumes中对应的名称。
+              subPath: etc/nginx/nginx.conf
+              readOnly: true
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-conf-cm #configmap的名称。
+            items:
+              - key:  nginx.conf #configmap中key的名称。 k create cm my.cm2.cnf --from-file=my.cm2.cnf
+                path: etc/nginx/nginx.conf #挂载后key重名名后的名字。

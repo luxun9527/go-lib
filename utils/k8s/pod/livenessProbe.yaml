@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-liveness-exec
+  #namespace: dev
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.17.1
+      ports:
+        - name: nginx-port
+          containerPort: 80
+      livenessProbe:
+        exec:
+          command: ["/bin/cat","/tmp/hello.txt"] # 执行一个查看文件的命令
+#        tcpSocket:
+#          port: 8888
+#        httpGet: # 其实就是访问http://127.0.0.1:80/hello
+#          scheme: HTTP #支持的协议，http或者https
+#          port: 80 #端口号
+#          path: /hello #URI地址

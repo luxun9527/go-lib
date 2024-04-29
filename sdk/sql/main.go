@@ -34,4 +34,5 @@ func main() {
 	}
 	defer db.Close() // 注意这行代码要写在上面err判断的下面d
 	//db.Exec()
+
 }
