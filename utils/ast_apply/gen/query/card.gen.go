@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"go-lib/sdk/gorm/gen/dao/model"
+	"go-lib/utils/ast_apply/gen/model"
 )
 
 func newCard(db *gorm.DB, opts ...gen.DOOption) card {
@@ -350,12 +350,13 @@ func (c *cardDo) withDO(do gen.Dao) *cardDo {
 	return c
 }
 func (c cardDo) RawWhere(query interface{}, args ...interface{}) *cardDo {
-	db := c.DO.UnderlyingDB().Where(query, args)
+	db := c.DO.UnderlyingDB().Where(query, args...)
 	c.ReplaceDB(db)
 	return &c
+
 }
 func (c cardDo) RawSelect(query interface{}, args ...interface{}) *cardDo {
-	db := c.DO.UnderlyingDB().Select(query, args)
+	db := c.DO.UnderlyingDB().Select(query, args...)
 	c.ReplaceDB(db)
 	return &c
 }

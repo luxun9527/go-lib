@@ -18,7 +18,7 @@ const (
 )
 
 // 根据错误码生成对于的错误。
-func main() {
+func main1() {
 	codePath := flag.String("p", "", "错误码路径")
 	flag.Parse()
 	pathList, err := filepath.Glob(*codePath)

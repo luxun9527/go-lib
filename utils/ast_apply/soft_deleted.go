@@ -18,8 +18,8 @@ const (
 )
 
 // 使用修改ast语法树，使用soft_deleted适配gen
-func main() {
-	codePath := flag.String("p", "", "错误码路径")
+func main11() {
+	codePath := flag.String("p", "", "要替换的路径")
 	flag.Parse()
 	pathList, err := filepath.Glob(*codePath)
 	if err != nil {
