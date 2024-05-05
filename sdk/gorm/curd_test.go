@@ -1,9 +1,6 @@
 package main
 
 import (
-	"database/sql/driver"
-	"errors"
-	"github.com/spf13/cast"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -204,6 +201,7 @@ func TestSelect(t *testing.T) {
 	//普通的查询，官方文档上写的比较全,主要是显示预加载。
 	//========================================一对一 一个用户有一个profile======================
 	var users1 []*User
+
 	if err := db.Model(&User{}).Where("id = ?", 6).Preload("Profile").Find(&users1).Error; err != nil {
 		log.Println(err)
 	}
@@ -271,71 +269,4 @@ func printLine(content ...string) {
 	builder.WriteString(str)
 	str = strings.Replace(builder.String(), " ", "", -1)
 	log.Println(str)
-}
-
-// CustomField mapped from table <custom_field>
-type CustomField struct {
-	ID          int32      `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	CreatedTime CustomTime `gorm:"column:created_time;not null" json:"created_time"`
-}
-
-// TableName CustomField's table name
-func (*CustomField) TableName() string {
-	return TableNameCustomField
-}
-
-// 演示自定义类型，实现scan和value接口。
-func TestCustomField(t *testing.T) {
-	cf := &CustomField{
-		CreatedTime: CustomTime(cast.ToString(time.Now().Unix())),
-	}
-	db.Create(cf)
-	var c []CustomField
-	if err := db.Find(&c).Error; err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("data = %+v", c)
-	//output  [{ID:1 CreatedTime:2023/08/25 16:46:18} {ID:2 CreatedTime:2023/08/25 16:46:42}]
-}
-
-type CustomTime string
-
-func (t CustomTime) Value() (driver.Value, error) {
-	return cast.ToInt64(string(t)), nil
-}
-
-// 数据库 反序列化到值
-func (t *CustomTime) Scan(v interface{}) error {
-	switch vt := v.(type) {
-	case []byte:
-		// 字符串转成 time.Time 类型
-		s := time.Unix(cast.ToInt64(string(vt)), 0).Format("2006/01/02 15:04:05")
-		*t = CustomTime(s)
-
-	default:
-		return errors.New("类型处理错误")
-	}
-	return nil
-}
-func (loc CustomTime) GormDataType() string {
-	return "int64"
-}
-
-const TableNameUserJSON = "user_json"
-
-// UserJSON mapped from table <user_json>
-type UserJSON struct {
-	ID         int32  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	UserConfig []byte `gorm:"column:user_config;not null" json:"user_config"`
-}
-
-// TableName UserJSON's table name
-func (*UserJSON) TableName() string {
-	return TableNameUserJSON
-}
-func TestJsonMap(t *testing.T) {
-	var u UserJSON
-	db.Where("id=?", 1).Select("user_config").Find(&u)
-	log.Println(string(u.UserConfig))
-	db.Create(&u)
 }

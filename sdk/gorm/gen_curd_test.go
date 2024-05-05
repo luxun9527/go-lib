@@ -19,7 +19,7 @@ func TestGenSelect(t *testing.T) {
 		log.Panicf("err:%v", err)
 	}
 	var u []*User
-	if db.Find(&u).Error != nil {
+	if db.Where("id=1").Find(&u).Error != nil {
 		log.Panicf("err:%v", err)
 	}
 
@@ -32,4 +32,13 @@ func TestGenSelect(t *testing.T) {
 	dao.User.WithContext(ctx).FindByPage(0, 10)
 	//gorm 分页
 	db.Offset(0).Limit(10).Find(&u)
+
+	// gen子查询
+	subQuery := company.WithContext(ctx).
+		Select(company.ID)
+	//查登录信息
+	_, err = user.WithContext(ctx).
+		Where(user.Columns(user.CompanyID).In(subQuery)).
+		Find()
+
 }

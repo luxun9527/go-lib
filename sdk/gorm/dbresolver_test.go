@@ -29,8 +29,8 @@ func (*RunoobTbl) TableName() string {
 }
 
 const (
-	masterDsn = "root:root@tcp(192.168.2.99:33307)/test1?charset=utf8mb4&parseTime=True&loc=Local"
-	slaveDsn  = "root:root@tcp(192.168.2.99:33306)/test1?charset=utf8mb4&parseTime=True&loc=Local"
+	masterDsn = "root:root@tcp(192.168.2.200:33606)/test1?charset=utf8mb4&parseTime=True&loc=Local"
+	slaveDsn  = "root:root@tcp(192.168.2.200:33307)/test1?charset=utf8mb4&parseTime=True&loc=Local"
 )
 
 // gentool --dsn="root:root@tcp(192.168.2.99:33307)/test1?charset=utf8mb4&parseTime=True&loc=Local" --onlyModel=true --db=mysql --tables=runoob_tbl -outPath=./ -fieldMap="decimal:string;tinyint:int32;"
@@ -81,4 +81,11 @@ func TestDbresolve(t *testing.T) {
 		log.Println(err)
 	}
 	log.Println(d)
+	/*
+		2024/05/05 21:48:01 E:/demoproject/go-lib/sdk/gorm/dbresolver_test.go:78
+		[9.653ms] [rows:1] [source] INSERT INTO `runoob_tbl` (`runoob_title`,`runoob_author`,`submission_date`) VALUES ('1714916881','XVG0Iay48N','2024-05-05 21:48:01.959')
+
+		2024/05/05 21:48:01 E:/demoproject/go-lib/sdk/gorm/dbresolver_test.go:80
+		[1.594ms] [rows:0] [replica] SELECT * FROM `runoob_tbl` WHERE runoob_id=2 AND `runoob_tbl`.`runoob_id` = 2
+	*/
 }
