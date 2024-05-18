@@ -23,13 +23,16 @@ func TestDecimal(t *testing.T) {
 
 	d4 := decimal.New(1, 18)
 	log.Println(d4)
-	d5:=decimal.New(2, 12)
+	d5 := decimal.New(2, 12)
 	log.Println(d5)
 	result := d5.Div(d4).StringFixedBank(18)
 	log.Println(result)
-
-
+	//
+	d3, _ = decimal.NewFromString("0.01")
+	d4 = d3
+	log.Println(d4)
+	t1 := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	//t2 :=[]int32{1,2,3,4,5,6,7,8,9,10}
+	copy(t1[1:], t1[:])
+	log.Println(t1)
 }
-
-
-

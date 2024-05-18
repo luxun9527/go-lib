@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package errors;
+
+option go_package = ".;errors";
+
+message Empty{}
+
+service Errors {
+    rpc Demo(Empty)returns(Empty);
+}
