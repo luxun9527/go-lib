@@ -98,7 +98,7 @@ func init() {
 		},
 	)
 
-	dsn := "root:root@tcp(192.168.2.200:33606)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:root@tcp(192.168.2.159:3307)/test?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,

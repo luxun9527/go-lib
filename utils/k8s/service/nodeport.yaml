@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-nodeport
+  namespace: dev
+spec:
+  selector:
+    app: nginx-pod
+  type: NodePort # service类型
+  ports:
+    - port: 80
+      nodePort: 30004 # 指定绑定的node的端口(默认的取值范围是：30000-32767), 如果不指定，会默认分配
+      targetPort: 80

@@ -51,9 +51,16 @@ func TestUnmarshal(t *testing.T) {
 
 		Age string `mapstructure:"age"`
 	}
+	type C2 struct {
+		Name string
+	}
 	viper.SetConfigFile("./config.toml")
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println(err)
+		return
+	}
+	var c2 C2
+	if err := viper.Unmarshal(&c2); err != nil {
 		return
 	}
 	sub := viper.Sub("person")

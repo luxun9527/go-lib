@@ -1,6 +1,6 @@
 # go error实践
 
-相关代码地址，[代码地址](https://github.com/luxun9527/go-lib/tree/master/utils/errors)，如果对您有帮助，帮我点个star就是对我的鼓励。
+相关代码地址，[代码地址](https://github.com/luxun9527/go-lib/tree/master/utils/errors)，如果觉得对你有帮助，欢迎给我的 GitHub 仓库点个 Star ⭐！你的支持是我持续改进和发布更多优质内容的动力。感谢你的关注和支持！
 
 ## 1、error相关api
 
@@ -147,10 +147,6 @@ func TestCustomError(t *testing.T) {
 }
 ```
 
-### 
-
-
-
 ## 2、go error实践
 
 **以下是我在个人在日常开发中觉得比较好的实践。**
@@ -162,6 +158,8 @@ func TestCustomError(t *testing.T) {
 3、多语言场景，翻译在api层统一对错误处理。如果需要翻译支持动态修改，修改无需重启程序可以使用fsnotify，etcd，nacos来实现。
 
 4、错误统一存放，统一格式，最好使用工具生成。如go:generate 加上stringer，如果不能满足自己的需求可以使用ast包来自己自定义。
+
+
 
 ```go
 package error

@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"go-lib/sdk/gorm/gen/dao/model"
 	"go-lib/sdk/gorm/gen/dao/query"
+	"gorm.io/gorm/clause"
 	"log"
 	"testing"
 )
@@ -16,11 +18,11 @@ func TestGenSelect(t *testing.T) {
 
 	_, err := user.WithContext(ctx).Find()
 	if err != nil {
-		log.Panicf("err:%v", err)
+		log.Printf("err:%v", err)
 	}
 	var u []*User
 	if db.Where("id=1").Find(&u).Error != nil {
-		log.Panicf("err:%v", err)
+		log.Printf("err:%v", err)
 	}
 
 	//gen join
@@ -40,5 +42,8 @@ func TestGenSelect(t *testing.T) {
 	_, err = user.WithContext(ctx).
 		Where(user.Columns(user.CompanyID).In(subQuery)).
 		Find()
-
+	dao.User.WithContext(ctx).Clauses(clause.OnConflict{
+		//Columns:   []clause.Column{{Name: "id"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"role": "user"}),
+	}).Create(&model.User{})
 }

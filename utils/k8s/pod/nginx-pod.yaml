@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod-ports
-  #namespace: dev
+  namespace: dev
 spec:
   containers:
     - name: nginx
