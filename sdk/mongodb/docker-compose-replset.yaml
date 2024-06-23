@@ -1,0 +1,57 @@
+version: '3'
+services:
+  mongo2:
+    container_name: "mongo2"
+    image: mongo:5.0.5
+    ports:
+      - "30012:27017"
+    command: mongod --replSet vision-set  --bind_ip 0.0.0.0
+    restart: unless-stopped
+    volumes:
+      - "./replset/monogo1/conf/:/data/db"
+      - "./replset/monogo1/data/:/data/configdb"
+      - "./replset/monogo1/logs/:/data/log"
+  mongo3:
+    container_name: "mongo3"
+    image: mongo:5.0.5
+    ports:
+      - "30013:27017"
+    command: mongod --replSet vision-set  --bind_ip 0.0.0.0
+    restart: unless-stopped
+    volumes:
+      - "./replset/monogo2/conf/:/data/db"
+      - "./replset/monogo3/data/:/data/configdb"
+      - "./replset/monogo4/logs/:/data/log"
+  mongo1:
+    container_name: "mongo1"
+    image: mongo:5.0.5
+    ports:
+      - "30011:27017"
+    command: mongod --replSet vision-set --bind_ip 0.0.0.0
+    links:
+      - mongo2:mongo2
+      - mongo3:mongo3
+    restart: unless-stopped
+    volumes:
+      - "./replset/monogo3/conf/:/data/db"
+      - "./replset/monogo3/data/:/data/configdb"
+      - "./replset/monogo3/logs/:/data/log"
+  mongo-vision-set-setup:
+    container_name: "mongo-vision-set-setup"
+    image: mongo:5.0.5
+    depends_on:
+      - "mongo1"
+      - "mongo2"
+      - "mongo3"
+    links:
+      - mongo1:mongo1
+      - mongo2:mongo2
+      - mongo3:mongo3
+    volumes:
+      - ./scripts:/scripts
+    environment:
+      - MONGO1=mongo1
+      - MONGO2=mongo2
+      - MONGO3=mongo3
+      - RS=vision-set
+    entrypoint: [ "/scripts/setup.sh" ]

@@ -19,7 +19,8 @@ gorm提供的文档非常齐全了，总结一下在工作中的一些实践，�
 **安装mysql**
 
 ```powershell
-docker run -p 33606:3306 --name mysql8  --restart always \
+mkdir /root/docker/mysql/conf/ && mkdir /root/docker/mysql/data
+docker run -p 3306:3306 --name mysql8  --restart always \
 -e MYSQL_ROOT_PASSWORD=root \
 -v /root/docker/mysql/conf/my.cnf:/etc/mysql/my.cnf \
 -v /root/docker/mysql/data:/var/lib/mysql \

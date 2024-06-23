@@ -1,0 +1,18 @@
+version: "3.7"
+services:
+  mongo-standalone:
+    image: mongo:latest
+    container_name: mongo-standalone
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+    volumes:
+      - "./standalone/conf/:/data/db"
+      - "./standalone/data/:/data/configdb"
+      - "./standalone/logs/:/data/log"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+    entrypoint: [ "sh", "-c", "mongod -f /data/db/mongod.conf" ]
+

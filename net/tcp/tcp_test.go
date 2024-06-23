@@ -1,4 +1,4 @@
-package test
+package main
 
 import (
 	"fmt"
@@ -52,17 +52,22 @@ func TestClient(t *testing.T) {
 
 }
 func TestClient1(t *testing.T) {
-	conn, err := net.Dial("tcp", "127.0.0.1:20001")
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	conn.(net.TCPConn).SetWriteBuffer()
-	for {
-		time.Sleep(time.Second * 5)
-		conn.Write([]byte("abc"))
+	for i := 0; i < 10000; i++ {
+		go func() {
+			conn, err := net.Dial("tcp", "47.113.223.16:9993")
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			for {
+				time.Sleep(time.Second * 5)
+				conn.Write([]byte("abc"))
 
+			}
+		}()
 	}
+	select {}
+
 }
 func TestServer1(t *testing.T) {
 	listen, err := net.Listen("tcp", "127.0.0.1:20001")

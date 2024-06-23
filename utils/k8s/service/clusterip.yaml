@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-clusterip
+  namespace: dev
+spec:
+  selector:
+    app: nginx-pod
+  #clusterIP: 10.97.97.97 # service的ip地址，如果不写，默认会生成一个
+  type: ClusterIP
+  ports:
+    - port: 80  # Service端口
+      targetPort: 80 # pod端口
+  #kubectl get svc -n dev -o wide
+  # kubectl describe svc service-clusterip -n dev

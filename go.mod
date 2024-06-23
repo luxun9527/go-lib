@@ -40,6 +40,7 @@ require (
 	github.com/juju/ratelimit v1.0.2
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/lithammer/shortuuid/v3 v3.0.7
+	github.com/luxun9527/gpush v1.0.0
 	github.com/mojocn/base64Captcha v1.3.6
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.5
 	github.com/olivere/elastic/v7 v7.0.32

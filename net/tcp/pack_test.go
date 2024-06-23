@@ -1,4 +1,4 @@
-package test
+package main
 
 import (
 	"encoding/binary"
@@ -10,7 +10,7 @@ import (
 
 const REQ_GENRANDOM_APP = 0x2008
 
-func main() {
+func main1() {
 
 	//建立TCP连接
 	conn, err := net.Dial("tcp", "192.168.6.130:9166")
