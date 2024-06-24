@@ -19,14 +19,14 @@ func TestClientNormal(t *testing.T) {
 		fmt.Println("请求对象创建失败：", err)
 		return
 	}
-	
+
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36")
 	if _, err := client.Do(req); err != nil {
-		log.Println("err",err)
+		log.Println("err", err)
 	}
 	body, err := io.ReadAll(req.Body)
-	if err!=nil{
-		log.Println("err",err)
+	if err != nil {
+		log.Println("err", err)
 	}
 	log.Println(string(body))
 
@@ -53,12 +53,11 @@ func TestClientNormal(t *testing.T) {
 	fmt.Println("响应内容:", string(body))
 }
 
-
 func TestServerNormal(t *testing.T) {
 	http.HandleFunc("/download", func(w http.ResponseWriter, r *http.Request) {
 		log.Println(r.Header)
 		body, err := io.ReadAll(r.Body)
-		if err!=nil{
+		if err != nil {
 			log.Println(err)
 		}
 		log.Println(string(body))
@@ -101,4 +100,10 @@ func TestServer2(t *testing.T) {
 
 	log.Print("Listening on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+func TestHttpCli(t *testing.T) {
+	_, err := http.Get("http://127.0.0.1:20001")
+	if err != nil {
+		log.Printf("err:%v", err)
+	}
 }

@@ -1,50 +1,52 @@
 package httpserver
 
 import (
-	"io"
 	"log"
 	"net"
 	"net/http"
+	_ "net/http/pprof"
+	"testing"
+	"time"
 )
 
-func main() {
+func TestHttpServer(t *testing.T) {
+	go func() {
+		http.ListenAndServe("0.0.0.0:8899", nil)
+	}()
 
-	/* Net listener */
 	n := "tcp"
 	addr := ":9094"
 	l, err := net.Listen(n, addr)
 	if err != nil {
-		panic("AAAAH")
+		log.Panicf("Error listening: %v", err.Error())
 	}
 
-	/* HTTP server */
 	s := http.Server{
-		Handler: http.HandlerFunc(handle),
+		Addr:                         "",
+		Handler:                      http.HandlerFunc(handle),
+		DisableGeneralOptionsHandler: false,
+		TLSConfig:                    nil,
+		ReadTimeout:                  time.Second * 3,
+		ReadHeaderTimeout:            0,
+		WriteTimeout:                 0,
+		//IdleTimeout:                  time.Second * 3,
+		MaxHeaderBytes: 0,
+		TLSNextProto:   nil,
+		ConnState:      nil,
+		ErrorLog:       nil,
+		BaseContext:    nil,
+		ConnContext:    nil,
 	}
-	s.Serve(l)
+	s.SetKeepAlivesEnabled(false)
+	if err := s.Serve(l); err != nil {
+		log.Panicf("Error serving: %v", err.Error())
+	}
 
-}
-
-type Message struct {
-	Offset string `json:"offset"`
-	Data   []byte `json:"data"`
 }
 
 func handle(w http.ResponseWriter, req *http.Request) {
-	buf := make([]byte, 32*1024)
-	for {
-		n, err := req.Body.Read(buf)
-		if err != nil && err != io.EOF {
-			return
-		}
-
-		if n == 0 {
-			break
-		}
-		//time.Sleep(time.Second)
-		b1 := buf[:n]
-		log.Println("data", string(b1))
-	}
+	time.Sleep(time.Second * 1)
+	w.Write([]byte("hello"))
 	log.Println("finish")
 
 }
