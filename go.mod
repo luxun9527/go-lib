@@ -9,11 +9,11 @@ require (
 	github.com/casbin/casbin/v2 v2.74.0
 	github.com/casbin/gorm-adapter/v3 v3.18.1
 	github.com/cloudwego/netpoll v0.3.2
-	github.com/davecgh/go-spew v1.1.1
 	github.com/douyu/jupiter v0.11.7
 	github.com/dtm-labs/client v1.18.7
 	github.com/emirpasic/gods v1.18.1
 	github.com/fatih/color v1.15.0
+	github.com/fatih/pool v3.0.0+incompatible
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.9.1
@@ -40,7 +40,6 @@ require (
 	github.com/juju/ratelimit v1.0.2
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/lithammer/shortuuid/v3 v3.0.7
-	github.com/luxun9527/gpush v1.0.0
 	github.com/mojocn/base64Captcha v1.3.6
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.5
 	github.com/olivere/elastic/v7 v7.0.32
@@ -131,6 +130,7 @@ require (
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dtm-labs/dtmdriver v0.0.6 // indirect
 	github.com/dtm-labs/logger v0.0.1 // indirect
