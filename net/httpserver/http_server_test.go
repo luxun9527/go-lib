@@ -117,38 +117,37 @@ func TestHttpCli3(t *testing.T) {
 
 		go func(conn net.Conn) {
 
-			func() {
-				for {
-					// 创建一个 bufio.Reader 用于读取 TCP 连接数据
-					reader := bufio.NewReader(conn)
-					req, err := http.ReadRequest(reader)
-					if err != nil {
-						if err != io.EOF {
-							log.Println("Error reading request:", err)
-						}
-						break
-					}
-					// 修改请求 URL 为目标 URL
-					req.URL.Scheme = "http"
-					req.URL.Host = "localhost:10001"
+			for {
 
-					// 删除代理相关的头部
-					req.RequestURI = ""
-					req.Header.Del("Proxy-Connection")
-					// 转发请求到目标 HTTP 服务器
-					resp, err := client.Do(req)
-					if err != nil {
-						fmt.Println("Error forwarding request:", err)
-						return
+				// 创建一个 bufio.Reader 用于读取 TCP 连接数据
+				reader := bufio.NewReader(conn)
+				req, err := http.ReadRequest(reader)
+				if err != nil {
+					if err != io.EOF {
+						log.Println("Error reading request:", err)
 					}
-					defer resp.Body.Close()
-					if err := resp.Write(conn); err != nil {
-						count.Inc()
-						return
-					}
-
+					break
 				}
-			}()
+				// 修改请求 URL 为目标 URL
+				req.URL.Scheme = "http"
+				req.URL.Host = "localhost:10001"
+
+				// 删除代理相关的头部
+				req.RequestURI = ""
+				req.Header.Del("Proxy-Connection")
+				// 转发请求到目标 HTTP 服务器
+				resp, err := client.Do(req)
+				if err != nil {
+					fmt.Println("Error forwarding request:", err)
+					return
+				}
+				defer resp.Body.Close()
+				if err := resp.Write(conn); err != nil {
+					count.Inc()
+					return
+				}
+
+			}
 
 		}(conn)
 	}
