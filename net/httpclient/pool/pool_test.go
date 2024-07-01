@@ -2,7 +2,7 @@ package pool
 
 import (
 	"go.uber.org/atomic"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -20,7 +20,6 @@ var _httpCli = &http.Client{
 		MaxConnsPerHost:     5,                  //MaxConnPerHost 10 决定了每个host最大的连接数，包括正在使用的，正在建立连接的，空闲的，决定了最大并发请求。超过则会阻塞
 		IdleConnTimeout:     1000 * time.Second, //空闲的连接超时时间，当超过这个时间则会关闭空闲的连接
 	},
-	//5个goroutine 并发请求，会有两个并发，其他三个阻塞，
 }
 
 //var _httpCli = http.DefaultClient
@@ -33,7 +32,7 @@ func get(url string) {
 	}
 	defer resp.Body.Close()
 
-	_, err = ioutil.ReadAll(resp.Body)
+	_, err = io.ReadAll(resp.Body)
 	if err != nil {
 		// do nothing
 		return

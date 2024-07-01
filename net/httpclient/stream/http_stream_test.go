@@ -3,7 +3,6 @@ package stream
 import (
 	"bytes"
 	"fmt"
-	"go.uber.org/atomic"
 	"io"
 	"log"
 	"mime/multipart"
@@ -23,15 +22,7 @@ import (
 */
 
 func TestServer(t *testing.T) {
-	var (
-		count atomic.Int64
-	)
-	go func() {
-		for {
-			time.Sleep(time.Second)
-			log.Printf("count: %v", count.Load())
-		}
-	}()
+
 	if err := http.ListenAndServe(":10009", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		buf := make([]byte, 4096)
 		for {
@@ -39,13 +30,18 @@ func TestServer(t *testing.T) {
 			n, err := request.Body.Read(buf)
 			if err != nil {
 				log.Printf("read error: %v", err)
-				return
+				break
 			}
 			log.Printf(string(buf[:n]))
-			count.Add(int64(n))
+		}
+		flusher := writer.(http.Flusher)
+		writer.Header().Set("X-Content-Type-Options", "nosniff")
+		for i := 1; i <= 20; i++ {
+			writer.Write([]byte("test111"))
+			flusher.Flush() // Trigger "chunked" encoding and send a chunk...
+			time.Sleep(1 * time.Second)
 		}
 
-		writer.Write([]byte("hello world"))
 	})); err != nil {
 		log.Panicf("http server error: %v", err)
 	}
@@ -61,6 +57,9 @@ func TestClientRequestBody(t *testing.T) {
 	if err != nil {
 		log.Printf("http client request error: %v", err)
 	}
+
+	data, err := io.ReadAll(resp.Body)
+	log.Printf("resp: %v", string(data))
 	defer resp.Body.Close()
 }
 

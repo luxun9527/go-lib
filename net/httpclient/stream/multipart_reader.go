@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
-	"os"
 )
 
 /*
@@ -14,16 +13,18 @@ import (
 1. 创建一个multipart/form-data格式的流，在读取文件的时候不将整个文件读入内存。
 使用chunkded模式传输数据
 */
-type MultipartReader struct {
+type MultipartReaderWriter struct {
 	buf            *bytes.Buffer
 	closeData      *bytes.Buffer
 	r              io.Reader
 	hasStartedFile bool
 	boundary       string
 	contentType    string
+	writer         *multipart.Writer
+	FileFiledList  []*FileField
 }
 
-func (fr *MultipartReader) Read(p []byte) (int, error) {
+func (fr *MultipartReaderWriter) Read(p []byte) (int, error) {
 	// 如果文件读取还未开始，先从 buffer 中读取数据
 	if !fr.hasStartedFile {
 		n, err := fr.buf.Read(p)
@@ -38,6 +39,7 @@ func (fr *MultipartReader) Read(p []byte) (int, error) {
 	}
 	n, err := fr.r.Read(p)
 	if err != nil {
+		//读取文件数据后，将close数据读取出来
 		if errors.Is(err, io.EOF) {
 			return fr.closeData.Read(p)
 		}
@@ -46,51 +48,61 @@ func (fr *MultipartReader) Read(p []byte) (int, error) {
 	return n, err
 }
 
-func NewMultiparkReader() (*MultipartReader, error) {
+func (fr *MultipartReaderWriter) WriteFiled(key, value string) error {
+	return fr.writer.WriteField(key, value)
+}
+
+func (fr *MultipartReaderWriter) WriteFileField(filedName, fileFiledName string, data io.Reader) error {
+	if data == nil {
+		return errors.New("data is nil")
+	}
+
+	field, err := NewFileField(data, filedName, fileFiledName, fr.boundary, fr.buf.Len() > 0)
+	if err != nil {
+		return err
+	}
+	fr.FileFiledList = append(fr.FileFiledList, field)
+	return err
+}
+
+func (fr *MultipartReaderWriter) Close() error {
+	fields := make([]io.Reader, 0, len(fr.FileFiledList))
+	for _, v := range fr.FileFiledList {
+		fields = append(fields, v)
+	}
+	fr.r = io.MultiReader(fields...)
+
+	return nil
+}
+
+func NewMultipartReaderWriter() (*MultipartReaderWriter, error) {
 	buffer := bytes.NewBuffer(make([]byte, 0, 500))
 	closeData := bytes.NewBuffer(make([]byte, 0, 500))
 
 	writer := multipart.NewWriter(buffer)
-	file, err := os.Open("example.txt")
-	if err != nil {
-		return nil, err
-	}
-	if err := writer.WriteField("name", "zhangsan"); err != nil {
-		return nil, err
-	}
 
-	reader1, err := NewFileFieldReader(file, "example.txt", "file", writer.Boundary(), true)
-	if err != nil {
-		return nil, err
-	}
-	file1, err := os.Open("example.txt")
-
-	reader2, err := NewFileFieldReader(file1, "example.txt", "file1", writer.Boundary(), true)
-	if err != nil {
-		return nil, err
-	}
 	if _, err := fmt.Fprintf(closeData, "\r\n--%s--\r\n", writer.Boundary()); err != nil {
 		return nil, err
 	}
-	multiReader := io.MultiReader(reader1, reader2)
-	multipartReader := &MultipartReader{
+	multipartReader := &MultipartReaderWriter{
 		buf:         buffer,
-		r:           multiReader,
 		closeData:   closeData,
 		contentType: writer.FormDataContentType(),
+		boundary:    writer.Boundary(),
+		writer:      writer,
 	}
 
 	return multipartReader, nil
 }
 
-type FileFieldReader struct {
+type FileField struct {
 	r              io.Reader
 	buf            *bytes.Buffer
 	hasStartedFile bool
 	hasPrev        bool
 }
 
-func NewFileFieldReader(r io.Reader, fileName, fieldName, boundary string, hasPrev bool) (*FileFieldReader, error) {
+func NewFileField(r io.Reader, fileName, fieldName, boundary string, hasPrev bool) (*FileField, error) {
 
 	buffer := bytes.NewBuffer(make([]byte, 0, 500))
 	if hasPrev {
@@ -105,15 +117,14 @@ func NewFileFieldReader(r io.Reader, fileName, fieldName, boundary string, hasPr
 	if _, err := writer.CreateFormFile(fieldName, fileName); err != nil {
 		return nil, err
 	}
-
-	return &FileFieldReader{
+	return &FileField{
 		r:              r,
 		buf:            buffer,
 		hasStartedFile: false,
 	}, nil
 }
 
-func (fr *FileFieldReader) Read(p []byte) (int, error) {
+func (fr *FileField) Read(p []byte) (int, error) {
 	// 如果文件读取还未开始，先从 buffer 中读取数据
 	if !fr.hasStartedFile {
 		n, err := fr.buf.Read(p)
