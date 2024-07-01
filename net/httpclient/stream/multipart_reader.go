@@ -33,9 +33,6 @@ func (fr *MultipartReaderWriter) Read(p []byte) (int, error) {
 		}
 
 		fr.hasStartedFile = true
-		if _, err := fmt.Fprintf(fr.buf, "\r\n--%s--\r\n", fr.boundary); err != nil {
-			return 0, err
-		}
 	}
 	n, err := fr.r.Read(p)
 	if err != nil {
