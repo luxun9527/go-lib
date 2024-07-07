@@ -1,57 +1,64 @@
 version: '3'
 services:
-  mongo2:
-    container_name: "mongo2"
-    image: mongo:5.0.5
-    ports:
-      - "30012:27017"
-    command: mongod --replSet vision-set  --bind_ip 0.0.0.0
-    restart: unless-stopped
-    volumes:
-      - "./replset/monogo1/conf/:/data/db"
-      - "./replset/monogo1/data/:/data/configdb"
-      - "./replset/monogo1/logs/:/data/log"
-  mongo3:
-    container_name: "mongo3"
-    image: mongo:5.0.5
-    ports:
-      - "30013:27017"
-    command: mongod --replSet vision-set  --bind_ip 0.0.0.0
-    restart: unless-stopped
-    volumes:
-      - "./replset/monogo2/conf/:/data/db"
-      - "./replset/monogo3/data/:/data/configdb"
-      - "./replset/monogo4/logs/:/data/log"
   mongo1:
     container_name: "mongo1"
     image: mongo:5.0.5
     ports:
-      - "30011:27017"
-    command: mongod --replSet vision-set --bind_ip 0.0.0.0
-    links:
-      - mongo2:mongo2
-      - mongo3:mongo3
+      - "30012:27017"
+    command: mongod --replSet rs0 --bind_ip 0.0.0.0 -f /data/configdb/mongod.conf -keyFile /data/configdb/rs_keyfile
     restart: unless-stopped
-    volumes:
-      - "./replset/monogo3/conf/:/data/db"
-      - "./replset/monogo3/data/:/data/configdb"
-      - "./replset/monogo3/logs/:/data/log"
-  mongo-vision-set-setup:
-    container_name: "mongo-vision-set-setup"
-    image: mongo:5.0.5
-    depends_on:
-      - "mongo1"
-      - "mongo2"
-      - "mongo3"
-    links:
-      - mongo1:mongo1
-      - mongo2:mongo2
-      - mongo3:mongo3
-    volumes:
-      - ./scripts:/scripts
+    networks:
+      - mongo_net
     environment:
-      - MONGO1=mongo1
-      - MONGO2=mongo2
-      - MONGO3=mongo3
-      - RS=vision-set
-    entrypoint: [ "/scripts/setup.sh" ]
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - "./replset/mongo1/data/:/data/db"
+      - "./replset/mongo1/conf/:/data/configdb"
+      - "./replset/mongo1/logs/:/data/log"
+  mongo2:
+    container_name: "mongo2"
+    image: mongo:5.0.5
+    ports:
+      - "30013:27017"
+    command: mongod --replSet rs0 --bind_ip 0.0.0.0 -f /data/configdb/mongod.conf -keyFile /data/configdb/rs_keyfile
+    restart: unless-stopped
+    networks:
+      - mongo_net
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - "./replset/mongo2/data/:/data/db"
+      - "./replset/mongo2/conf/:/data/configdb"
+      - "./replset/mongo2/logs/:/data/log"
+  mongo3:
+    container_name: "mongo3"
+    image: mongo:5.0.5
+    ports:
+      - "30011:27017"
+    command: mongod --replSet rs0 --bind_ip 0.0.0.0 -f /data/configdb/mongod.conf -keyFile /data/configdb/rs_keyfile
+    restart: unless-stopped
+    networks:
+      - mongo_net
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - "./replset/mongo3/data/:/data/db"
+      - "./replset/mongo3/conf/:/data/configdb"
+      - "./replset/mongo3/logs/:/data/log"
+  setup:
+    image: mongo:5.0.5
+    container_name: setup
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    volumes:
+      - ./replset/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+    networks:
+      - mongo_net
+networks:
+  mongo_net:
+    driver: bridge

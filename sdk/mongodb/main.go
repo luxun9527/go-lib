@@ -2,14 +2,25 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/qiniu/qmgo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 )
 
-var cli *qmgo.QmgoClient
+var (
+	_cli        *mongo.Client
+	_dbCli      *mongo.Database
+	_collection *mongo.Collection
+)
+
+const (
+	dbName         = "test"
+	collectionName = "users"
+)
 
 func main() {
 	//https://www.mongodb.com/docs/manual/crud/
@@ -18,19 +29,24 @@ func main() {
 	//update()
 	//findOne()
 	//findMany()
-	aggregate()
+	//aggregate()
+	transaction()
 }
 func initDB() {
-
-	// 设置客户端连接配置
 	var err error
-	cli, err = qmgo.Open(context.Background(), &qmgo.Config{Uri: "mongodb://admin:admin123@192.168.254.99:27018", Database: "test", Coll: "bc_chat_box"})
-	// 检查连接
-	err = cli.Ping(3)
+	uri := "mongodb://root:example@192.168.2.159:30011,192.168.2.159:30012,192.168.2.159:30013/?replicaSet=rs0"
+
+	clientOptions := options.Client().
+		ApplyURI(uri).
+		SetMaxPoolSize(1000).
+		SetMinPoolSize(100).
+		SetReadPreference(readpref.SecondaryPreferred())
+	_cli, err = mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("connect mongodb error: %v", err)
 	}
-	fmt.Println("Connected to MongoDB!")
+	_dbCli = _cli.Database("test")
+	_collection = _dbCli.Collection("test111")
 }
 
 type Student struct {
@@ -42,16 +58,18 @@ func insert() {
 	s1 := Student{"小红", 12}
 	s2 := Student{"小兰", 10}
 	s3 := Student{"小黄", 11}
-	_, err := cli.InsertOne(context.TODO(), s1)
-	if err != nil {
-		log.Fatal(err)
+
+	if _, err := _collection.InsertOne(context.TODO(), s1); err != nil {
+		log.Printf("insert data to monodb  failed,err:%v", err)
+
 	}
+
 	students := []interface{}{s2, s3}
-	insertManyResult, err := cli.InsertMany(context.TODO(), students)
+	insertManyResult, err := _collection.InsertMany(context.TODO(), students)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("insertMany data to monodb  failed,err:%v", err)
 	}
-	fmt.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
+	log.Printf("Inserted multiple documents: %v", insertManyResult.InsertedIDs)
 
 }
 func update() {
@@ -61,54 +79,60 @@ func update() {
 			{"age", 1},
 		}},
 	}
-	err := cli.UpdateOne(context.TODO(), filter, u)
-	if err != nil {
-		log.Fatal(err)
+
+	if _, err := _collection.UpdateOne(context.TODO(), filter, u); err != nil {
+		log.Printf("insertMany data to monodb  failed,err:%v", err)
 	}
+
 }
 func findOne() {
 	// 创建一个Student变量用来接收查询的结果
 	var result Student
-	filter := bson.D{{"name", "小兰"}}
-	if err := cli.Find(context.TODO(), filter).One(&result); err != nil {
-		log.Fatal(err)
+	filter := bson.D{{"name", "小1兰"}}
+	if err := _collection.FindOne(context.TODO(), filter).Decode(&result); err != nil {
+		if errors.Is(err, qmgo.ErrNoSuchDocuments) {
+			log.Printf("no data found ")
+		} else {
+			log.Printf("find one data failed %v", err)
+		}
 	}
-	fmt.Printf("Found a single document: %+v\n", result)
+	log.Printf("Found a single document: %+v\n", result)
 }
 func findMany() {
+
 	filter := bson.D{{"name", "小兰"}}
 	result := make([]Student, 0, 10)
-	if err := cli.Find(context.TODO(), filter).All(&result); err != nil {
-		log.Fatal(err)
+	cur, err := _collection.Find(context.TODO(), filter)
+	if err != nil {
+		log.Printf("find many data failed %v", err)
 	}
-
-	fmt.Printf("Found a single document: %+v\n", result)
+	defer cur.Close(context.TODO())
+	if err := cur.All(context.TODO(), &result); err != nil {
+		log.Printf("decode data failed %v", err)
+	}
+	log.Printf("Found a many document: %+v", result)
 }
+func transaction() {
+	session, err := _cli.StartSession()
+	if err != nil {
+		log.Panicf("start session failed,err:%v", err)
+	}
+	defer session.EndSession(context.Background())
+	_, err = session.WithTransaction(context.Background(), func(sessCtx mongo.SessionContext) (interface{}, error) {
+		collection := _cli.Database("testdb").Collection("testcol")
+		if _, err := collection.InsertOne(sessCtx, bson.D{{"name", "Alice"}}); err != nil {
+			return nil, err
+		}
 
-type LastMessage struct {
-	SessionID   int64  `bson:"_id,omitempty" json:"id,omitempty"`
-	Type        int    `bson:"type" json:"type"`
-	UserId      int64  `bson:"user_id" json:"user_id"`
-	Content     string `bson:"content" json:"content"`
-	CreatedAt   int64  `bson:"created_at,omitempty" json:"updated_at,omitempty"`
-	UnReadCount int64  `bson:"un_read_count,omitempty" json:"un_read_count,omitempty"`
-}
+		//return nil, errors.New("test")
+		if _, err := collection.InsertOne(sessCtx, bson.D{{"name", "Bob"}}); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	})
+	if err != nil {
+		log.Panicf("Transaction failed: %v", err)
+	}
 
-func aggregate() {
-	pipeline := mongo.Pipeline{
-		{{"$match", bson.D{{"user_id", 445299875098629}}}},
-		{{"$group", bson.D{{"_id", "$chat_id"},
-			{"created_at", bson.D{{"$last", "$created_at"}}},
-			{"type", bson.D{{"$last", "$type"}}},
-			{"user_id", bson.D{{"$last", "$user_id"}}},
-			{"un_read_count", bson.D{{"$sum", bson.D{{"$cond", bson.D{{"if", bson.D{{"$eq", bson.A{"$is_read", 0}}}}, {"then", 1}, {"else", 0}}}}}}},
-			{"content", bson.D{{"$last", "$content"}}}}}},
-	}
-	var msg []*LastMessage
-	if err := cli.Aggregate(context.Background(), pipeline).All(&msg); err != nil {
-		log.Fatal(err)
-	}
-	for _, v := range msg {
-		log.Printf("%+v", v)
-	}
+	log.Printf("Transaction success")
 }
