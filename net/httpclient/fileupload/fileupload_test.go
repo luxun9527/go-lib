@@ -2,18 +2,23 @@ package fileupload
 
 import (
 	"bytes"
+	"compress/gzip"
 	"fmt"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"testing"
 )
 
 func TestMultipartServer(t *testing.T) {
 
-	if err := http.ListenAndServe(":10010", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+	if err := http.ListenAndServe(":31000", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		d, err := io.ReadAll(request.Body)
+		if err != nil {
+			log.Printf("read body error %v", err)
+		}
+		log.Printf("request body %v", string(d))
 		// 获取文件
 		file, handler, err := request.FormFile("file")
 		if err != nil {
@@ -31,31 +36,24 @@ func TestMultipartServer(t *testing.T) {
 	}
 }
 func TestMultipartClient(t *testing.T) {
-	filePath := "dist.tar.gz"        // 要上传的文件路径
-	url := "http://localhost:10010/" // 服务器URL
-
+	url := "http://localhost:13000/log/upload" // 服务器URL
+	var buffer bytes.Buffer
+	gzipWriter := gzip.NewWriter(&buffer)
 	// 创建一个缓冲区来存放multipart/form-data内容
-	var buf = bytes.NewBuffer(make([]byte, 0, 1024))
+	//var buf = bytes.NewBuffer(make([]byte, 0, 1024))
 	//var requestBody bytes.Buffer
-	writer := multipart.NewWriter(buf)
+	writer := multipart.NewWriter(gzipWriter)
 	if err := writer.WriteField("key", "value"); err != nil {
 		return
 	}
-	// 添加文件字段
-	file, err := os.Open(filePath)
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return
-	}
-	defer file.Close()
 
-	part, err := writer.CreateFormFile("file", filePath)
+	part, err := writer.CreateFormFile("file", "file1")
 	if err != nil {
 		fmt.Println("Error creating form file:", err)
 		return
 	}
 
-	_, err = io.Copy(part, file)
+	_, _ = part.Write([]byte("hello world"))
 
 	if err != nil {
 		fmt.Println("Error copying file:", err)
@@ -68,13 +66,15 @@ func TestMultipartClient(t *testing.T) {
 		fmt.Println("Error closing writer:", err)
 		return
 	}
-
+	gzipWriter.Close()
 	// 创建请求
-	req, err := http.NewRequest("POST", url, buf)
+	req, err := http.NewRequest("POST", url, &buffer)
 	if err != nil {
 		fmt.Println("Error creating request:", err)
 		return
 	}
+	req.Header.Set("Content-Encoding", "gzip")
+
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	// 发送请求
 	client := &http.Client{}
