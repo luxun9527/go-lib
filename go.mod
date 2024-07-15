@@ -13,7 +13,6 @@ require (
 	github.com/dtm-labs/client v1.18.7
 	github.com/emirpasic/gods v1.18.1
 	github.com/fatih/color v1.15.0
-	github.com/fatih/pool v3.0.0+incompatible
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.9.1
@@ -68,6 +67,7 @@ require (
 	go.uber.org/atomic v1.11.0
 	go.uber.org/ratelimit v0.2.0
 	go.uber.org/zap v1.24.0
+	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
 	golang.org/x/sync v0.7.0
 	golang.org/x/sys v0.19.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20231030173426-d783a09b4405
@@ -272,7 +272,6 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326 // indirect
 	golang.org/x/image v0.13.0 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.24.0 // indirect

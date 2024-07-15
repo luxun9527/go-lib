@@ -31,15 +31,6 @@ func TestHttpServer(t *testing.T) {
 		DisableGeneralOptionsHandler: false,
 		TLSConfig:                    nil,
 		ReadTimeout:                  time.Second * 3,
-		ReadHeaderTimeout:            0,
-		WriteTimeout:                 0,
-		//IdleTimeout:                  time.Second * 3,
-		MaxHeaderBytes: 0,
-		TLSNextProto:   nil,
-		ConnState:      nil,
-		ErrorLog:       nil,
-		BaseContext:    nil,
-		ConnContext:    nil,
 	}
 	s.SetKeepAlivesEnabled(false)
 	if err := s.Serve(l); err != nil {
@@ -83,29 +74,9 @@ func TestHttpCli3(t *testing.T) {
 	}()
 	client := &http.Client{
 		Transport: &http.Transport{
-			Proxy:                  nil,
-			OnProxyConnectResponse: nil,
-			DialContext:            nil,
-			Dial:                   nil,
-			DialTLSContext:         nil,
-			DialTLS:                nil,
-			TLSClientConfig:        nil,
-			TLSHandshakeTimeout:    0,
-			DisableKeepAlives:      false,
-			DisableCompression:     false,
-			MaxIdleConns:           0,
-			MaxIdleConnsPerHost:    100,
-			MaxConnsPerHost:        100,
-			IdleConnTimeout:        time.Second * 120,
-			ResponseHeaderTimeout:  0,
-			ExpectContinueTimeout:  0,
-			TLSNextProto:           nil,
-			ProxyConnectHeader:     nil,
-			GetProxyConnectHeader:  nil,
-			MaxResponseHeaderBytes: 0,
-			WriteBufferSize:        0,
-			ReadBufferSize:         0,
-			ForceAttemptHTTP2:      false,
+			MaxIdleConnsPerHost: 100,
+			MaxConnsPerHost:     100,
+			IdleConnTimeout:     time.Second * 120,
 		},
 	}
 	for {

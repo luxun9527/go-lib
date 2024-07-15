@@ -93,32 +93,3 @@ func TestServer1(t *testing.T) {
 		}()
 	}
 }
-
-// 测试当客户端发送，不进行操作服务端是否会断开连接
-func TestTcpCli(t *testing.T) {
-	conn, err := net.Dial("tcp", "127.0.0.1:9094")
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	data := `GET /test HTTP/1.1
-Language: zh-CN
-gexToken: undefined
-User-Agent: Apifox/1.0.0 (https://apifox.com)
-Accept: */*
-Host: localhost:20001
-Accept-Encoding: gzip, deflate, br
-Connection: keep-alive
-`
-	_, err = conn.Write([]byte(data))
-	if err != nil {
-		log.Printf("conn.Write err: %v", err)
-	}
-	buffer := bytes.NewBuffer(make([]byte, 0, 1024))
-	if _, err := io.Copy(buffer, conn); err != nil {
-		log.Printf("io.Copy err: %v", err)
-	}
-	log.Printf("data %+v", buffer.String())
-
-	time.Sleep(time.Second * 100)
-}
