@@ -1,0 +1,89 @@
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nginx-0
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: "/mnt/data/nginx-0"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nginx-1
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: "/mnt/data/nginx-1"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nginx-2
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: "/mnt/data/nginx-2"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-headless
+  labels:
+    app: nginx
+spec:
+  clusterIP: None
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+      name: http
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx
+spec:
+  serviceName: "nginx-headless"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.17.1
+          ports:
+            - containerPort: 80
+  volumeClaimTemplates:
+    - metadata:
+        name: nginx-data
+
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 1Gi
+

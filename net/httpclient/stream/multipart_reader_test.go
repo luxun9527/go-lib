@@ -38,7 +38,7 @@ func TestMultiPart1(t *testing.T) {
 	if err != nil {
 		log.Panicf("ReadAll failed err %v", err)
 	}
-	log.Println(data)
+	log.Println(string(data))
 }
 
 func TestMultiPart2(t *testing.T) {

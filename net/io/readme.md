@@ -1,8 +1,6 @@
 # go io操作
 
-**1、相关概念**
-
-**2、go相关的sdk**
+[go相关的sdk](https://github.com/luxun9527/go-lib/tree/master/net/io#%E9%9B%B6%E6%8B%B7%E8%B4%9D) 具体代码在此，您的star 、点赞评论都是我更新的动力
 
 ## 理论知识
 

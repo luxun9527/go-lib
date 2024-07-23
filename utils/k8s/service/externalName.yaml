@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-external-service
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: www.baidu.com
+
+#ExternalName类型的Service在Kubernetes中用于将服务名称映射到外部的DNS名称。这种类型的服务不会创建集群内的代理或负载均衡，而是直接返回外部DNS名称。
+#我们可以在集群中通过 my-external-service.default.svc.cluster.local 访问到 www.baidu.com。

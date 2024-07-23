@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpine1
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpine1
+  template:
+    metadata:
+      labels:
+        app: alpine1
+    spec:
+      containers:
+        - name: alpine1
+          image: alpine
+          command: ["/bin/sh","-c","sleep 3600"]
