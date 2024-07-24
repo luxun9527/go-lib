@@ -28,7 +28,7 @@
 
 [grpc](https://github.com/luxun9527/go-lib/tree/master/net/grpc)
 
-[http详解](https://github.com/luxun9527/go-lib/tree/master/net/http)
+[http详解](https://github.com/luxun9527/go-lib/tree/master/net/httpclient)
 
 [io操作](https://github.com/luxun9527/go-lib/tree/master/net/io)
 
