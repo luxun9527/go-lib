@@ -21,7 +21,7 @@ func init() {
 	esClient, err = elastic.NewClient(
 		elastic.SetURL("http://192.168.2.159:9200"),
 		elastic.SetBasicAuth("elastic", "123456"),
-		elastic.SetSniff(false), // 禁用 Sniffing
+		//elastic.SetSniff(false), // 禁用 Sniffing
 		//elastic.SetHealthcheck(false),                                      // 禁用健康检查
 		elastic.SetErrorLog(log.New(os.Stderr, "ELASTIC ", log.LstdFlags)), // 启用错误日志
 		elastic.SetInfoLog(log.New(os.Stdout, "ELASTIC ", log.LstdFlags)),  // 启用信息日志

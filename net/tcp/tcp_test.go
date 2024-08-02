@@ -1,8 +1,9 @@
 package main
 
 import (
-	"bytes"
+	"errors"
 	"fmt"
+	"github.com/gookit/goutil/mathutil"
 	"io"
 	"log"
 	"net"
@@ -42,14 +43,31 @@ func TestServer(t *testing.T) {
 	}
 }
 func TestClient(t *testing.T) {
-	conn, err := net.Dial("tcp", "192.168.2.99:8080")
+	conn, err := net.DialTimeout("tcp", "192.168.2.109:20001", time.Second*3)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	for {
-		conn.Write([]byte("abc"))
-		time.Sleep(time.Second * 20)
+		if _, err := conn.Write([]byte("abc")); err != nil {
+			log.Printf("write failed, err:%v\n", err)
+		}
+		time.Sleep(time.Second * 1)
+	}
+
+}
+func TestClientLogStash(t *testing.T) {
+	conn, err := net.Dial("tcp", "192.168.2.159:20010")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	for {
+		if _, err := conn.Write([]byte(fmt.Sprintf(`{"code":%d}\n`, mathutil.RandInt(100, 1000)))); err != nil {
+			log.Printf("write to logstash failed, err:%v\n", err)
+		}
+		log.Println("send to logstash success")
+		time.Sleep(time.Second * 3)
 	}
 
 }
@@ -69,8 +87,8 @@ func TestClient1(t *testing.T) {
 		}()
 	}
 	select {}
-
 }
+
 func TestServer1(t *testing.T) {
 	listen, err := net.Listen("tcp", "0.0.0.0:20001")
 	if err != nil {
@@ -85,11 +103,20 @@ func TestServer1(t *testing.T) {
 			continue
 		}
 		go func() {
-			buffer := bytes.NewBuffer(make([]byte, 0, 1024))
-			if _, err := io.Copy(buffer, conn); err != nil {
-				log.Printf("io.Copy err: %v", err)
+			d := make([]byte, 1024)
+			for {
+				n, err := conn.Read(d)
+				if err != nil {
+					if errors.Is(err, io.EOF) {
+						log.Printf("client close")
+						break
+					}
+					log.Println("read err:", err)
+					break
+				}
+				log.Println(string(d[:n]))
 			}
-			log.Println(buffer.String())
+
 		}()
 	}
 }

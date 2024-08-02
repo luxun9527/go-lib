@@ -1,6 +1,10 @@
 package stream
 
-import "io"
+import (
+	"io"
+	"log"
+	"time"
+)
 
 var (
 	_data = make([]byte, 1024*800)
@@ -25,7 +29,8 @@ func (d *LimitedDataReader) Read(p []byte) (n int, err error) {
 	if chunkSize > d.remaining {
 		chunkSize = d.remaining
 	}
-
+	time.Sleep(time.Millisecond * 500)
+	log.Printf("Reading %d bytes...\n", chunkSize)
 	// Fill the buffer with generated data (for example, 'A' characters).
 	copy(p[:chunkSize], _data)
 	d.remaining -= chunkSize

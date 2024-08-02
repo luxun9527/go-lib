@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
 	"testing"
 	"time"
 )
@@ -150,4 +151,15 @@ func TestHttpCli(t *testing.T) {
 		}
 	}()
 	time.Sleep(time.Hour)
+}
+
+func TestHttpServer3(t *testing.T) {
+	http.ListenAndServe(":9999", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+
+	}))
+}
+func TestHttpCli2(t *testing.T) {
+	os.Open("E:\\demoproject\\go-lib\\net\\httpserver\\test.txt")
+
+	http.NewRequest("POST", "http://192.168.2.159:9999", nil)
 }

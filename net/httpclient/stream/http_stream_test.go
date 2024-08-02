@@ -49,13 +49,14 @@ func TestServer(t *testing.T) {
 
 func TestClientRequestBody(t *testing.T) {
 
-	req, _ := http.NewRequest(http.MethodPost, "http://localhost:10009", NewLimitedDataReader(200, 10))
+	req, _ := http.NewRequest(http.MethodPost, "http://192.168.2.109:10010", NewLimitedDataReader(2000, 10))
 	http.DefaultClient.Transport = &http.Transport{
 		WriteBufferSize: 1024 * 8,
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("http client request error: %v", err)
+		return
 	}
 
 	data, err := io.ReadAll(resp.Body)
@@ -65,19 +66,22 @@ func TestClientRequestBody(t *testing.T) {
 
 func TestMultipartServer(t *testing.T) {
 
-	if err := http.ListenAndServe(":10010", http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		// 获取文件
-		file, handler, err := request.FormFile("file")
+	if err := http.ListenAndServe(":10010", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		hj, ok := w.(http.Hijacker)
+		if !ok {
+			http.Error(w, "webserver doesn't support hijacking", http.StatusInternalServerError)
+			return
+		}
+		conn, _, err := hj.Hijack()
+
 		if err != nil {
-			http.Error(writer, "Error retrieving file", http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		defer file.Close()
-		data, err := io.ReadAll(file)
-		log.Printf("file size: %v content %v filename %v size %v", len(data), string(data), handler.Filename, handler.Size)
+		defer conn.Close()
 
-		writer.Write([]byte("hello world"))
 	})); err != nil {
 		log.Panicf("http server error: %v", err)
 	}
