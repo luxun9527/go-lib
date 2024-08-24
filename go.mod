@@ -1,6 +1,8 @@
 module go-lib
 
-go 1.18
+go 1.21
+
+toolchain go1.22.0
 
 require (
 	fyne.io/fyne/v2 v2.5.0
@@ -16,6 +18,7 @@ require (
 	github.com/emirpasic/gods v1.18.1
 	github.com/fatih/color v1.15.0
 	github.com/fsnotify/fsnotify v1.7.0
+	github.com/fullstorydev/grpcurl v1.8.7
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-lark/lark v1.14.0
@@ -37,6 +40,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.0
 	github.com/hpcloud/tail v1.0.0
+	github.com/jhump/protoreflect v1.15.1
 	github.com/juiced-aio/hawk-go v0.0.0-20210830070956-a7781ad416c1
 	github.com/juju/ratelimit v1.0.2
 	github.com/labstack/echo/v4 v4.11.1
@@ -48,6 +52,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/qiniu/qmgo v1.1.8
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/sercand/kuberesolver/v5 v5.1.1
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cast v1.5.1
@@ -123,13 +128,13 @@ require (
 	github.com/armon/go-metrics v0.4.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.4.0 // indirect
+	github.com/bufbuild/protocompile v0.4.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/bytedance/gopkg v0.0.0-20220413063733-65bf48ffb3a7 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/codegangsta/inject v0.0.0-20150114235600-33e0aa1cb7c0 // indirect

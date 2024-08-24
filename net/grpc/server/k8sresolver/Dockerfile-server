@@ -1,0 +1,5 @@
+FROM busybox:latest
+WORKDIR /app
+COPY grpcdemo /app/grpcdemo
+
+ENTRYPOINT ["/app/grpcdemo", "--mode=server"]

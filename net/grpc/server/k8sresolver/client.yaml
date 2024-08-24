@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpcdemoclient-deployment
+  labels:
+    app: grpcdemoclient
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpcdemoclient
+  template:
+    metadata:
+      labels:
+        app: grpcdemoclient
+    spec:
+      containers:
+        - name: grpcdemoclient-container
+          image: 192.168.2.200:5000/grpcdemoclient:latest
+          ports:
+            - containerPort: 8899
+      serviceAccountName: grpcdemoclient-serviceaccount
+
+      imagePullSecrets:
+        - name: regcred #拉取私有仓库的镜像用的凭证。
+
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grpcdemoclient-serviceaccount
+  namespace: default  # 如果在其他namespace下部署，请修改此项
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: grpcdemoclient-role
+  namespace: default
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: grpcdemoclient-rolebinding
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: grpcdemoclient-role
+subjects:
+  - kind: ServiceAccount
+    name: grpcdemoclient-serviceaccount
+    namespace: default

@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpcdemoserver-deployment
+  labels:
+    app: grpcdemoserver
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: grpcdemoserver
+  template:
+    metadata:
+      labels:
+        app: grpcdemoserver
+    spec:
+      containers:
+        - name: grpcdemoserver-container
+          image: 192.168.2.200:5000/grpcdemoserver:latest
+          ports:
+            - containerPort: 8899
+      serviceAccountName: grpcdemoserver-serviceaccount
+      imagePullSecrets:
+        - name: regcred #拉取私有仓库的镜像用的凭证。
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpcdemoserver-service
+spec:
+  selector:
+    app: grpcdemoserver
+  ports:
+    - protocol: TCP
+      port: 8899
+      targetPort: 8899
+      nodePort: 32556  # 这里可以指定一个范围内的端口号，或省略让K8s自动分配
+  type: NodePort
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grpcdemoserver-serviceaccount
+  namespace: default  # 如果在其他namespace下部署，请修改此项
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: grpcdemoserver-role
+  namespace: default
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: grpcdemoserver-rolebinding
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: grpcdemoserver-role
+subjects:
+  - kind: ServiceAccount
+    name: grpcdemoserver-serviceaccount
+    namespace: default
