@@ -20,17 +20,85 @@
 
 [resty http客户端](https://github.com/luxun9527/go-lib/tree/master/utils/resty)
 
-### k8s
+### jwt
 
-[go程序-docker-k8s](https://github.com/luxun9527/go-lib/tree/master/utils/k8s)
+[jwt](https://github.com/luxun9527/go-lib/tree/master/utils/jwt)
+
+### 验证码
+
+[验证码](https://github.com/luxun9527/go-lib/tree/master/utils/captcha)
+
+### 协程池
+
+
+
+### cron定时任务
+
+### cobra命令工具
+
+### decimal浮点数精确计算
+
+### evio
+
+### ini配置加载
+
+### shell相关
+
+### 文件监控
+
+### validator参数验证
+
+### i8n国际化
+
+### casbin权限验证
+
+### wire注入
+
+### 并发控制
+
+golang.org/x/sync/semaphore
+
+### 防缓存击穿
+
+### 限流(令牌桶，漏桶策略)
+
+### swagger文档
+
+### bot im软件的群聊机器人
+
+
+
+### 工具类
+
+#### 解析ip
+
+#### 生成uuid
+
+#### 生成雪花算法的ID
+
+####  
+
+
 
 ## net(网络相关)
 
+### grpc
+
 [grpc](https://github.com/luxun9527/go-lib/tree/master/net/grpc)
+
+### http
 
 [http详解](https://github.com/luxun9527/go-lib/tree/master/net/httpclient)
 
+#### http cookie/session
+
+### io
+
 [io操作](https://github.com/luxun9527/go-lib/tree/master/net/io)
+
+
+
+
 
 ## sdk(常用中间件的go sdk)
 
@@ -56,6 +124,8 @@
 
 ck
 
+redis
+
 ### 消息组件
 
 pulsar
@@ -65,3 +135,28 @@ kafka
 ### 存储
 
 minio
+
+### 分布式事务
+
+dtm
+
+### 注册中心
+
+nacos
+
+etcd
+
+## 框架
+
+### gin
+
+### go-zero 
+
+
+
+
+
+
+
+
+

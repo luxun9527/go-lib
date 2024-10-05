@@ -3,105 +3,83 @@ package test
 //根据秘钥生成和解析jwt token
 import (
 	"errors"
-	"fmt"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/golang-jwt/jwt/v4/test"
-	"go-lib/utils/jwt/model"
-
+	"log"
 	"testing"
-
 	"time"
 )
 
-//https://pkg.go.dev/github.com/golang-jwt/jwt/v4#example-Parse-Hmac
-//https://pkg.go.dev/github.com/golang-jwt/jwt/v4#RegisteredClaims
+// https://pkg.go.dev/github.com/golang-jwt/jwt/v4#example-Parse-Hmac
+// https://pkg.go.dev/github.com/golang-jwt/jwt/v4#RegisteredClaims
+type CustomClaims struct {
+	UserName string
+	UserId   int32
+	jwt.RegisteredClaims
+}
 
+const (
+	SignKey = "569ef72642be0fadd711d6a468d68ee1"
+)
+
+// ssh-keygen -t rsa -b 4096 -C "your_email@example.com
+// 可以通过这个命令来生成秘钥
+// 通过rsa 生成token
 func GenerateToken() (string, error) {
-	userInfo := model.CustomClaims{
+	userInfo := CustomClaims{
 		UserName: "zhangSan",
 		UserId:   1,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
 		},
 	}
-	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodRS256, userInfo)
+	//tokenClaims := jwt.NewWithClaims(jwt.SigningMethodRS256, userInfo)
+	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, userInfo)
 	// 该方法内部生成签名字符串，再用于获取完整、已签名的token
-	priKey := test.LoadRSAPrivateKeyFromDisk("/Users/demg/personProject/go-lib/jwt/private.key")
-	token, err := tokenClaims.SignedString(priKey)
+	//priKey := test.LoadRSAPrivateKeyFromDisk("./private.key")
+	token, err := tokenClaims.SignedString([]byte(SignKey))
+	//token, err := tokenClaims.SignedString(priKey)
 	return token, err
 }
-func TestGenerateToken(t *testing.T) {
-	token, err := GenerateToken()
-	if err != nil {
-		fmt.Println("generate token failed", err)
-		return
-	}
-	fmt.Println("token = ", token)
-}
+
 func TestParseToken(t *testing.T) {
 	token, err := GenerateToken()
 	if err != nil {
-		fmt.Println("generate token failed", err)
-		return
+		log.Panicf("generate token err: %v", err)
 	}
-	fmt.Println("token = ", token)
-	time.Sleep(time.Second * 2)
-	if err := ParseToken(token); err != nil {
-		fmt.Println("parseToken err", err)
+	log.Printf("token: %s", token)
+	claims, err := ParseToken(token)
+	if err != nil {
+		log.Printf("parse token err: %v", err)
 	}
+	log.Printf("claims: %v", claims)
 }
-func ParseToken(token string) error {
-	var customClaims model.CustomClaims
-	result, err := jwt.ParseWithClaims(token, &customClaims, func(c *jwt.Token) (interface{}, error) {
-		return test.LoadRSAPublicKeyFromDisk("/Users/demg/personProject/go-lib/jwt/public.key"), nil
+
+var (
+	InValidTokenErr = errors.New("无效的token")
+	TokenExpiredErr = errors.New("token不在有效期")
+)
+
+func ParseToken(tokenKey string) (*CustomClaims, error) {
+	var customClaims CustomClaims
+	token, err := jwt.ParseWithClaims(tokenKey, &customClaims, func(c *jwt.Token) (interface{}, error) {
+		//return test.LoadRSAPublicKeyFromDisk("./public.key"), nil
+		return []byte(SignKey), nil
 	})
 
-	if result.Valid {
-		fmt.Println("You look nice today")
-	} else if errors.Is(err, jwt.ErrTokenMalformed) {
-		fmt.Println("That's not even a token")
-	} else if errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet) {
-		// Token is either expired or not active yet
-		fmt.Println("Timing is everything")
-	} else {
-		fmt.Println("Couldn't handle this token:", err)
+	if err != nil {
+		log.Printf("parse token err: %v", err)
+		if errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet) {
+			return nil, TokenExpiredErr
+		}
+		return nil, InValidTokenErr
 	}
-	return nil
-}
+	if token != nil {
+		if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+			return claims, nil
+		}
+		return nil, InValidTokenErr
 
-//func (*JWT) ParseToken(c *gin.Context) (*jwt2.CustomClaims, error) {
-//	var customerClaims jwt2.CustomClaims
-//	token, err := request.ParseFromRequest(
-//		c.Request,
-//		request.AuthorizationHeaderExtractor,
-//		func(*jwt.Token) (interface{}, error) {
-//			return test.LoadRSAPublicKeyFromDisk(global.GCONFIG.Jwt.PublicKeyPath), nil
-//		},
-//		request.WithClaims(&customerClaims),
-//	)
-//	if err != nil {
-//		if ve, ok := err.(*jwt.ValidationError); ok {
-//			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-//				return nil, TokenMalformed
-//			} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
-//				// Token is expired
-//				return nil, TokenExpired
-//			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
-//				return nil, TokenNotValidYet
-//			} else {
-//				return nil, TokenInvalid
-//			}
-//		}
-//	}
-//	if token != nil {
-//		if claims, ok := token.Claims.(*jwt2.CustomClaims); ok && token.Valid {
-//			return claims, nil
-//		}
-//		return nil, TokenInvalid
-//
-//	} else {
-//		return nil, TokenInvalid
-//
-//	}
-//
-//}
+	} else {
+		return nil, InValidTokenErr
+	}
+}

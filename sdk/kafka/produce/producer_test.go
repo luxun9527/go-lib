@@ -19,7 +19,6 @@ func TestProduce1(t *testing.T) {
 	brokers := []string{"192.168.2.159:9092"}
 	// Kafka 主题
 	topic := "test-topic"
-
 	// 创建一个新的配置
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true

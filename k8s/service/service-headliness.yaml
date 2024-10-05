@@ -76,13 +76,16 @@ spec:
           image: nginx:1.17.1
           ports:
             - containerPort: 80
-  volumeClaimTemplates:
+          volumeMounts:
+            - mountPath: /usr/share/nginx/html
+              name: nginx-data
+  volumeClaimTemplates: #自动创建pvc的模板
     - metadata:
-        name: nginx-data
+        name: nginx-data #pvc的名字
 
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: standard
+        storageClassName: standard #和pv的storageclass的名字一样
         resources:
           requests:
             storage: 1Gi

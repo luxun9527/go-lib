@@ -39,7 +39,7 @@ func TestConsumer1(t *testing.T) {
 	brokers := []string{"192.168.2.159:9092"}
 	group := "test-group"
 	topics := []string{"test-topic"}
-
+	sarama.Logger = log.New(os.Stdout, "", log.Ltime)
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_1_0_0
 	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin

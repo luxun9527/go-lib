@@ -3,7 +3,6 @@ package mongodb
 import (
 	"context"
 	"errors"
-	"github.com/qiniu/qmgo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -150,7 +149,7 @@ func TestFindOne(t *testing.T) {
 	var result Student
 	filter := bson.D{{"name", "小1兰"}}
 	if err := _collection.FindOne(context.TODO(), filter).Decode(&result); err != nil {
-		if errors.Is(err, qmgo.ErrNoSuchDocuments) {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			log.Printf("no data found ")
 		} else {
 			log.Printf("find one data failed %v", err)

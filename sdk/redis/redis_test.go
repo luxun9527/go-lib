@@ -36,7 +36,6 @@ func TestInsert(t *testing.T) {
 		log.Println(err)
 		return
 	}
-
-	cli.Set(context.Background(),"admin_kaiPay_config","",0)
+	cli.Set(context.Background(), "admin_kaiPay_config", "", 0)
 
 }

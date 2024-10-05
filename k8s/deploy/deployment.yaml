@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demosvr
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: demosvr
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demosvr
+    spec:
+      containers:
+        - name: demosvr
+          image: 192.168.2.200:5000/demosvr:latest
+          imagePullPolicy: Always #永远拉最新的镜像。
+          ports:
+            - containerPort: 10001
+      imagePullSecrets:
+        - name: regcred #拉取私有仓库的镜像用的凭证。
+

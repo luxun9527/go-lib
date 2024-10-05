@@ -37,7 +37,6 @@ func client() {
 	if _, err := conn.Write([]byte("b")); err != nil {
 		log.Printf("client: %v", err)
 	}
-	os.SyscallError{}
 }
 
 func main() {
