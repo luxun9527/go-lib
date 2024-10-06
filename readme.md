@@ -28,21 +28,31 @@
 
 [验证码](https://github.com/luxun9527/go-lib/tree/master/utils/captcha)
 
-### 协程池
+### 协程池ant
 
-
+[ant](https://github.com/luxun9527/go-lib/blob/master/utils/ants/main.go)
 
 ### cron定时任务
 
+[cron](https://github.com/luxun9527/go-lib/blob/master/utils/cron/cron_test.go)
+
 ### cobra命令工具
 
+[cobra](https://github.com/luxun9527/go-lib/tree/master/utils/cobra)
+
 ### decimal浮点数精确计算
+
+[decimal](https://github.com/luxun9527/go-lib/tree/master/utils/decimal)
 
 ### evio
 
 ### ini配置加载
 
+[ini](https://github.com/luxun9527/go-lib/tree/master/utils/ini)
+
 ### shell相关
+
+[shell](https://github.com/luxun9527/go-lib/tree/master/utils/shell/shelldemo)
 
 ### 文件监控
 
@@ -58,7 +68,7 @@
 
 golang.org/x/sync/semaphore
 
-### 防缓存击穿
+### slingle防缓存击穿
 
 ### 限流(令牌桶，漏桶策略)
 

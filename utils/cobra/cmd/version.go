@@ -22,7 +22,3 @@ var versionCmd = &cobra.Command{
 		log.Println(Verbose)
 	},
 }
-
-//command 命令 Use
-//args 参数  ./cobrademo times 11   输出 Echo: 11 \n false
-//flag ./cobrademo version -v=false
