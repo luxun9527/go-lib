@@ -4,3 +4,6 @@ net/move
 **/bin
 **.log
 k8s
+zlog
+go.work
+go.work.sum
