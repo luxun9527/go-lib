@@ -142,6 +142,8 @@ pulsar
 
 kafka
 
+[kafka](https://github.com/luxun9527/go-lib/tree/master/sdk/kafka)
+
 ### 存储
 
 minio
