@@ -8,6 +8,8 @@ require (
 	fyne.io/fyne/v2 v2.5.0
 	github.com/Shopify/sarama v1.38.1
 	github.com/apache/pulsar-client-go v0.10.0
+	github.com/aws/aws-sdk-go-v2 v1.23.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.42.2
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff
 	github.com/casbin/casbin/v2 v2.74.0
 	github.com/casbin/gorm-adapter/v3 v3.18.1
@@ -71,7 +73,6 @@ require (
 	go.mongodb.org/mongo-driver v1.13.1
 	go.opentelemetry.io/otel v1.22.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.17.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.19.0
 	go.opentelemetry.io/otel/sdk v1.22.0
 	go.opentelemetry.io/otel/trace v1.22.0
 	go.uber.org/atomic v1.11.0
@@ -129,6 +130,7 @@ require (
 	github.com/apache/rocketmq-client-go/v2 v2.1.2-0.20230628073434-533de03048e1 // indirect
 	github.com/ardielle/ardielle-go v1.5.2 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
+	github.com/aws/smithy-go v1.17.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.4.0 // indirect
 	github.com/bufbuild/protocompile v0.7.1 // indirect
@@ -288,7 +290,6 @@ require (
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.4.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
-	github.com/ugorji/go v1.2.12 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.2.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
@@ -302,6 +303,7 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.19.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.19.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.19.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.19.0 // indirect
 	go.opentelemetry.io/otel/exporters/zipkin v1.19.0 // indirect
 	go.opentelemetry.io/otel/metric v1.22.0 // indirect

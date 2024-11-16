@@ -98,7 +98,7 @@ func init() {
 		},
 	)
 
-	dsn := "root:root@tcp(192.168.2.159:3307)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:root@tcp(192.168.2.159:3308)/demo?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -197,6 +197,18 @@ func TestDelete(t *testing.T) {
 	db.Unscoped().Where("id = ?", 3).Delete(&User{})
 }
 
+func TestSelect2(t *testing.T) {
+	var user []*User
+
+	queryDB := db.Where("name = ?", "jinzhu")
+
+	// First query
+	queryDB.Where("age > ?", 10).First(&user)
+	//SELECT * FROM `user` WHERE name = 'jinzhu' AND age > 10 AND `user`.`deleted_at` = 0 ORDER BY `user`.`id` LIMIT 1
+
+	// Second query with unintended compounded condition
+	queryDB.Where("age > ?", 20).First(&user)
+}
 func TestSelect(t *testing.T) {
 	//普通的查询，官方文档上写的比较全,主要是显示预加载。
 	//========================================一对一 一个用户有一个profile======================
