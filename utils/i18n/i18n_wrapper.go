@@ -30,12 +30,37 @@ type Translator struct {
 	*i18n.Bundle
 	defaultMsgs map[string]string
 }
+type LangData struct {
+	Lang string
+	Data []byte
+}
 
-func NewTranslator(langFilePath string) (*Translator, error) {
+func NewTranslatorFormBytes(data []*LangData) (*Translator, error) {
 	bundle := i18n.NewBundle(_defaultLang)
 	bundle.RegisterUnmarshalFunc(defaultFormat, toml.Unmarshal)
 	var defaultMsgs = map[string]string{}
+	for _, v := range data {
+		msgFile, err := bundle.ParseMessageFileBytes(v.Data, v.Lang+"."+defaultFormat)
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range msgFile.Messages {
+			if v.ID == defaultMsgId {
+				lang := msgFile.Tag.String()
+				defaultMsgs[lang] = v.Other
+				break
+			}
 
+		}
+	}
+	return &Translator{Bundle: bundle, defaultMsgs: defaultMsgs}, nil
+
+}
+
+func NewTranslatorFormFile(langFilePath string) (*Translator, error) {
+	bundle := i18n.NewBundle(_defaultLang)
+	bundle.RegisterUnmarshalFunc(defaultFormat, toml.Unmarshal)
+	var defaultMsgs = map[string]string{}
 	err := filepath.WalkDir(langFilePath, func(path string, d os.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
@@ -75,7 +100,7 @@ func (t *Translator) Translate(lang, msgId string) string {
 		},
 	})
 	var e *i18n.MessageNotFoundErr
-	if err == nil || errors.As(err, &e) {
+	if err == nil || (errors.As(err, &e) && msg != "") {
 		return msg
 	}
 	return unKnownMsg

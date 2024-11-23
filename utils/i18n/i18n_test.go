@@ -69,7 +69,6 @@ func TestHttpError(t *testing.T) {
 		userId := c.Query("userId")
 
 		l := i18n.NewLocalizer(bundle, lang)
-
 		if userId == "1" {
 			c.JSON(200, gin.H{
 				"code": 200,

@@ -10,7 +10,7 @@ import (
 )
 
 func TestTranslator_Translate(t *testing.T) {
-	translator, err := NewTranslator("./")
+	translator, err := NewTranslatorFormFile("./")
 	if err != nil {
 		t.Logf("err:%v\n", err)
 		return
@@ -28,8 +28,8 @@ func TestTranslator_Translate(t *testing.T) {
 }
 func TestTranslator_ConnTranslate(t *testing.T) {
 	// 假设 Translator 实例
-	translator1, _ := NewTranslator("./")
-	translator2, _ := NewTranslator("./")
+	translator1, _ := NewTranslatorFormFile("./")
+	translator2, _ := NewTranslatorFormFile("./")
 
 	// 初始化默认 Translator
 	SetDefaultTranslator(translator1)
@@ -73,7 +73,7 @@ func TestTranslator_ConnTranslate(t *testing.T) {
 }
 func TestGin(t *testing.T) {
 	e := gin.New()
-	translator, _ := NewTranslator("./")
+	translator, _ := NewTranslatorFormFile("./")
 	SetDefaultTranslator(translator)
 	e.GET("/getUserInfo", func(c *gin.Context) {
 		lang := c.Query("lang")
@@ -93,14 +93,33 @@ func TestGin(t *testing.T) {
 			"msg":  Translate(lang, "100001"),
 		})
 	})
-	e.POST("/updateLangInfo", func(c *gin.Context) {
+	e.POST("/updateFileLangInfo", func(c *gin.Context) {
 		_ = os.WriteFile("./fr-FR.toml", []byte(`100001="Utilisateur introuvable"`), 0644)
-		t1, _ := NewTranslator("./")
+		t1, _ := NewTranslatorFormFile("./")
 		SetDefaultTranslator(t1)
 		c.JSON(200, gin.H{
 			"code": 200,
 			"msg":  "",
 		})
+	})
+	e.POST("/updateBytesLangInfo", func(c *gin.Context) {
+		lang := c.PostForm("lang")
+		data := c.PostForm("data")
+		d := []*LangData{{
+			Lang: lang,
+			Data: []byte(data),
+		}}
+		tr, err := NewTranslatorFormBytes(d)
+		if err != nil {
+			return
+		}
+		SetDefaultTranslator(tr)
+
+		c.JSON(200, gin.H{
+			"code": 200,
+			"msg":  "",
+		})
+
 	})
 	e.Run(":8080")
 }
