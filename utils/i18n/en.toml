@@ -1,0 +1,4 @@
+HelloWorld = "hello world"
+100001 = "User not found"
+default = "default"
+999999 = "internal error"
