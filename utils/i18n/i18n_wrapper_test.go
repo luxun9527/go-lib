@@ -19,12 +19,38 @@ func TestTranslator_Translate(t *testing.T) {
 	{
 		msg := Translate("zh", "100001")
 		log.Printf("msg:%v\n", msg)
+		// msg:用户不存在
 	}
 	{
 		msg := Translate("zh", "100002")
 		log.Printf("msg:%v\n", msg)
+		//msg:内部错误
+	}
+	{
+		msg := Translate("zh", "100003")
+		log.Printf("msg:%v\n", msg)
+	}
+	{
+		msg := Translate("en", "100001")
+		log.Printf("msg:%v\n", msg)
+		//msg:User not found
+	}
+	{
+		msg := Translate("en", "100003")
+		log.Printf("msg:%v\n", msg)
+		//msg:internal error
 	}
 
+	{
+		msg := Translate("fr", "100001")
+		log.Printf("msg:%v\n", msg)
+		//msg:internal error
+	}
+	{
+		msg := Translate("fr", "100001")
+		log.Printf("msg:%v\n", msg)
+		//msg:User not found 语言没找会使用默认语言。
+	}
 }
 func TestTranslator_ConnTranslate(t *testing.T) {
 	// 假设 Translator 实例

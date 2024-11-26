@@ -34,12 +34,14 @@ func TestI18n1(t *testing.T) {
 			return
 		}
 		fmt.Println(msg)
+		//test
 	}
 	{
 		localizer := i18n.NewLocalizer(bundle, "zh")
 		msg, err := localizer.Localize(&i18n.LocalizeConfig{MessageID: "HelloWorld1"})
 		if err != nil {
 			log.Printf("%v", err)
+			//message "HelloWorld1" not found in language "zh"
 			return
 		}
 		fmt.Println(msg)

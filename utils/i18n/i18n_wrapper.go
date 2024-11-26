@@ -14,7 +14,7 @@ import (
 const (
 	defaultMsgId  = "999999"
 	defaultFormat = "toml"
-	unKnownMsg    = "unknown error"
+	unKnownMsg    = "internal error"
 )
 
 var (
