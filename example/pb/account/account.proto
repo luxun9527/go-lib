@@ -1,0 +1,40 @@
+syntax = "proto3";
+//当别人导入这个protobuf文件，使用的包名 如 google/protobuf/empty.proto 定义的就是 package google.protobuf,我们要使用这个文件中message 使用方法为 package.Message
+//如google.protobuf.Empty
+package account;
+
+//go_package = "./grpcdemo;grpcdemo"; ./grpcdemo表示生成的文件的位置和生成命令指定的生成位置,一起决定最后生成文件的位置。       grpcdemo表示生成的包名
+option go_package = ".;account";
+
+
+//导入其他protobuf 导入我们自定义的protobuf 需要和protoc 命令 -I参数组成完整的导入路径。例如，导入google/protobuf/empty.proto需要指定 -I./pb/googleapis
+import "google/protobuf/empty.proto";
+
+
+service AccountSrv {
+    rpc GetAllUserInfo(google.protobuf.Empty)returns(GetAccountInfoResp);
+    rpc GetAccountInfo(GetAccountInfoReq)returns(GetAccountInfoResp);
+    rpc RegisterUser(RegisterUserReq)returns(google.protobuf.Empty);
+    rpc ValidateToken(google.protobuf.Empty)returns(ValidateTokenResp);
+}
+
+message GetAccountInfoReq{
+    string accountId = 1;
+}
+
+message GetAccountInfoResp{
+    string accountId = 1;
+    string accountName = 2;
+}
+
+message RegisterUserReq{
+    string accountId = 1;
+    string accountName = 2;
+}
+
+message ValidateTokenReq{
+    string token = 1;
+}
+message ValidateTokenResp{
+    string token = 1;
+}

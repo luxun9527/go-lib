@@ -60,6 +60,8 @@
 
 ### i8n国际化
 
+[i18n](https://github.com/luxun9527/go-lib/tree/master/utils/i18n)
+
 ### casbin权限验证
 
 ### wire注入
