@@ -1,5 +1,5 @@
 package config
 
 type ServerConf struct {
-	Port string `mapstructure:"port"`
+	Port int32 `mapstructure:"port"`
 }

@@ -12,29 +12,38 @@ import "google/protobuf/empty.proto";
 
 
 service AccountSrv {
-    rpc GetAllUserInfo(google.protobuf.Empty)returns(GetAccountInfoResp);
-    rpc GetAccountInfo(GetAccountInfoReq)returns(GetAccountInfoResp);
-    rpc RegisterUser(RegisterUserReq)returns(google.protobuf.Empty);
-    rpc ValidateToken(google.protobuf.Empty)returns(ValidateTokenResp);
+  rpc GetAllUserInfo(google.protobuf.Empty)returns(GetAccountInfoResp);
+  rpc GetAccountInfo(GetAccountInfoReq)returns(GetAccountInfoResp);
+  rpc RegisterUser(RegisterUserReq)returns(google.protobuf.Empty);
+  rpc ValidateToken(ValidateTokenReq)returns(ValidateTokenResp);
+  rpc Login(LoginReq)returns(LoginResp);
 }
 
 message GetAccountInfoReq{
-    string accountId = 1;
+  string accountId = 1;
 }
 
 message GetAccountInfoResp{
-    string accountId = 1;
-    string accountName = 2;
+  string accountId = 1;
+  string accountName = 2;
 }
 
 message RegisterUserReq{
-    string accountId = 1;
-    string accountName = 2;
+  string accountId = 1;
+  string accountName = 2;
 }
 
 message ValidateTokenReq{
-    string token = 1;
+  string token = 1;
 }
 message ValidateTokenResp{
-    string token = 1;
+  string accountId = 1;
+  string accountName = 2;
+}
+message LoginReq{
+  string accountName = 1;
+  string password = 2;
+}
+message LoginResp{
+  string token = 1;
 }

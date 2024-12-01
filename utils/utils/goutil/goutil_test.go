@@ -1,26 +1,23 @@
 package goutil
 
 import (
-	"fmt"
-	"net"
+	"github.com/gookit/goutil/netutil"
+	"github.com/zeromicro/go-zero/core/netx"
+	"log"
 	"testing"
 )
 
-func TestGoUtils(t *testing.T) {
-
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
+func TestGetLocalIP(t *testing.T) {
+	{
+		host := netutil.InternalIPv4()
+		log.Printf("host:%s", host)
 	}
-
-	for _, addr := range addrs {
-		// 检查地址类型并跳过回环地址
-		if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
-			// 仅打印IPv4地址
-			if ipNet.IP.To4() != nil {
-				fmt.Println("Pod IP Address:", ipNet.IP.String())
-			}
-		}
+	{
+		host := netutil.InternalIPv1()
+		log.Printf("host:%s", host)
+	}
+	{
+		host := netx.InternalIp()
+		log.Printf("host:%s", host)
 	}
 }

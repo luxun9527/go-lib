@@ -43,7 +43,7 @@ func TestTranslator_Translate(t *testing.T) {
 
 	{
 		msg := Translate("fr", "100001")
-		log.Printf("msg:%v\n", msg)
+		log.Printf("fr msg:%v\n", msg)
 		//msg:internal error
 	}
 	{

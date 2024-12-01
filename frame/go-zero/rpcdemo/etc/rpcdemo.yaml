@@ -2,5 +2,5 @@ Name: rpcdemo.rpc
 ListenOn: 0.0.0.0:8080
 Etcd:
   Hosts:
-  - 192.168.11.185:2379
+  - 192.168.2.159:2379
   Key: rpcdemo.rpc

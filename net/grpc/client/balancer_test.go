@@ -17,6 +17,8 @@ import (
 	"time"
 )
 
+const WeightLBName = "weight_lb"
+
 // 自定义负载均衡，加权轮询
 type weightConf struct {
 	addr   string
@@ -107,7 +109,7 @@ func (wp *weightsPickerPickerBuilder) Build(info base.PickerBuildInfo) balancer.
 
 // 自定义负载均衡
 func newWeightBalancerBuilder() balancer.Builder {
-	return base.NewBalancerBuilder("weight_lb", &weightsPickerPickerBuilder{}, base.Config{HealthCheck: true})
+	return base.NewBalancerBuilder(WeightLBName, &weightsPickerPickerBuilder{}, base.Config{HealthCheck: true})
 }
 
 func TestBalancer(t *testing.T) {

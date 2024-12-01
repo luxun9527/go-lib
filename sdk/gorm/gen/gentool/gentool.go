@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gorm.io/rawsql"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"unicode"
 
@@ -46,6 +48,7 @@ type CmdParams struct {
 	FieldSignable     bool     `yaml:"fieldSignable"`     // detect integer field's unsigned type, adjust generated data type
 	FieldTypeMap      string   `yaml:"fileTypeMap"`       // FileTypeMap
 	TablePrefix       string   `yaml:"tablePrefix"`       // FileTypeMap
+	Mode              string   `yaml:"mode"`              // FileTypeMap
 
 }
 
@@ -75,6 +78,29 @@ func connectDB(t DBType, dsn string) (*gorm.DB, error) {
 	default:
 		return nil, fmt.Errorf("unknow db %q (support mysql || postgres || sqlite || sqlserver for now)", t)
 	}
+}
+func connectFileDB(t DBType, dsn string) (*gorm.DB, error) {
+
+	var sqlFileList []string
+	if err := filepath.WalkDir(dsn, func(path string, d os.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+		if ext := strings.TrimLeft(filepath.Ext(d.Name()), "."); ext != "sql" {
+			return nil
+		}
+
+		sqlFileList = append(sqlFileList, path)
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return gorm.Open(rawsql.New(rawsql.Config{
+		DriverName: string(t),
+		FilePath:   sqlFileList,
+		SQL:        nil,
+		Parser:     nil,
+	}))
 }
 
 // genModels is gorm/gen generated models
@@ -130,6 +156,7 @@ func argParse() *CmdParams {
 	fieldSignable := flag.Bool("fieldSignable", false, "detect integer field's unsigned type, adjust generated data type")
 	fieldTypeMap := flag.String("fieldMap", "", "字段类型映射,格式 decimal:string;int:int64")
 	tablePrefix := flag.String("tablePrefix", "", "表名前缀")
+	mode := flag.String("mode", "db", "模式可选 file,db")
 	flag.Parse()
 	var cmdParse CmdParams
 	if *genPath != "" {
@@ -182,16 +209,30 @@ func argParse() *CmdParams {
 	if *tablePrefix != "" {
 		cmdParse.TablePrefix = *tablePrefix
 	}
+	if *mode != "" {
+		cmdParse.Mode = *mode
+	}
+
 	return &cmdParse
 }
 
+// --mode=file --dsn="E:\demoproject\go-lib\sdk\gorm\gen\gen_sql_file" --db=mysql --tables=account --outPath=E:\\demoproject\\go-lib\\sdk\\gorm\\gen\\gen_sql_file\\query  -fieldMap="decimal:string;tinyint:int32;int:int64"
 func main() {
 	// cmdParse
 	config := argParse()
 	if config == nil {
 		log.Fatalln("parse config fail")
 	}
-	db, err := connectDB(DBType(config.DB), config.DSN)
+	var (
+		db  *gorm.DB
+		err error
+	)
+	if config.Mode == "file" {
+		db, err = connectFileDB(DBType(config.DB), config.DSN)
+	} else {
+		db, err = connectDB(DBType(config.DB), config.DSN)
+	}
+
 	if err != nil {
 		log.Fatalln("connect db server fail:", err)
 	}
