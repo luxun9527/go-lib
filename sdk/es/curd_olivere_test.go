@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/luxun9527/zlog"
 	"github.com/olivere/elastic/v7"
 	"github.com/spf13/cast"
+	"go.uber.org/zap/zapcore"
 	"log"
 	"math/rand"
-	"os"
 	"testing"
 	"time"
 )
@@ -28,13 +29,14 @@ var esClient *elastic.Client
 
 func init() {
 	var err error
+	zlog.DevConfig.UpdateLevel(zapcore.DebugLevel)
 	esClient, err = elastic.NewClient(
-		elastic.SetURL("http://192.168.2.200:32003"),
-		elastic.SetBasicAuth("elastic", "admin123"),
+		elastic.SetURL("http://192.168.2.159:9200"),
+		elastic.SetBasicAuth("elastic", "123456"),
 		elastic.SetSniff(false), // 禁用 Sniffing
 		//elastic.SetHealthcheck(false),                                      // 禁用健康检查
-		elastic.SetErrorLog(log.New(os.Stderr, "ELASTIC ", log.LstdFlags)), // 启用错误日志
-		elastic.SetInfoLog(log.New(os.Stdout, "ELASTIC ", log.LstdFlags)),  // 启用信息日志
+		elastic.SetErrorLog(zlog.ErrorEsOlivereLogger), // 启用错误日志
+		elastic.SetInfoLog(zlog.InfoEsOlivereLogger),   // 启用信息日志
 	)
 	if err != nil {
 		log.Fatalf("Error creating the client: %s", err)

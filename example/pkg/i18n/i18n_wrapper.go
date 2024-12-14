@@ -18,12 +18,12 @@ const (
 )
 
 var (
-	_defaultLang       = language.English
-	_defaultTranslator = atomic.Pointer[Translator]{}
+	_defaultLang             = language.English
+	_defaultAtomicTranslator = atomic.Pointer[Translator]{}
 )
 
 func SetDefaultTranslator(translator *Translator) {
-	_defaultTranslator.Store(translator)
+	_defaultAtomicTranslator.Store(translator)
 }
 
 type Translator struct {
@@ -107,5 +107,5 @@ func (t *Translator) Translate(lang, msgId string) string {
 }
 
 func Translate(lang, msgId string) string {
-	return _defaultTranslator.Load().Translate(lang, msgId)
+	return _defaultAtomicTranslator.Load().Translate(lang, msgId)
 }

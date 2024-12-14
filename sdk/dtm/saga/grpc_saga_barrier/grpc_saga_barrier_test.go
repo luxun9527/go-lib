@@ -24,7 +24,7 @@ var db *sql.DB
 // 定义一个初始化数据库的函数
 func initDB() (err error) {
 	// DSN:Data Source varName
-	dsn := "root:root@tcp(192.168.2.99:3306)/dtm_busi?charset=utf8mb4&parseTime=True"
+	dsn := "root:root@tcp(192.168.2.159:3307)/dtm_busi?charset=utf8mb4&parseTime=True"
 	// 不会校验账号密码是否正确
 	// 注意！！！这里不要使用:=，我们是给全局变量赋值，然后在main函数中使用全局变量db
 	db, err = sql.Open("mysql", dsn)
@@ -39,12 +39,12 @@ func initDB() (err error) {
 	return nil
 }
 
-var BusiGrpc = fmt.Sprintf("192.168.2.138:%d", 58081)
+var BusiGrpc = fmt.Sprintf("192.168.2.109:%d", 58081)
 
 func TestGrpcSagaBarrier(t *testing.T) {
 	req := &busi.ReqGrpc{Amount: 30}
 	gid := shortuuid.New()
-	saga := dtmgrpc.NewSagaGrpc("192.168.2.99:36790", gid).
+	saga := dtmgrpc.NewSagaGrpc("192.168.2.159:36790", gid).
 		Add(BusiGrpc+"/busi.Busi/TransOutBSaga", BusiGrpc+"/busi.Busi/TransOutRevertBSaga", req).
 		Add(BusiGrpc+"/busi.Busi/TransInBSaga", BusiGrpc+"/busi.Busi/TransInRevertBSaga", req).
 		Add(BusiGrpc+"/busi.Busi/PayCommissions", BusiGrpc+"/busi.Busi/PayCommissionsRevert", req)
@@ -142,6 +142,7 @@ func (GrpcSagaServer) TransOutBSaga(ctx context.Context, req *busi.ReqGrpc) (*em
 	}
 	if err := barrier.CallWithDB(db, func(tx *sql.Tx) error {
 		_, err = db.Exec("update user_account set balance= balance-? where id =1", 10)
+		log.Printf("TransOutBSaga err:%v", err)
 		return err
 	}); err != nil {
 		//	return nil, status.Error(codes.Aborted, "test")

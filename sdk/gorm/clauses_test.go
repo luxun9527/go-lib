@@ -10,7 +10,7 @@ import (
 
 type ClauseUser struct {
 	model.User
-	C CustomClause
+	C CustomClause // 定义一个自定义的Clause
 }
 
 func TestClauses(t *testing.T) {

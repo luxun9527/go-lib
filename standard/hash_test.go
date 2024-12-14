@@ -1,16 +1,14 @@
 package standard
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
+	"go.uber.org/zap"
 	"log"
 	"testing"
 )
 
 func TestHash(t *testing.T) {
-	c := sha1.New()
-	c.Write([]byte("input"))
-	bytes := c.Sum(nil)
-	log.Println( hex.EncodeToString(bytes))
+	v1 := zap.AtomicLevel{}
+	v2 := zap.NewAtomicLevelAt(1)
+	log.Printf("%v", v1 == v2)
 
 }

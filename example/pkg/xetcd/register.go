@@ -41,11 +41,12 @@ func Register(conf EtcdRegisterConf) {
 		if err != nil {
 			zlog.Panicf("etcd keepalive err: %v", err)
 		}
+		zlog.Infof("etcd register success,key: %v,value: %v", conf.Key, conf.Value)
 		for {
 			select {
 			case _, ok := <-c:
 				if !ok {
-					zlog.Error("etcd keepalive failed,please check etcd key existed")
+					zlog.Errorf("etcd keepalive failed,please check etcd key %v existed", conf.Key)
 					return
 				}
 			}

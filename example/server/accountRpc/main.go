@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	path = flag.String("f", "./conf/config.yaml", "config file path")
+	path = flag.String("f", "example/server/accountRpc/conf/config.yaml", "config file path")
 )
 
 func main() {

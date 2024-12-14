@@ -40,7 +40,7 @@ func TestRegister1(t *testing.T) {
 	}
 	if err := manager.AddEndpoint(context.Background(), "xxRpc/"+stringx.Randn(10), endpoints.Endpoint{
 		Addr:     netx.InternalIp() + ":8897",
-		Metadata: nil,
+		Metadata: map[string]interface{}{"test": "test"},
 	}, clientv3.WithLease(resp.ID)); err != nil {
 		log.Panicf("add endpoint failed, err:%v", err)
 	}

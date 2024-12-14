@@ -15,6 +15,7 @@ require (
 	github.com/casbin/casbin/v2 v2.74.0
 	github.com/casbin/gorm-adapter/v3 v3.18.1
 	github.com/cloudwego/netpoll v0.3.2
+	github.com/crazykun/feishu-bot-markdown v0.0.6
 	github.com/douyu/jupiter v0.11.4
 	github.com/dtm-labs/client v1.18.7
 	github.com/elastic/go-elasticsearch/v7 v7.17.10

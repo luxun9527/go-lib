@@ -8,7 +8,7 @@ server:
 
 gromConf:
   ip: 192.168.2.159
-  port: 3308
+  port: 3307
   dbName: account
   username: root
   password: root
@@ -43,7 +43,7 @@ logger:
   compress: false #默认为false file模式参数 是否压缩
   console: false #默认为false file模式参数 是否同时输出到控制台
   color: true #默认为false  输出是否彩色 在开发的时候推荐使用。
-  isReport: true  #默认为false 是否上报到im工具,开启上报的话，需要在程序结束执行sync
+  isReport: false  #默认为false 是否上报到im工具,开启上报的话，需要在程序结束执行sync
   port: 34567 #是否开启http热更新日志级别
   reportConfig: # 上报配置 warn级别以上报到im工具
     type: lark # 可选 lark(飞书也是这个) wx tg

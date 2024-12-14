@@ -71,10 +71,10 @@ func (builder *customBuilder) Build(target resolver.Target, cc resolver.ClientCo
 		return nil, err
 	}
 	//10s后更新
-	go func() {
-		time.Sleep(time.Second * 10)
-		builder.updateConn()
-	}()
+	//go func() {
+	//	time.Sleep(time.Second * 10)
+	//	builder.updateConn()
+	//}()
 	return &customResolver{}, nil
 }
 func (*customBuilder) Scheme() string { return _customScheme }
