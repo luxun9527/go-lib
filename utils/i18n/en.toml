@@ -1,4 +1,5 @@
 HelloWorld = "hello world"
 100001 = "User not found"
+200001 = "Permission denied"
 default = "default"
 999999 = "internal error"

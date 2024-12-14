@@ -12,18 +12,29 @@ import (
 )
 
 const (
-	defaultMsgId  = "999999"
-	defaultFormat = "toml"
-	unKnownMsg    = "internal error"
+	_defaultMsgId  = "999999"
+	_defaultFormat = "toml"
+	_unKnownMsg    = "internal error"
 )
 
 var (
-	_defaultLang             = language.English
+	_defaultLang = language.English
+	//并发安全，支持动态修改
 	_defaultAtomicTranslator = atomic.Pointer[Translator]{}
+	//并发不安装
+	_defaultTranslator *Translator
+	//并发安全模块访问
+	_concurrentSafeMode = false
 )
 
+// WrapAtomic 切换为并发安全模式访问
+func WrapAtomic() {
+	_defaultAtomicTranslator.Store(_defaultTranslator)
+	_concurrentSafeMode = true
+}
+
 func SetDefaultTranslator(translator *Translator) {
-	_defaultAtomicTranslator.Store(translator)
+	_defaultTranslator = translator
 }
 
 type Translator struct {
@@ -37,15 +48,15 @@ type LangData struct {
 
 func NewTranslatorFormBytes(data []*LangData) (*Translator, error) {
 	bundle := i18n.NewBundle(_defaultLang)
-	bundle.RegisterUnmarshalFunc(defaultFormat, toml.Unmarshal)
+	bundle.RegisterUnmarshalFunc(_defaultFormat, toml.Unmarshal)
 	var defaultMsgs = map[string]string{}
 	for _, v := range data {
-		msgFile, err := bundle.ParseMessageFileBytes(v.Data, v.Lang+"."+defaultFormat)
+		msgFile, err := bundle.ParseMessageFileBytes(v.Data, v.Lang+"."+_defaultFormat)
 		if err != nil {
 			return nil, err
 		}
 		for _, v := range msgFile.Messages {
-			if v.ID == defaultMsgId {
+			if v.ID == _defaultMsgId {
 				lang := msgFile.Tag.String()
 				defaultMsgs[lang] = v.Other
 				break
@@ -59,13 +70,13 @@ func NewTranslatorFormBytes(data []*LangData) (*Translator, error) {
 
 func NewTranslatorFormFile(langFilePath string) (*Translator, error) {
 	bundle := i18n.NewBundle(_defaultLang)
-	bundle.RegisterUnmarshalFunc(defaultFormat, toml.Unmarshal)
+	bundle.RegisterUnmarshalFunc(_defaultFormat, toml.Unmarshal)
 	var defaultMsgs = map[string]string{}
 	err := filepath.WalkDir(langFilePath, func(path string, d os.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
-		if ext := strings.TrimLeft(filepath.Ext(d.Name()), "."); ext != defaultFormat {
+		if ext := strings.TrimLeft(filepath.Ext(d.Name()), "."); ext != _defaultFormat {
 			return nil
 		}
 		msgFile, err := bundle.LoadMessageFile(path)
@@ -74,7 +85,7 @@ func NewTranslatorFormFile(langFilePath string) (*Translator, error) {
 		}
 
 		for _, v := range msgFile.Messages {
-			if v.ID == defaultMsgId {
+			if v.ID == _defaultMsgId {
 				lang := msgFile.Tag.String()
 				defaultMsgs[lang] = v.Other
 				break
@@ -103,9 +114,12 @@ func (t *Translator) Translate(lang, msgId string) string {
 	if err == nil || (errors.As(err, &e) && msg != "") {
 		return msg
 	}
-	return unKnownMsg
+	return _unKnownMsg
 }
 
 func Translate(lang, msgId string) string {
-	return _defaultAtomicTranslator.Load().Translate(lang, msgId)
+	if _concurrentSafeMode {
+		return _defaultAtomicTranslator.Load().Translate(lang, msgId)
+	}
+	return _defaultTranslator.Translate(lang, msgId)
 }

@@ -23,6 +23,7 @@ func TestTranslator_Translate(t *testing.T) {
 	}
 	{
 		msg := Translate("zh", "100002")
+		//key 不存在，使用默认的key
 		log.Printf("msg:%v\n", msg)
 		//msg:内部错误
 	}
@@ -44,12 +45,12 @@ func TestTranslator_Translate(t *testing.T) {
 	{
 		msg := Translate("fr", "100001")
 		log.Printf("fr msg:%v\n", msg)
-		//msg:internal error
+		//msg:User not found 语言没找会使用默认语言。
 	}
 	{
-		msg := Translate("fr", "100001")
-		log.Printf("msg:%v\n", msg)
-		//msg:User not found 语言没找会使用默认语言。
+		msg := Translate("fr", "100009")
+		log.Printf("fr msg:%v\n", msg)
+		//语言没找到key也没找到使用硬编码的key
 	}
 }
 func TestTranslator_ConnTranslate(t *testing.T) {
