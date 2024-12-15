@@ -3,11 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/go-playground/locales/en"
+	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	//	zhtrans "github.com/go-playground/validator/v10/translations/zh"
-	en_trans "github.com/go-playground/validator/v10/translations/en"
+	zh_translations "github.com/go-playground/validator/v10/translations/zh"
 
 	"reflect"
 	"strings"
@@ -107,13 +106,14 @@ func (v *DefaultValidator) lazyinit() {
 		//// this is usually know or extracted from http 'Accept-Language' header
 		//// also see uni.FindTranslator(...)
 		//trans, _ := uni.GetTranslator("en")
-		e := en.New()
+		//e := en.New()
+		e := zh.New()
 		uni := ut.New(e, e)
 
 		// this is usually know or extracted from http 'Accept-Language' header
 		// also see uni.FindTranslator(...)
-		trans, _ := uni.GetTranslator("en")
-		en_trans.RegisterDefaultTranslations(validate, trans)
+		trans, _ := uni.GetTranslator("zh")
+		zh_translations.RegisterDefaultTranslations(validate, trans)
 		v.validate = validate
 		v.trans = trans
 		v.validate.SetTagName("binding")

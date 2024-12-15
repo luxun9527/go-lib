@@ -56,7 +56,7 @@ func TestUnmarshal(t *testing.T) {
 	}
 	viper.SetConfigFile("./config.toml")
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println(err)
+		log.Printf("unable to decode into struct, %v", err)
 		return
 	}
 	var c2 C2
@@ -67,10 +67,10 @@ func TestUnmarshal(t *testing.T) {
 	//config := make(map[string]interface{})
 	var config Config
 	if err := sub.Unmarshal(&config); err != nil {
-		fmt.Println("err = ", err)
+		log.Printf("unable to decode into struct, %v", err)
 		return
 	}
-	fmt.Printf("config %+v \n", config)
+	log.Printf("unmarshal success person %+v", config)
 }
 func TestWatchFile(t *testing.T) {
 	viper.SetConfigFile("./config.toml") // 指定配置文件

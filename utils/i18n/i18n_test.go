@@ -15,7 +15,21 @@ func TestI18n1(t *testing.T) {
 	//加载语言包和MustLocalize解析不是并发安全的，如果如果希望多语言文件热更新，需要加锁
 	bundle.MustLoadMessageFile("./zh.toml")
 	_, _ = bundle.LoadMessageFile("./en.toml")
+	{
+		localizer := i18n.NewLocalizer(bundle, "en-US")
+		msg, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID: "100001",
+			},
+		})
 
+		if err != nil {
+			log.Printf("translate en-US msg failed %v", err)
+			return
+		}
+		log.Printf("translate en-US success msg:%v", msg)
+		//default value
+	}
 	{
 		localizer := i18n.NewLocalizer(bundle, "en-US")
 		msg, err := localizer.Localize(&i18n.LocalizeConfig{

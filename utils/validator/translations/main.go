@@ -1,12 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/zh"
-
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-//	en_translations "github.com/go-playground/validator/v10/translations/en"
+	en_translations "github.com/go-playground/validator/v10/translations/en"
 	zh_translations "github.com/go-playground/validator/v10/translations/zh"
 )
 
@@ -36,17 +37,17 @@ var (
 
 func main() {
 
-	// NOTE: ommitting allot of error checking for brevity
-
-	en := zh.New()
-	uni = ut.New( en)
+	zhLang := zh.New()
+	enLang := en.New()
+	uni = ut.New(zhLang, enLang)
 
 	// this is usually know or extracted from http 'Accept-Language' header
 	// also see uni.FindTranslator(...)
 	trans, _ := uni.GetTranslator("zh")
-
 	validate = validator.New()
 	zh_translations.RegisterDefaultTranslations(validate, trans)
+	enTrans, _ := uni.GetTranslator("en")
+	en_translations.RegisterDefaultTranslations(validate, enTrans)
 
 	translateAll(trans)
 	translateIndividual(trans)
@@ -92,7 +93,8 @@ func translateIndividual(trans ut.Translator) {
 	err := validate.Struct(user)
 	if err != nil {
 
-		errs := err.(validator.ValidationErrors)
+		var errs validator.ValidationErrors
+		errors.As(err, &errs)
 
 		for _, e := range errs {
 			// can translate each error one at a time.

@@ -3,26 +3,31 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
-type Auth struct {
-	AuthName string `gorm:"column:auth_name;type:varchar(50)" json:"authName" binding:"required"`
-	Path     string `gorm:"column:path;type:varchar(100)" json:"path" binding:"required"`
+type User struct {
+	Username string `form:"username" binding:"required"`
+	Password string ` form:"password" binding:"required"`
 }
 
 func main() {
 	r := gin.New()
-	binding.Validator = new(DefaultValidator)
-	binding.Validator.Engine()
-	r.POST("/addAuth", func(c *gin.Context) {
-		var auth Auth
-		if err := c.ShouldBindJSON(&auth); err != nil {
-			c.JSON(200, gin.H{"success": 200, "message": err.Error()})
+	translator, _ := NewTranslator(binding.Validator.Engine().(*validator.Validate))
+	//binding.Validator.Engine()
+	r.POST("/addUser", func(c *gin.Context) {
+		var user User
+		if err := c.ShouldBindJSON(&user); err != nil {
+
+			msg := translator.TranslateFirst("zh", err)
+			c.JSON(200, gin.H{"success": 200, "message": msg})
 			return
 		}
 		c.JSON(200, gin.H{"success": 200, "message": ""})
 
 	})
-	r.Run(":9090")
+	r.Run(":9999")
+	/**
 
+	 */
 }
