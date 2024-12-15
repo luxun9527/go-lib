@@ -17,9 +17,9 @@ var (
 
 func main() {
 	flag.Parse()
-	initializer.Init(*path)
-	gin.SetMode(gin.ReleaseMode)
 	e := gin.New()
+	gin.SetMode(gin.ReleaseMode)
+	initializer.Init(*path)
 	router.InitRouter(e)
 	zlog.Infof("account api server success on %v", global.Config.Server.Port)
 	if err := e.Run(fmt.Sprintf("0.0.0.0:" + cast.ToString(global.Config.Server.Port))); err != nil {

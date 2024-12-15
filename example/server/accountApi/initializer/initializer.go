@@ -2,8 +2,11 @@ package initializer
 
 import (
 	"context"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	"github.com/luxun9527/zlog"
 	"go-lib/example/pkg/i18n"
+	"go-lib/example/pkg/xgin"
 	"go-lib/example/server/accountApi/config"
 	"go-lib/example/server/accountApi/global"
 	"go-lib/example/server/accountApi/rpcClient"
@@ -28,4 +31,8 @@ func Init(confPath string) {
 		zlog.Panicf("i18n init failed, err:%v", err)
 	}
 	i18n.SetDefaultTranslator(translator)
+
+	//设置gin参数校验失败翻译
+	v, _ := xgin.NewValidateTranslator(binding.Validator.Engine().(*validator.Validate))
+	xgin.SetDefaultValidateTranslator(v)
 }

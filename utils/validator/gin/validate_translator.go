@@ -39,7 +39,8 @@ import (
 	zhTW_translations "github.com/go-playground/validator/v10/translations/zh_tw"
 )
 
-type Translator struct {
+// ValidateTranslator  参数校验结果翻译
+type ValidateTranslator struct {
 	translators map[string]ut.Translator
 }
 
@@ -64,8 +65,8 @@ var (
 	}
 )
 
-func NewTranslator(validate *validator.Validate) (*Translator, error) {
-	var translator Translator
+func NewTranslator(validate *validator.Validate) (*ValidateTranslator, error) {
+	var translator ValidateTranslator
 	m := make(map[string]ut.Translator, 20)
 	var (
 		zhLang   = zh.New()
@@ -109,7 +110,7 @@ func toString(messages validator.ValidationErrorsTranslations) string {
 	return msg
 }
 
-func (tl *Translator) Translate(locale string, err error) string {
+func (tl *ValidateTranslator) Translate(locale string, err error) string {
 	translator, ok := tl.translators[locale]
 	if !ok {
 		return err.Error()
@@ -132,16 +133,23 @@ func (tl *Translator) Translate(locale string, err error) string {
 
 }
 
-func (tl *Translator) TranslateFirst(locale string, err error) string {
+// TranslateFirst   强制只翻译第一个错误
+func (tl *ValidateTranslator) TranslateFirst(locale string, err error) string {
+
 	var (
 		e1 validator.ValidationErrors
+		e2 validator.FieldError
 	)
-	if ok := errors.As(err, &e1); !ok {
-		return err.Error()
+	if ok := errors.As(err, &e2); ok {
+		return tl.Translate(locale, err)
 	}
-	if len(e1) > 0 {
-		return tl.Translate(locale, e1[0])
+
+	if ok := errors.As(err, &e1); ok {
+		if len(e1) > 0 {
+			return tl.Translate(locale, e1[0])
+		}
 	}
+
 	return err.Error()
 
 }
