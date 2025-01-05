@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
