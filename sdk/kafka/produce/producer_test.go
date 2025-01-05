@@ -110,10 +110,10 @@ func TestSaslPlain(t *testing.T) {
 	config.Net.SASL.Password = "pass123" // 替换为你的密码
 	config.Net.SASL.Enable = true
 	config.Producer.Return.Successes = true
-
+	config.Producer.RequiredAcks = sarama.WaitForAll
 	// 创建生产者
-	//producer, err := sarama.NewSyncProducer([]string{"192.168.2.159:19092", "192.168.2.159:19094"}, config) // 替换为你的 Kafka broker
-	producer, err := sarama.NewSyncProducer([]string{"192.168.2.159:9092"}, config) // 替换为你的 Kafka broker
+	producer, err := sarama.NewSyncProducer([]string{"192.168.2.159:19092", "192.168.2.159:19094"}, config) // 替换为你的 Kafka broker
+	//producer, err := sarama.NewSyncProducer([]string{"192.168.2.159:9092"}, config) // 替换为你的 Kafka broker
 	if err != nil {
 		log.Fatalf("Failed to create producer: %s", err)
 	}
@@ -121,7 +121,7 @@ func TestSaslPlain(t *testing.T) {
 
 	// 发送消息
 	message := &sarama.ProducerMessage{
-		Topic: "your_topic", // 替换为你的主题
+		Topic: "your_topic1", // 替换为你的主题
 		Value: sarama.StringEncoder("Hello, Kafka!"),
 	}
 

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"log"
+
 	"testing"
 	"time"
 )
@@ -39,7 +39,7 @@ func TestLogx(t *testing.T) {
 }
 func TestRedis(t *testing.T) {
 	conf := redis.RedisConf{
-		Host:        "192.168.179.99:6379",
+		Host:        "192.168.2.159:6379",
 		Type:        "node",
 		Pass:        "",
 		Tls:         false,
@@ -47,12 +47,25 @@ func TestRedis(t *testing.T) {
 		PingTimeout: time.Hour,
 	}
 	cli := redis.MustNewRedis(conf)
-	val, err := cli.Hget("test", "zha1ngsan")
+	lock := redis.NewRedisLock(cli, "lock1")
+	lock.SetExpire(10)
+	ok, err := lock.Acquire()
 	if err != nil {
-		ok := errors.Is(err, redis.Nil)
-		log.Println(ok)
+		log.Println(err)
 		return
 	}
-
-	log.Println(val)
+	if ok {
+		log.Println("lock success")
+	}
+	ok1, err := lock.Release()
+	if ok1 {
+		log.Println("release success")
+	}
+}
+func TestRedis2(t *testing.T) {
+	Sum(1)
+}
+func Sum(n int) {
+	defer log.Println(n)
+	n += 122
 }

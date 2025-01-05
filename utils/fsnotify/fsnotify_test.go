@@ -52,7 +52,7 @@ func watchFile(fileName string) {
 
 }
 func TestWatchFolder(t *testing.T) {
-	watchFolder("./folder")
+	watchFolder("E:\\openproject\\bestpractice\\server\\accountApi\\lang")
 }
 func watchFolder(folderName string) {
 	// Create new watcher.
