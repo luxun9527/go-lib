@@ -402,3 +402,87 @@ func (c card) FindCardByDeletedAt(DeletedAt int64) (result *model.Card, err erro
 func (c card) FindCardByDeletedAtCtx(ctx context.Context, DeletedAt int64) (result *model.Card, err error) {
 	return c.WithContext(ctx).Where(c.DeletedAt.Eq(DeletedAt)).Take()
 }
+func (c card) FindCardByID(ID int32) (result *model.Card, err error) {
+	return c.cardDo.Where(c.ID.Eq(ID)).Take()
+}
+func (c card) FindCardByIDCtx(ctx context.Context, ID int32) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.ID.Eq(ID)).Take()
+}
+func (c card) FindCardByNo(No int32) (result *model.Card, err error) {
+	return c.cardDo.Where(c.No.Eq(No)).Take()
+}
+func (c card) FindCardByNoCtx(ctx context.Context, No int32) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.No.Eq(No)).Take()
+}
+func (c card) FindCardByUserID(UserID int32) (result *model.Card, err error) {
+	return c.cardDo.Where(c.UserID.Eq(UserID)).Take()
+}
+func (c card) FindCardByUserIDCtx(ctx context.Context, UserID int32) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.UserID.Eq(UserID)).Take()
+}
+func (c card) FindCardByAmount(Amount string) (result *model.Card, err error) {
+	return c.cardDo.Where(c.Amount.Eq(Amount)).Take()
+}
+func (c card) FindCardByAmountCtx(ctx context.Context, Amount string) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.Amount.Eq(Amount)).Take()
+}
+func (c card) FindCardByCreatedAt(CreatedAt int64) (result *model.Card, err error) {
+	return c.cardDo.Where(c.CreatedAt.Eq(CreatedAt)).Take()
+}
+func (c card) FindCardByCreatedAtCtx(ctx context.Context, CreatedAt int64) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.CreatedAt.Eq(CreatedAt)).Take()
+}
+func (c card) FindCardByUpdatedAt(UpdatedAt int64) (result *model.Card, err error) {
+	return c.cardDo.Where(c.UpdatedAt.Eq(UpdatedAt)).Take()
+}
+func (c card) FindCardByUpdatedAtCtx(ctx context.Context, UpdatedAt int64) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.UpdatedAt.Eq(UpdatedAt)).Take()
+}
+func (c card) FindCardByDeletedAt(DeletedAt int64) (result *model.Card, err error) {
+	return c.cardDo.Where(c.DeletedAt.Eq(DeletedAt)).Take()
+}
+func (c card) FindCardByDeletedAtCtx(ctx context.Context, DeletedAt int64) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.DeletedAt.Eq(DeletedAt)).Take()
+}
+func (c card) FindCardByID(ID int32) (result *model.Card, err error) {
+	return c.cardDo.Where(c.ID.Eq(ID)).Take()
+}
+func (c card) FindCardByIDCtx(ctx context.Context, ID int32) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.ID.Eq(ID)).Take()
+}
+func (c card) FindCardByNo(No int32) (result *model.Card, err error) {
+	return c.cardDo.Where(c.No.Eq(No)).Take()
+}
+func (c card) FindCardByNoCtx(ctx context.Context, No int32) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.No.Eq(No)).Take()
+}
+func (c card) FindCardByUserID(UserID int32) (result *model.Card, err error) {
+	return c.cardDo.Where(c.UserID.Eq(UserID)).Take()
+}
+func (c card) FindCardByUserIDCtx(ctx context.Context, UserID int32) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.UserID.Eq(UserID)).Take()
+}
+func (c card) FindCardByAmount(Amount string) (result *model.Card, err error) {
+	return c.cardDo.Where(c.Amount.Eq(Amount)).Take()
+}
+func (c card) FindCardByAmountCtx(ctx context.Context, Amount string) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.Amount.Eq(Amount)).Take()
+}
+func (c card) FindCardByCreatedAt(CreatedAt int64) (result *model.Card, err error) {
+	return c.cardDo.Where(c.CreatedAt.Eq(CreatedAt)).Take()
+}
+func (c card) FindCardByCreatedAtCtx(ctx context.Context, CreatedAt int64) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.CreatedAt.Eq(CreatedAt)).Take()
+}
+func (c card) FindCardByUpdatedAt(UpdatedAt int64) (result *model.Card, err error) {
+	return c.cardDo.Where(c.UpdatedAt.Eq(UpdatedAt)).Take()
+}
+func (c card) FindCardByUpdatedAtCtx(ctx context.Context, UpdatedAt int64) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.UpdatedAt.Eq(UpdatedAt)).Take()
+}
+func (c card) FindCardByDeletedAt(DeletedAt int64) (result *model.Card, err error) {
+	return c.cardDo.Where(c.DeletedAt.Eq(DeletedAt)).Take()
+}
+func (c card) FindCardByDeletedAtCtx(ctx context.Context, DeletedAt int64) (result *model.Card, err error) {
+	return c.WithContext(ctx).Where(c.DeletedAt.Eq(DeletedAt)).Take()
+}

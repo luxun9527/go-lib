@@ -27,7 +27,8 @@ const (
 
 func initDB() {
 	var err error
-	uri := "mongodb://root:example@192.168.2.159:30011,192.168.2.159:30012,192.168.2.159:30013/?replicaSet=rs0"
+	//uri := "mongodb://root:example@192.168.2.159:30011,192.168.2.159:30012,192.168.2.159:30013/?replicaSet=rs0"
+	uri := "mongodb://root:example@192.168.2.200:30011,192.168.2.200:30012,192.168.2.200:30013/admin?replicaSet=rs0"
 
 	clientOptions := options.Client().
 		ApplyURI(uri).
@@ -127,6 +128,7 @@ func TestInsert(t *testing.T) {
 		user.Age = int(rand.Int31n(100))
 		_collection.InsertOne(context.TODO(), user)
 	}
+	//select {}
 }
 func TestUpdate(t *testing.T) {
 	initDB()

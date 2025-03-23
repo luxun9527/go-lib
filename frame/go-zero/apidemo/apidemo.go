@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/proc"
 	"github.com/zeromicro/go-zero/rest"
 	"go-lib/frame/go-zero/apidemo/internal/config"
@@ -15,7 +16,7 @@ import (
 	"runtime/debug"
 )
 
-var configFile = flag.String("f", "etc/apidemo-api.yaml", "the config file")
+var configFile = flag.String("f", "E:\\demoproject\\go-lib\\frame\\go-zero\\apidemo\\etc\\apidemo-api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -26,10 +27,7 @@ func main() {
 	_ = proc.AddWrapUpListener(func() {
 		log.Println("testsetset")
 	})
-	//go func() {
-	//	f1()
-	//}()
-	//listener()
+	logx.DisableStat()
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 	server.Use(RecoverHandler)
@@ -41,12 +39,13 @@ func main() {
 }
 
 type H map[string]interface{}
+
 // RecoverHandler returns a middleware that recovers if panic happens.
 func RecoverHandler(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if result := recover(); result != nil {
-				log.Printf("result %v stack string(%v)",result,string(debug.Stack()))
+				log.Printf("result %v stack string(%v)", result, string(debug.Stack()))
 				data, _ := json.Marshal(H{"code": 1, "msg": "内部错误"})
 				w.Write(data)
 			}

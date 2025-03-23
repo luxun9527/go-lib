@@ -22,7 +22,6 @@ func TestUpload(t *testing.T) {
 		}
 
 		if err := c.SaveUploadedFile(headers, "./video/"+cast.ToString(time.Now().UnixNano())+"/"+headers.Filename); err != nil {
-			c.JSON(http.StatusOK, gin.H{"error": err.Error()})
 			return
 		}
 		c.String(http.StatusOK, headers.Filename)
