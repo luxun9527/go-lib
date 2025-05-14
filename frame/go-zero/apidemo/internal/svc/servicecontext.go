@@ -38,6 +38,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	//)); err != nil {
 	//	log.Fatal(err)
 	//}
+
 	return &ServiceContext{
 		Config: c,
 	}

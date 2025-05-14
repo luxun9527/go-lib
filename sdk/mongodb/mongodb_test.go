@@ -149,6 +149,18 @@ func TestFindOne(t *testing.T) {
 	initDB()
 	// 创建一个Student变量用来接收查询的结果
 	var result Student
+	//or和and条件
+	/*
+		// 查询：年龄大于18 且 (是管理员 或 有高级权限)
+		db.users.find({
+		  age: { $gt: 18 },
+		  $or: [
+		    { role: "admin" },
+		    { permissions: "premium" }
+		  ]
+		})
+	*/
+
 	filter := bson.D{{"name", "小1兰"}}
 	if err := _collection.FindOne(context.TODO(), filter).Decode(&result); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -157,6 +169,7 @@ func TestFindOne(t *testing.T) {
 			log.Printf("find one data failed %v", err)
 		}
 	}
+
 	log.Printf("Found a single document: %+v\n", result)
 }
 func TestFindMany(t *testing.T) {

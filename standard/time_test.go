@@ -49,5 +49,10 @@ func TestJsonTime(t *testing.T) {
 	unix := time.Now().Unix()
 	log.Println(unix)
 	//loc, _ := time.LoadLocation("Asia/Shanghai")
-	log.Println(time.Unix(unix,0).In(time.UTC).Format("2006-01-02 15:04:05"))
+	log.Println(time.Unix(unix, 0).In(time.UTC).Format("2006-01-02 15:04:05"))
+
+	duration, err := time.ParseDuration("1h")
+	log.Printf("duration = %v, err = %v", duration, err)
+	time.Now().Add(duration)
+	log.Println(time.Now().Add(duration))
 }
