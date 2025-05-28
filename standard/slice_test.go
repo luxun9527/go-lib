@@ -6,6 +6,15 @@ import (
 	"testing"
 )
 
+// 验证问题
+/* 切片的本质
+type slice struct {
+    array unsafe.Pointer // 指向底层数组的指针
+    len   int            // 当前切片的长度（元素个数）
+    cap   int            // 切片的容量（从起始位置到底层数组末尾的元素总数）
+}
+*/
+// 切片传递
 func TestCopy(t *testing.T) {
 	slice1 := []int{1, 2, 3, 4, 5}
 	slice2 := []int{5, 4, 3}
@@ -90,4 +99,30 @@ func TestResize(t *testing.T) {
 		2023/05/23 23:04:42 0xc00000c1f8
 		2023/05/23 23:04:42 0xc00013a6c0
 	*/
+}
+
+func TestPass(t *testing.T) {
+
+	userIdList := make([]int32, 0, 10)
+	//本质是值传递。 len cap属性改变不会影响其他变量。
+	log.Printf("userIdList 地址:%p 值:%v", userIdList, userIdList)
+	userIdList1 := &userIdList
+	log.Printf("userIdList1 地址:%p 值:%v", userIdList1, userIdList1)
+
+	userIdList = append(userIdList, 1)
+
+	log.Printf("修改后 userIdList 地址:%p 值:%v", userIdList, userIdList)
+	log.Printf("修改后 userIdList1 地址:%p 值:%v", userIdList1, userIdList1)
+
+}
+func TestPass2(t *testing.T) {
+
+	userIdList := make([]int32, 4)
+	log.Printf("userIdList 地址:%p 值:%v", userIdList, userIdList)
+	userIdList1 := userIdList
+	log.Printf("userIdList1 地址:%p 值:%v", userIdList1, userIdList1)
+	//本质是值传递。 len cap属性改变不会影响其他变量。
+	userIdList = make([]int32, 0, 3)
+	userIdList = append(userIdList, 1)
+	log.Printf("修改后 userIdList 地址:%p 值:%v", userIdList, userIdList)
 }

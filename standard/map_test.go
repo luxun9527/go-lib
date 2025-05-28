@@ -4,6 +4,7 @@ import (
 	"log"
 	"sync"
 	"testing"
+	"time"
 )
 
 func TestMapAssign(t *testing.T) {
@@ -44,17 +45,23 @@ func TestSyncMap1(t *testing.T) {
 	var m sync.Map
 	m.Store(1, 2)
 	m.Store(2, 3)
-	for  {
+	for {
 		store, loaded := m.LoadOrStore(3, 4)
 		log.Println(store)
-		if loaded{
+		if loaded {
 			break
 		}
 	}
 }
 
 func TestName(t *testing.T) {
-	var s = map[int32]string{1:"1"}
+	var s = map[int32]string{1: "1"}
 	s2 := s[2]
 	log.Println(s2)
+	var format = "2006-01-02T15:04Z07:00"
+	t1, err := time.Parse(format, "2025-05-23T15:00+08:00")
+	if err != nil {
+		log.Printf("err %v", err)
+	}
+	log.Println(t1)
 }

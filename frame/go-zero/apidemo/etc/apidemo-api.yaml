@@ -1,6 +1,7 @@
 Name: apidemo-api
 Host: 0.0.0.0
-Port: 8889
+Port: 8812
+TimeOut: 2000000
 Middlewares:
   Metrics: true
   prometheus: true

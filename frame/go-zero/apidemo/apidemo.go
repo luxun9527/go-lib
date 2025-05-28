@@ -16,7 +16,7 @@ import (
 	"runtime/debug"
 )
 
-var configFile = flag.String("f", "E:\\demoproject\\go-lib\\frame\\go-zero\\apidemo\\etc\\apidemo-api.yaml", "the config file")
+var configFile = flag.String("f", "frame/go-zero/apidemo/etc/apidemo-api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -31,6 +31,14 @@ func main() {
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 	server.Use(RecoverHandler)
+	sseHandler := handler.NewSseHandler()
+
+	server.AddRoute(rest.Route{
+		Method:  http.MethodGet,
+		Path:    "/sse",
+		Handler: sseHandler.Serve,
+	}, rest.WithSSE())
+
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 
