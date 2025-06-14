@@ -31,6 +31,10 @@ const (
 	dbSQLServer  DBType = "sqlserver"
 	dbClickHouse DBType = "clickhouse"
 )
+const (
+	lowerCamelJsonFormat = "lowerCamel"
+	snakeJsonFormat      = "snake"
+)
 
 // CmdParams is command line parameters
 type CmdParams struct {
@@ -49,6 +53,7 @@ type CmdParams struct {
 	FieldTypeMap      string   `yaml:"fileTypeMap"`       // FileTypeMap
 	TablePrefix       string   `yaml:"tablePrefix"`       // FileTypeMap
 	Mode              string   `yaml:"mode"`              // FileTypeMap
+	FieldJsonFormat   string   `yaml:"file"`              // LowerCamel 或者Snake
 
 }
 
@@ -157,6 +162,7 @@ func argParse() *CmdParams {
 	fieldTypeMap := flag.String("fieldMap", "", "字段类型映射,格式 decimal:string;int:int64")
 	tablePrefix := flag.String("tablePrefix", "", "表名前缀")
 	mode := flag.String("mode", "db", "模式可选 file,db")
+	fieldJsonFormat := flag.String("fieldJsonFormat", snakeJsonFormat, "小驼峰或蛇形")
 	flag.Parse()
 	var cmdParse CmdParams
 	if *genPath != "" {
@@ -166,6 +172,7 @@ func argParse() *CmdParams {
 			log.Fatalf("loadConfigFile fail %s", err.Error())
 		}
 	}
+
 	// cmd first
 	if *dsn != "" {
 		cmdParse.DSN = *dsn
@@ -212,6 +219,7 @@ func argParse() *CmdParams {
 	if *mode != "" {
 		cmdParse.Mode = *mode
 	}
+	cmdParse.FieldJsonFormat = *fieldJsonFormat
 
 	return &cmdParse
 }
@@ -246,6 +254,12 @@ func main() {
 		FieldWithIndexTag: config.FieldWithIndexTag,
 		FieldWithTypeTag:  config.FieldWithTypeTag,
 		FieldSignable:     config.FieldSignable,
+	})
+	g.WithJSONTagNameStrategy(func(columnName string) (tagContent string) {
+		if config.FieldJsonFormat == lowerCamelJsonFormat {
+			return toLowerCamel(columnName)
+		}
+		return toSnakeCase(columnName)
 	})
 	if config.TablePrefix != "" {
 		g.WithModelNameStrategy(func(tableName string) (modelName string) {
@@ -299,4 +313,29 @@ func upperFirst(s string) string {
 		return string(unicode.ToUpper(f)) + string(rs[1:])
 	}
 	return s
+}
+
+// toLowerCamel converts snake_case to lowerCamelCase
+func toLowerCamel(s string) string {
+	parts := strings.Split(s, "_")
+	if len(parts) == 0 {
+		return ""
+	}
+	result := parts[0]
+	for i := 1; i < len(parts); i++ {
+		result += upperFirst(parts[i])
+	}
+	return result
+}
+
+// toSnakeCase converts CamelCase to snake_case
+func toSnakeCase(s string) string {
+	var result []rune
+	for i, r := range s {
+		if i > 0 && unicode.IsUpper(r) {
+			result = append(result, '_')
+		}
+		result = append(result, unicode.ToLower(r))
+	}
+	return string(result)
 }

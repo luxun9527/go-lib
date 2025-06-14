@@ -34,7 +34,36 @@ func TestOpenaiFunctionAgent(t *testing.T) {
 	llm, err := openai.New(
 		openai.WithModel("qwen-turbo"),
 		openai.WithBaseURL("https://dashscope.aliyuncs.com/compatible-mode/v1"),
-		openai.WithToken("sk-80270afe521c403faf5a640e17b4dc05"),
+		openai.WithToken("sk-xx"),
+		openai.WithHTTPClient(loggingRoundTripper{}),
+	)
+	if err != nil {
+		log.Println(err)
+	}
+	//search, err := serpapi.New()
+	//if err != nil {
+	//	return err
+	//}
+	agentTools := []tools.Tool{
+		Weather{},
+	}
+	agent := agents.NewOneShotAgent(llm,
+		agentTools,
+		agents.WithMaxIterations(1),
+	)
+
+	//agents.NewConversationalAgent()
+	executor := agents.NewExecutor(agent)
+	question := "北京？"
+	answer, err := chains.Run(context.Background(), executor, question)
+	fmt.Println(answer)
+
+}
+func TestOpenaiFunctionAgent1(t *testing.T) {
+	llm, err := openai.New(
+		openai.WithModel("qwen-turbo"),
+		openai.WithBaseURL("https://dashscope.aliyuncs.com/compatible-mode/v1"),
+		openai.WithToken("sk-xxxxxx"),
 		openai.WithHTTPClient(loggingRoundTripper{}),
 	)
 	if err != nil {
@@ -53,10 +82,49 @@ func TestOpenaiFunctionAgent(t *testing.T) {
 		agents.WithMaxIterations(2),
 	)
 
+	agentAli := &OpenAIFunctionsAgentAli{agent}
+
+	//agents.NewConversationalAgent()
+	executor := agents.NewExecutor(agentAli)
+
+	question := "今天北京天气如何？"
+	answer, err := chains.Run(context.Background(), executor, question)
+	log.Printf("answer: %s", answer)
+
+	question = "上海？"
+	answer, err = chains.Run(context.Background(), executor, question)
+	log.Printf("answer: %s", answer)
+
+}
+func TestOpenaiFunctionConversational(t *testing.T) {
+	llm, err := openai.New(
+		openai.WithModel("qwen-turbo"),
+		openai.WithBaseURL("https://dashscope.aliyuncs.com/compatible-mode/v1"),
+		openai.WithToken("sk-xx"),
+		openai.WithHTTPClient(loggingRoundTripper{}),
+	)
+	if err != nil {
+		log.Println(err)
+	}
+	//search, err := serpapi.New()
+	//if err != nil {
+	//	return err
+	//}
+	agentTools := []tools.Tool{
+		Weather{},
+	}
+
+	agent := agents.NewConversationalAgent(llm,
+		agentTools,
+		agents.WithMaxIterations(2),
+	)
+
+	//agents.NewConversationalAgent()
 	executor := agents.NewExecutor(agent)
 
 	question := "今天北京天气如何？"
 	answer, err := chains.Run(context.Background(), executor, question)
-	fmt.Println(answer)
-
+	log.Printf("answer: %s", answer)
+	answer, err = chains.Run(context.Background(), executor, question)
+	log.Printf("answer: %s", answer)
 }

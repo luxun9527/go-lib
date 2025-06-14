@@ -46,3 +46,20 @@ func (c Weather) Call(ctx context.Context, input string) (string, error) {
 	log.Printf("input %s", input)
 	return "北京天气是23摄氏度，多云", nil
 }
+
+func (c Weather) Parameters() map[string]any {
+	m := map[string]interface{}{
+		"location": map[string]string{
+			"type":        "string",
+			"description": "用户的位置，可以是城市名，也可以为空",
+		},
+		"datetimeType": map[string]string{
+			"type": "string",
+			"description": `用户要查询天气的的时间类型 
+now:实时天气当用户查询今天或现在天气
+day:用户查询的每日天气预报，如明天天气,后天天气
+hour:用户查询24小时，逐小时天气预报，如一小时会不会下雨`,
+		},
+	}
+	return m
+}
