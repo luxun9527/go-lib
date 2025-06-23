@@ -3,9 +3,10 @@ package main
 import (
 	sll "github.com/emirpasic/gods/lists/singlylinkedlist"
 	"github.com/emirpasic/gods/utils"
+	"testing"
 )
 
-func main() {
+func TestSsl(t *testing.T) {
 	list := sll.New()
 	list.Add("a")                         // ["a"]
 	list.Add("c", "b")                    // ["a","c","b"]

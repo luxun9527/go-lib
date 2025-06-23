@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSE 示例</title>
+</head>
+<body>
+<h1>Server-Sent Events 演示</h1>
+<div id="events"></div>
+
+<script>
+    const eventList = document.getElementById('events');
+    // 连接到同一服务器的 SSE 端点
+    const source = new EventSource('http://localhost:8812/sse');
+
+    source.onmessage = function(event) {
+        console.log(event)
+        const newElement = document.createElement("p");
+        newElement.textContent = event.data;
+        eventList.appendChild(newElement);
+    };
+
+    source.onerror = function(e) {
+        console.error("SSE错误:", e);
+        // 自动重连
+        if (e.eventPhase === EventSource.CLOSED) {
+            console.log("连接已关闭");
+        }
+    };
+</script>
+</body>
+</html>

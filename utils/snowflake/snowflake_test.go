@@ -1,6 +1,7 @@
 package snowflake
 
 import (
+	"github.com/gookit/goutil/strutil"
 	"github.com/yitter/idgenerator-go/idgen"
 	"testing"
 )
@@ -12,4 +13,7 @@ func TestSnowflake(t *testing.T) {
 
 	var newId = idgen.NextId()
 	t.Log(newId)
+
+	md5 := strutil.Md5("12345678")
+	t.Log(md5)
 }
